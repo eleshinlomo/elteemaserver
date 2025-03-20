@@ -22,7 +22,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // CORS configuration
 const corsOptions = {
-    origin: 'http://localhost:3000'
+    origin: [
+        'http://localhost:3000', 
+        'https://elteema.vercel.app'
+    ]
 };
 app.use(cors(corsOptions));
 
