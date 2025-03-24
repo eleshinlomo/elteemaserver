@@ -5,9 +5,15 @@
               {
                 "username": "Elesh",
                 'email': 'demo@demo.com',
-                'code': 1234,
                 "cart": [],
-                "isLoggedIn": false
+                "isLoggedIn": false,
+                "role": "user"
+              }, {
+                "username": "Teema",
+                'email': 'demo2@demo.com',
+                "cart": [],
+                "isLoggedIn": false,
+                "role": "user"
               }
           ]
             

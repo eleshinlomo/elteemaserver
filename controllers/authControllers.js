@@ -2,9 +2,14 @@ import { Users} from "../models/data.js"
 
 
 const session = []
+const codeSession = []
 
+
+
+
+// Login Status
 const checkLoginStatus = (email)=>{
-  if(!email) return
+  if(!email) return null
 
   const user = session.find((user)=>user.email === email)
   if(user){
@@ -14,20 +19,30 @@ const checkLoginStatus = (email)=>{
     return user
   }
 
-  console.log('Please login')
-  return
+
+  return null
   
 }
 
+
+// Generate Random Numbers
+function getRandomInt() {
+  let min = 0
+  let max = 100
+  return Math.floor(Math.random() * (max - min + 1));
+}
+
+
+
+
 const generateTwoFactCode = (email)=>{
-  
+
     const generatedCode = 1234
-    for (let i = 0; i < Users.length; i++){
-      if(Users[i].email === email){
-        Users[i].code = generatedCode
-        console.log('New Code',Users[i].code)
-        return Users[i].code
-      }
+    const user = Users.find((user)=>user.email === email)
+    if(user){
+      codeSession.push(Number(generatedCode))
+      return Number(generatedCode)
+     
     }
     return null
     
@@ -37,10 +52,11 @@ export const login = (email)=>{
   if(!email) return 'Please enter a valid email'
   if(!Users) return 'Server error.No userData found'
   const user = Users.find((user)=>user.email === email)
+  console.log('Old User', user || 'No user')
     if (user){
-      generateTwoFactCode(email)
+      const newCode = generateTwoFactCode(email)
      
-      const verifyLink = `http://localhost:3005/api/verifycode?code=${user.code}&email=${user.email}`
+      const verifyLink = `http://localhost:3005/api/verifycode?code=${newCode}&email=${user.email}`
       const emailBody = `Click on the link to login: ${verifyLink}`
       console.log(emailBody)
       
@@ -54,10 +70,11 @@ export const login = (email)=>{
 // Verify 2Factor Code
 export const verifyTwoFactor = (code, email)=>{
        const user = Users.find((user)=>user.email === email)
-       if(user && user.code === code){
+       if(user && codeSession.includes(code)){
         user.isLoggedIn = true
         session.push(user)
         checkLoginStatus(email)
         return 'You are authenticated'
        }
+       return null
 }
