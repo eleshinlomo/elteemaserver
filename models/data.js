@@ -1,9 +1,11 @@
 
-
+   
             // User
-            export const UserData = [
+            export const Users= [
               {
                 "username": "Elesh",
+                'email': 'demo@demo.com',
+                'code': 1234,
                 "cart": [],
                 "isLoggedIn": false
               }
