@@ -7,13 +7,15 @@
                 'email': 'demo@demo.com',
                 "cart": [],
                 "isLoggedIn": false,
-                "role": "user"
+                "role": "user",
+                "createdAt": new Date()
               }, {
                 "username": "Teema",
                 'email': 'demo2@demo.com',
                 "cart": [],
                 "isLoggedIn": false,
-                "role": "user"
+                "role": "user",
+                "createdAt": new Date()
               }
           ]
             

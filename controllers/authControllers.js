@@ -5,6 +5,58 @@ const session = []
 const codeSession = []
 
 
+export const registerUser = (email, username)=>{
+  if(!email || !username) {
+   return {
+    error: 'You must provide email and username',
+    ok: false
+   }
+  }
+
+  
+
+  const emailExist = Users.find((user)=>user.email.toLowerCase() === email.toLowerCase())
+
+  if(emailExist) {
+    return {
+      error: 'This email exists in our database',
+      ok: false
+     }
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return {
+      error: 'Invalid email format',
+      ok: false
+    }
+  }
+
+  const usernameExist = Users.find((user)=>user.username.toLowerCase() === username.toLowerCase())
+  if(usernameExist) {
+    return {
+      error: 'Username already taken',
+      ok: false
+     }
+  }
+
+  const newUser = {
+    "username": username.toLowerCase(),
+    'email': email,
+    "cart": [],
+    "isLoggedIn": false,
+    "role": "user",
+    "createdAt": new Date()
+  }
+
+  Users.push(newUser)
+  return {
+
+      message: 'You are now registered',
+      ok: true
+  } 
+}
+
+
 
 
 // Login Status
@@ -40,7 +92,7 @@ const generateTwoFactCode = (email)=>{
     const generatedCode = 1234
     const user = Users.find((user)=>user.email === email)
     if(user){
-      codeSession.push(Number(generatedCode))
+      codeSession.push(generatedCode)
       return Number(generatedCode)
      
     }

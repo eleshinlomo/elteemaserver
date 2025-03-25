@@ -2,7 +2,7 @@ import express from 'express'
 import { ProductData } from '../models/data.js'
 import { Users} from '../models/data.js'
 import bodyParser  from 'body-parser'
-import { login, verifyTwoFactor } from '../controllers/authControllers.js'
+import { login, registerUser, verifyTwoFactor } from '../controllers/authControllers.js'
 
 const router = express.Router()
 router.use(bodyParser.json());
@@ -21,12 +21,27 @@ router.get('/api', (req, res)=>{
 
 // User Data
 router.get('/api/userdata', (req, res)=>{
-   res.json({user: Users , "ok": true})
+   return res.json({user: Users , "ok": true})
 })
 
 
 router.get('/api/productdata', (req, res)=>{
-    res.json({product: ProductData, "ok": true})
+    return res.json({product: ProductData, "ok": true})
+ })
+
+
+ router.post('/api/register', (req, res)=>{
+    const {email, username} = req.body
+    console.log(email, username)
+    const response = registerUser(email, username)
+
+        if(response.ok){
+            
+            return res.status(200).json(response)
+        }else{
+            return res.status(400).json(response)
+        }
+
  })
 
 
