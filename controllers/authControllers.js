@@ -8,6 +8,8 @@ const codeSession = []
 
 
 
+
+
 // Login Status
 const checkLoginStatus = (email)=>{
   if(!email) return null
@@ -136,9 +138,11 @@ export const login =   async (email) => {
   }
 
   if (user) {
+    const BASE_URL = process.env.BASE_URL
+console.log('BASE URL', BASE_URL)
     // Step 4: Generate the verification code and prepare the email body
     const newCode = generateTwoFactCode(email);
-    const verifyLink = `http://localhost:3005/api/verifycode?code=${newCode}&email=${user.email}`;
+    const verifyLink = `${BASE_URL}/api/verifycode?code=${newCode}&email=${user.email}`;
     const emailBody = `Click on the link to login: ${verifyLink}`;
 
     try {
