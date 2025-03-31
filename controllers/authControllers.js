@@ -183,7 +183,7 @@ export const verifyTwoFactor = (code, email)=>{
        if(user && codeSession.includes(code)){
         user.isLoggedIn = true
         session.push(user)
-        return 'You are authenticated. Although you are authenticated, authorized access to app is currently prevented in BETA mode.'
+        return 'You are authenticated. \n Although you are authenticated, authorized access to app is currently prevented in BETA mode.'
        }
        return null
 }
