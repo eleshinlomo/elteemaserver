@@ -1,26 +1,28 @@
-import nodemailer from 'nodemailer'
+import nodemailer from 'nodemailer';
 
-const sendVerificationEmail = (email, verificationLink) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail', // Use your email service
-        auth: {
-            user: 'your-email@gmail.com', // Your email
-            pass: 'your-email-password', // Your email password or app-specific password
-        },
-    });
+export const sendVerificationEmail = (email, verificationLink) => {
+    return new Promise((resolve, reject) => {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'mgrsconcept@gmail.com',
+                pass: 'gjzdpnoqsnzqhjyd', // Or use an App Password for better security
+            },
+        });
 
-    const mailOptions = {
-        from: 'your-email@gmail.com',
-        to: email,
-        subject: 'Verify Your Account',
-        text: `Click the link to verify your account: ${verificationLink}`,
-    };
+        const mailOptions = {
+            from: 'mgrsconcept@gmail.com',
+            to: email,
+            subject: 'Verify Your Account',
+            text: `Click the link to verify your account: ${verificationLink}`,
+        };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log('Error sending email:', error);
-        } else {
-            console.log('Email sent:', info.response);
-        }
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                reject({ error: error.message, ok: false });  // Reject if there’s an error
+            } else {
+                resolve({ accepted: info.accepted, message: 'Verification email sent!', ok: true });  // Resolve with a success message
+            }
+        });
     });
 };

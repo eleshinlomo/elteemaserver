@@ -45,18 +45,17 @@ router.get('/api/productdata', (req, res)=>{
  })
 
 
- router.post('/api/login', (req, res)=>{
+ router.post('/api/login', async (req, res)=>{
     const {email} = req.body
-    if(email){
-    console.log(email)
-    const response = login(email)
-    console.log(response)
-    res.send(email)
-    return
-    
+    console.log('Email ', email)
+    const response = await login(email)
+    if(response.ok){
+        console.log(response)
+        return res.status(200).json(response)
     }
-
-    res.status(400).send('Please provide email')
+    
+    console.log(response)
+    return res.status(400).json(response) 
 
  })
  

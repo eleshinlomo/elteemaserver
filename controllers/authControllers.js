@@ -1,11 +1,33 @@
 import { Users} from "../models/data.js"
+import { sendVerificationEmail } from "./emailSender.js"
+
 
 
 const session = []
 const codeSession = []
 
 
+
+// Login Status
+const checkLoginStatus = (email)=>{
+  if(!email) return null
+
+  const user = session.find((user)=>user.email === email)
+  if(user){
+    console.log(`User session is valid for ${user.email}`)
+    console.log(`There are ${session.length} users currently logged in`)
+    console.log(user)
+    return user
+  }
+
+
+  return null
+  
+}
+
+
 export const registerUser = (email, username)=>{
+
   if(!email || !username) {
    return {
     error: 'You must provide email and username',
@@ -13,7 +35,13 @@ export const registerUser = (email, username)=>{
    }
   }
 
-  
+  const usernameExist = Users.find((user)=>user.username.toLowerCase() === username.toLowerCase())
+  if(usernameExist) {
+    return {
+      error: 'Username already taken',
+      ok: false
+     }
+  }
 
   const emailExist = Users.find((user)=>user.email.toLowerCase() === email.toLowerCase())
 
@@ -31,13 +59,7 @@ export const registerUser = (email, username)=>{
     }
   }
 
-  const usernameExist = Users.find((user)=>user.username.toLowerCase() === username.toLowerCase())
-  if(usernameExist) {
-    return {
-      error: 'Username already taken',
-      ok: false
-     }
-  }
+
 
   const newUser = {
     "username": username.toLowerCase(),
@@ -59,22 +81,7 @@ export const registerUser = (email, username)=>{
 
 
 
-// Login Status
-const checkLoginStatus = (email)=>{
-  if(!email) return null
 
-  const user = session.find((user)=>user.email === email)
-  if(user){
-    console.log(`User session is valid for ${user.email}`)
-    console.log(`There are ${session.length} users currently logged in`)
-    console.log(user)
-    return user
-  }
-
-
-  return null
-  
-}
 
 
 // Generate Random Numbers
@@ -100,24 +107,71 @@ const generateTwoFactCode = (email)=>{
     
 }
 
-export const login = (email)=>{
-  if(!email) return 'Please enter a valid email'
-  if(!Users) return 'Server error.No userData found'
-  const user = Users.find((user)=>user.email === email)
-  console.log('Old User', user || 'No user')
-    if (user){
-      const newCode = generateTwoFactCode(email)
-     
-      const verifyLink = `http://localhost:3005/api/verifycode?code=${newCode}&email=${user.email}`
-      const emailBody = `Click on the link to login: ${verifyLink}`
-      console.log(emailBody)
+export const login =   async (email) => {
+  // Step 1: Check if the email is valid
+  if (!email || email.trim() === '') {
+    return { error: 'Please provide your email', ok: false };
+  }
+
+  console.log(email);
+
+  // Step 2: Validate email format
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return {
+      error: 'Invalid email format',
+      ok: false
+    };
+  }
+
+  // Step 3: Find the user by email
+  const user = Users.find((user) => user.email === email);
+  console.log('User exists', user || 'No user');
+
+  if(!user){
+    // Step 9: If user is not found
+  return {
+    error: 'Invalid credential',
+    ok: false
+  };
+  }
+
+  if (user) {
+    // Step 4: Generate the verification code and prepare the email body
+    const newCode = generateTwoFactCode(email);
+    const verifyLink = `http://localhost:3005/api/verifycode?code=${newCode}&email=${user.email}`;
+    const emailBody = `Click on the link to login: ${verifyLink}`;
+
+    try {
+      // Step 5: Send the email and check if it was accepted
       
-      return 'We have sent a verification code to your email'
-    }else{
-      return 'Invalid credential'
+      const senderResponse =  await sendVerificationEmail(email, emailBody)
+      console.log(senderResponse);
+       if(senderResponse && senderResponse.ok){
+        return {
+          message: `We sent a verification code to your email. \n Ensure to also check your spam to find it.`,
+          ok: true
+        }
+      }else{
+          
+        return {
+          message: 'Problem sending email',
+          ok: true
+        }
+      }
+      
+    } catch (err) {
+      // Step 8: If there's an error sending the email
+      console.log(err);
+      return {
+        error: 'Error while sending the verification email',
+        ok: false
+      };
     }
+  }
+
   
-}
+};
+
 
 // Verify 2Factor Code
 export const verifyTwoFactor = (code, email)=>{
@@ -125,7 +179,6 @@ export const verifyTwoFactor = (code, email)=>{
        if(user && codeSession.includes(code)){
         user.isLoggedIn = true
         session.push(user)
-        checkLoginStatus(email)
         return 'You are authenticated'
        }
        return null

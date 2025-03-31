@@ -11,7 +11,15 @@
                 "createdAt": new Date()
               }, {
                 "username": "Teema",
-                'email': 'demo2@demo.com',
+                'email': 'mgrsconcept@gmail.com',
+                "cart": [],
+                "isLoggedIn": false,
+                "role": "user",
+                "createdAt": new Date()
+              },
+              {
+                "username": "Teema",
+                'email': 'eleshphily@gmail.com',
                 "cart": [],
                 "isLoggedIn": false,
                 "role": "user",
