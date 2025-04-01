@@ -27,7 +27,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 const corsOptions = {
     origin: [
         'http://localhost:3000', 
-        'https://elteema.vercel.app'
+        'https://elteema.vercel.app',
+        'https://myafros.com',
+        'https://store.myafros.com'
     ]
 };
 app.use(cors(corsOptions));
