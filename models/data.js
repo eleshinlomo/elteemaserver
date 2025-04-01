@@ -1,5 +1,18 @@
 
-   
+            // Anonymous Users
+            export const anonymousUsers = [
+                {
+                    "username": "",
+                    'email': 'anonymous@demo.com',
+                    "cart": [],
+                    "isLoggedIn": false,
+                    "role": "user",
+                    "createdAt": new Date()
+                  }
+               
+            ]
+
+
             // User
             export const Users= [
               {
@@ -29,7 +42,7 @@
             
 
           //  Product
-            export const ProductData = [
+            export const Products = [
                 {   id: 1,
                     name: 'African Drum',
                     price: 10000,
@@ -127,9 +140,9 @@
             
                 },
                 {   id: 9,
-                    name: 'Woman Portrait by Fikor',
+                    name: 'Woman Afro Wig',
                     price: 4000,
-                    src: '/images/products/women/shoes/sexy_red_flamingo.png',
+                    src: '/images/products/women/hairs/afro.png',
                     quantity: 1,
                     star: 5,
                     totalVotes: 9,
@@ -139,9 +152,9 @@
             
                 },
                 {   id: 10,
-                    name: 'Woman Portrait by Fikor',
+                    name: 'African Wig',
                     price: 3000,
-                    src: '/images/products/women/shoes/sexy_red_flamingo.png',
+                    src: '/images/products/women/hairs/afro_wig.jpg',
                     quantity: 1,
                     star: 5,
                     totalVotes: 11,
@@ -150,7 +163,7 @@
                     category: 'trending'
             
                 },
-                {   id: 12,
+                {   id: 11,
                     name: 'Woman Bead',
                     price: 15000,
                     src: '/images/products/women/shoes/sexy_red_flamingo.png',
@@ -162,7 +175,7 @@
                     category: 'bestseller'
             
                 },
-                {   id: 13,
+                {   id: 12,
                     name: 'Woman Bead',
                     price: 5000,
                     src: '/images/products/women/shoes/sexy_red_flamingo.png',

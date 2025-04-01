@@ -1,5 +1,5 @@
 import express from 'express'
-import { ProductData } from '../models/data.js'
+import { Products } from '../models/data.js'
 import { Users} from '../models/data.js'
 import bodyParser  from 'body-parser'
 import { login, registerUser, verifyTwoFactor } from '../controllers/authControllers.js'
@@ -25,8 +25,8 @@ router.get('/api/userdata', (req, res)=>{
 })
 
 
-router.get('/api/productdata', (req, res)=>{
-    return res.json({product: ProductData, "ok": true})
+router.get('/api/products', (req, res)=>{
+    return res.json({products: Products, "ok": true})
  })
 
 
