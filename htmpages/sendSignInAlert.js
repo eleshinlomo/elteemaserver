@@ -116,7 +116,7 @@ const SignInAlertEnailBody = `
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">PETROLAGE</div>
+            <div class="logo">${SERVICE}</div>
             <h1>New Sign-In Detected</h1>
         </div>
         
