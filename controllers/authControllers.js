@@ -1,31 +1,21 @@
+import { sendNewUserAlert } from "../htmpages/sendNewUserAlert.js";
+import { sendSignInAlert } from "../htmpages/sendSignInAlert.js";
+import { sendVerifyEmail } from "../htmpages/sendVerifyEmail.js";
 import { Users} from "../models/data.js"
-import { sendVerificationEmail } from "./emailSender.js"
-
-
-
-const session = []
-const codeSession = []
+import jwt from 'jsonwebtoken';
 
 
 
 
 
-// Login Status
-const checkLoginStatus = (email)=>{
-  if(!email) return null
-
-  const user = session.find((user)=>user.email === email)
-  if(user){
-    console.log(`User session is valid for ${user.email}`)
-    console.log(`There are ${session.length} users currently logged in`)
-    console.log(user)
-    return user
-  }
+let session = []
+let codeSession = []
+const HOME_URL = process.env.HOME_URL;
 
 
-  return null
-  
-}
+
+
+
 
 
 export const registerUser = (email, username)=>{
@@ -61,18 +51,32 @@ export const registerUser = (email, username)=>{
     }
   }
 
-
+  let count = 0
+  const id = Number(count + 1)
 
   const newUser = {
+    id: id,
+    authCode: '0',
     "username": username.toLowerCase(),
     'email': email,
     "cart": [],
     "isLoggedIn": false,
-    "role": "user",
-    "createdAt": new Date()
+    "type": "customer",
+    "role": email === 'seun.olatunji2@gmail.com' ? "admin" : "customer",
+    "service": "Petrolage Store",
+    "createdAt": new Date(),
+    name: 'yourname',
+    phone: '23480000000',
+    address: '1234 Lagos Mainland, Lagos, Nigeria',
+    newsletter: true,
+    
   }
 
   Users.push(newUser)
+  const user = Users.find((u)=>u.email === email)
+  if(user){
+    sendNewUserAlert(user)
+  }
   return {
 
       message: 'You are now registered',
@@ -83,39 +87,24 @@ export const registerUser = (email, username)=>{
 
 
 
+const generateToken = (userId, email) => {
+  return jwt.sign({ 
+    id: userId,
+    email: email
+  }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN
+  });
+};
 
 
 
-// Generate Random Numbers
-function getRandomInt() {
-  let min = 0
-  let max = 100
-  return Math.floor(Math.random() * (max - min + 1));
-}
 
 
-
-
-const generateTwoFactCode = (email)=>{
-
-    const generatedCode = 1234
-    const user = Users.find((user)=>user.email === email)
-    if(user){
-      codeSession.push(generatedCode)
-      return Number(generatedCode)
-     
-    }
-    return null
-    
-}
-
-export const login =   async (email) => {
+export const login = async (email) => {
   // Step 1: Check if the email is valid
   if (!email || email.trim() === '') {
     return { error: 'Please provide your email', ok: false };
   }
-
-  console.log(email);
 
   // Step 2: Validate email format
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -127,63 +116,111 @@ export const login =   async (email) => {
 
   // Step 3: Find the user by email
   const user = Users.find((user) => user.email === email);
-  console.log('User exists', user || 'No user');
-
-  if(!user){
-    // Step 9: If user is not found
-  return {
-    error: 'Invalid credential',
-    ok: false
-  };
-  }
-
-  if (user) {
-    const BASE_URL = process.env.BASE_URL
-console.log('BASE URL', BASE_URL)
-    // Step 4: Generate the verification code and prepare the email body
-    const newCode = generateTwoFactCode(email);
-    const verifyLink = `${BASE_URL}/api/verifycode?code=${newCode}&email=${user.email}`;
-    const emailBody = `Click on the link to login: ${verifyLink}`;
-
-    try {
-      // Step 5: Send the email and check if it was accepted
-      
-      const senderResponse =  await sendVerificationEmail(email, emailBody)
-      console.log(senderResponse);
-       if(senderResponse && senderResponse.ok){
-        return {
-          message: `We sent a verification code to your email. \n Ensure to also check your spam to find it.`,
-          ok: true
-        }
-      }else{
-          
-        return {
-          message: 'Problem sending email',
-          ok: true
-        }
-      }
-      
-    } catch (err) {
-      // Step 8: If there's an error sending the email
-      console.log(err);
-      return {
-        error: 'Error while sending the verification email',
-        ok: false
-      };
-    }
+  
+  if (!user) {
+    return {
+      error: 'Invalid credential',
+      ok: false
+    };
   }
 
   
+  const newCode = generateToken(user.id, user.email);
+  const updatedUser = {...user, authCode: newCode}
+  session.push(updatedUser);
+
+  const verifyLink = `${HOME_URL}?code=${newCode}&email=${user.email.toLowerCase()}`;
+  
+  try {
+   
+
+    const senderResponse = await sendVerifyEmail(user.email, verifyLink, user.username);
+    
+    if (senderResponse?.ok) {
+      return {
+        message: `We sent a verification code to your email. \n Ensure to also check your spam to find it.`,
+        ok: true
+      };
+    } else {
+      return {
+        error: 'Problem sending email',
+        ok: false
+      };
+    }
+  } catch (err) {
+    console.log(err);
+    return {
+      error: 'Error while sending the verification email',
+      ok: false
+    };
+  }
 };
 
 
+
+
+const verifyToken = (token) => {
+  return jwt.verify(token, process.env.JWT_SECRET);
+};
+
+
+
+
 // Verify 2Factor Code
-export const verifyTwoFactor = (code, email)=>{
-       const user = Users.find((user)=>user.email === email)
-       if(user && codeSession.includes(code)){
-        user.isLoggedIn = true
-        session.push(user)
-        return 'You are authenticated. \n Although you are authenticated, authorized access to app is currently prevented in BETA mode.'
-       }
-       return null
-}
+export const verifyTwoFactor = (code, email) => {
+  try {
+    
+    const user = Users.find(user => user.email === email);
+    if (!user) {
+      return {error: 'user not found in Users', ok: false}
+    }
+
+    if(code === "0") return {error: 'code is 0', ok: false}
+
+    const decoded = verifyToken(code);
+    if (!decoded || decoded.email !== email) {
+      return {error: 'code decoding failed', ok: false}
+    }
+
+
+  
+
+    let userInSession = session.find((user)=> user.authCode === code)
+    if(!userInSession){
+      return {error: 'code not found in session', ok: false}
+    }
+
+    userInSession = {...userInSession, isLoggedIn: true}
+    sendSignInAlert(userInSession)
+    console.log('Successfully logged in', userInSession)
+    return {
+      ok: true,
+      message: 'Authentication successful',
+      user: {
+        id: userInSession.id,
+        authCode: userInSession.authCode,
+        username: userInSession.username,
+        email: userInSession.email,
+        isLoggedIn: userInSession.isLoggedIn,
+        cart: userInSession.cart,
+        type: userInSession.type,
+        createdAt: userInSession.createdAt,
+        cookiesAccepted: userInSession.cookiesAccepted,
+        name: '',
+        phone: '',
+        address: '',
+        newsletter: true,
+      }
+    };
+  } catch (err) {
+    console.error('Verification error:', err);
+    return {error: err, ok: false};
+  }
+};
+
+
+
+
+
+
+

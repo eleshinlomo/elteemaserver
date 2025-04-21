@@ -1,5 +1,6 @@
 import express from 'express';
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
+import 'dotenv/config'
 import cors from 'cors';
 import apiRoutes from './routes/api.js'; // Ensure the file extension is included
 import path from 'path'
@@ -7,8 +8,8 @@ import { fileURLToPath } from 'url'
 
 
 // Load environment variables
-dotenv.config();
-
+// dotenv.config();
+console.log('Loaded STORE_URL:', process.env.STORE_URL);
 
 // Derive __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);

@@ -1,3 +1,18 @@
+           
+
+           export const admin = {
+                       id:1,
+                       authCode: '0',
+                       username: 'Elesh',
+                       email: 'seun.olatunji2@gmail.com',
+                       type: 'admin',
+                       role: 'admin',
+                       cookiesAccepted: false,
+                       name: '',
+                       phone: '',
+                       address: '',
+                       newsletter: true,
+                   }
 
             // Anonymous Users
             export const anonymousUsers = [
@@ -6,8 +21,14 @@
                     'email': 'anonymous@demo.com',
                     "cart": [],
                     "isLoggedIn": false,
-                    "role": "user",
-                    "createdAt": new Date()
+                    "type": 'customer',
+                    "role": "customer",
+                    "createdAt": new Date(),
+                    "cookiesAccepted": false,
+                    name: '',
+                    phone: '',
+                    address: '',
+                    newsletter: true,
                   }
                
             ]
@@ -15,28 +36,51 @@
 
             // User
             export const Users= [
-              {
+              { id:1,
+                authCode: '0',
                 "username": "Elesh",
                 'email': 'demo@demo.com',
                 "cart": [],
                 "isLoggedIn": false,
-                "role": "user",
-                "createdAt": new Date()
+                "type": 'customer',
+                "role": "customer",
+                "createdAt": new Date(),
+                "cookiesAccepted": false,
+                name: '',
+                phone: '',
+                address: '',
+                newsletter: true,
               }, {
+                id:2,
+                authCode: '0',
                 "username": "Teema",
                 'email': 'mgrsconcept@gmail.com',
                 "cart": [],
                 "isLoggedIn": false,
-                "role": "user",
-                "createdAt": new Date()
+                "type": 'customer',
+                "role": "customer",
+                "createdAt": new Date(),
+                "cookiesAccepted": false,
+                name: '',
+                phone: '',
+                address: '',
+                newsletter: true,
               },
-              {
+              { 
+                id:3,
+                authCode: '0',
                 "username": "Teema",
                 'email': 'eleshphily@gmail.com',
                 "cart": [],
                 "isLoggedIn": false,
-                "role": "user",
-                "createdAt": new Date()
+                "type": 'customer',
+                "role": "customer",
+                "createdAt": new Date(),
+                "cookiesAccepted": false,
+                name: '',
+                phone: '',
+                address: '',
+                newsletter: true,
               }
           ]
             

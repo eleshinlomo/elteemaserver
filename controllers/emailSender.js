@@ -1,20 +1,21 @@
 import nodemailer from 'nodemailer';
+const SERVICE = process.env.SERVICE
 
-export const sendVerificationEmail = (email, verificationLink) => {
+export const sendEmail = (recieverEmail, emailBody, messageSubject) => {
     return new Promise((resolve, reject) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 user: 'mgrsconcept@gmail.com',
-                pass: 'gjzdpnoqsnzqhjyd', // Or use an App Password for better security
+                pass: 'gjzdpnoqsnzqhjyd', 
             },
         });
 
         const mailOptions = {
-            from: 'mgrsconcept@gmail.com',
-            to: email,
-            subject: 'Verify Your Account',
-            text: `Click the link to verify your account: ${verificationLink}`,
+            from: `${SERVICE} <support@petrolagegroup.com>`,
+            to: recieverEmail,
+            subject: messageSubject,
+            html: emailBody,
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
