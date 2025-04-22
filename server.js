@@ -29,7 +29,8 @@ const corsOptions = {
     origin: [
         'http://localhost:3000', 
         'https://myafros.com',
-        'https://elteema.com'
+        'https://elteema.com',
+        'https://www.elteema.com'
     ]
 };
 app.use(cors(corsOptions));
@@ -39,5 +40,5 @@ app.use('/', apiRoutes);
 
 // Start the server
 app.listen(PORT, () => {
-    console.log('Server running on port', `http://localhost:${PORT}`);
+    console.log('Server running on ', `http://localhost:${PORT}`);
 });
