@@ -30,7 +30,7 @@ const corsOptions = {
         'http://localhost:3000', 
         'https://elteema.vercel.app',
         'https://myafros.com',
-        'https://store.myafros.com'
+        'https://elteema.com'
     ]
 };
 app.use(cors(corsOptions));
@@ -40,5 +40,5 @@ app.use('/', apiRoutes);
 
 // Start the server
 app.listen(PORT, () => {
-    console.log('Server running on port', PORT);
+    console.log('Server running on port', `http://localhost:${PORT}`);
 });

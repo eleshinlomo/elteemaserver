@@ -190,9 +190,9 @@
             
                 },
                 {   id: 9,
-                    name: 'Woman Afro Wig',
+                    name: 'Goat',
                     price: 4000,
-                    src: '/images/products/women/hairs/afro.png',
+                    src: '/images/products/animals/goat.jpg',
                     quantity: 1,
                     star: 5,
                     totalVotes: 9,
