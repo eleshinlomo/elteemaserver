@@ -2,7 +2,7 @@ import express from 'express'
 import { admin, Products } from '../models/data.js'
 import { Users} from '../models/data.js'
 import bodyParser  from 'body-parser'
-import { login, registerUser, verifyTwoFactor} from '../controllers/authControllers.js'
+import { login, logout, registerUser, verifyTwoFactor} from '../controllers/authControllers.js'
 import { authCodeErrorHtml, } from '../htmpages/error.js'
 import { notAuthenticatedHtml } from '../htmpages/notAuthenticatedHtml.js'
 
@@ -72,7 +72,8 @@ router.get('/api/products', (req, res)=>{
  
 
 
- router.post('/api/verifycode', (req, res) => {
+ router.post('/api/verifycode', async (req, res) => {
+  try{
     const { authCode, authEmail } = req.body;
     
     if (!authCode || !authEmail) {
@@ -80,7 +81,7 @@ router.get('/api/products', (req, res)=>{
     }
     console.log(authCode, authEmail)
     const response = verifyTwoFactor(authCode, authEmail);
-    
+    console.log('Response', response)
     if (response?.ok) {
       // Return the token in JSON (frontend will store it)
       return res.status(200).json({
@@ -91,18 +92,28 @@ router.get('/api/products', (req, res)=>{
     } else {
       return res.status(401).json({ error: response.error});
     }
+  }catch(err){
+    console.log('ERR', err)
+    return {ok: false, error: err}
+  }
   });
   
 
 // Logout
-router.get('/api/logout', (req, res)=>{
-    res.clearCookie('ptlgAuth', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        // domain: process.env.COOKIE_DOMAIN, // must match set cookie
-        path: '/'
-    });
+router.post('/api/logout', async (req, res)=>{
+   try{
+    const {email} = req.body
+    if(!email)return {ok: false, error: 'missing user email'}
+
+      const response = logout(email)
+      if(response.ok){
+        res.status(200).json(response.message)
+      }
+    
+    res.status(400).send(response)
+   }catch(err){
+    return {ok: false, error: err}
+   }
 })
 
 export default router

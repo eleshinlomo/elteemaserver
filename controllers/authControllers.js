@@ -68,6 +68,7 @@ export const registerUser = (email, username)=>{
     name: 'yourname',
     phone: '23480000000',
     address: '1234 Lagos Mainland, Lagos, Nigeria',
+    state: '',
     newsletter: true,
     
   }
@@ -206,15 +207,42 @@ export const verifyTwoFactor = (code, email) => {
         type: userInSession.type,
         createdAt: userInSession.createdAt,
         cookiesAccepted: userInSession.cookiesAccepted,
-        name: '',
-        phone: '',
-        address: '',
+        name: user.name,
+        phone: user.phone,
+        address: user.address,
+        state: user.state,
         newsletter: true,
       }
     };
   } catch (err) {
     console.error('Verification error:', err);
     return {error: err, ok: false};
+  }
+};
+
+// Logout
+export const logout = (email) => {
+  // Find user index instead of the user object
+  try{
+  const userIndex = session.findIndex((user) => user.email === email);
+  
+  if (userIndex !== -1) {
+    // Create a new array without the user
+    const updatedSession = session.filter((user) => user.email !== email);
+    session = updatedSession; // Replace the session
+    console.log(' Successfully logged out')
+    return {
+      ok: true,
+      message: 'User has been logged out successfully'
+    };
+  }
+
+  return {
+    ok: false,
+    error: 'User not found in session'
+  };
+  }catch(err){
+    return {ok: false, error: err}
   }
 };
 

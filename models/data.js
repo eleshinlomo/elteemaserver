@@ -11,7 +11,9 @@
                        name: '',
                        phone: '',
                        address: '',
+                       state: '',
                        newsletter: true,
+                       
                    }
 
             // Anonymous Users
@@ -28,6 +30,7 @@
                     name: '',
                     phone: '',
                     address: '',
+                    state: '',
                     newsletter: true,
                   }
                
@@ -49,6 +52,7 @@
                 name: '',
                 phone: '',
                 address: '',
+                state: '',
                 newsletter: true,
               }, {
                 id:2,
@@ -64,6 +68,7 @@
                 name: '',
                 phone: '',
                 address: '',
+                state: '',
                 newsletter: true,
               },
               { 
@@ -80,6 +85,7 @@
                 name: '',
                 phone: '',
                 address: '',
+                state: '',
                 newsletter: true,
               }
           ]
