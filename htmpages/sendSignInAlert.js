@@ -123,7 +123,7 @@ const SignInAlertEnailBody = `
         <p>Hi, <span class="highlight">${capitalize(user.username)}</span>,</p>
         
         <div class="alert-box">
-            <p>We noticed a new sign-in to your account on <strong>${today}</strong>.</p>
+            <p>We noticed a new sign-in to your account on <strong>${new Date}</strong>.</p>
         </div>
         
         <p>If this was you, you don't need to do anything.</p>
