@@ -104,7 +104,7 @@
                     star: 3,
                     totalVotes: 200,
                     isAdded: false,
-                    category: 'new'
+                    category: ['new']
             
                 },
                 {   id: 2,
@@ -118,7 +118,7 @@
                     totalVotes: 8,
                     numOfItemsSold: 10,
                     isAdded: false,
-                    category: 'new'
+                    category: ['new', 'women accessories']
             
                 },
                 {   id: 3,
@@ -132,7 +132,7 @@
                      totalVotes: 7,
                      numOfItemsSold: 3,
                      isAdded: false,
-                     category: 'trending'
+                     category: ['trending',  'men clothings']
             
                 },
                 {   id: 4,
@@ -146,7 +146,7 @@
                     totalVotes: 5,
                     numOfItemsSold: 5,
                     isAdded: false,
-                    category: 'trending'
+                    category: ['trending', 'men clothings']
             
                 },
                 {   id: 5,
@@ -160,7 +160,7 @@
                     totalVotes: 5,
                     numOfItemsSold: 6,
                     isAdded: false,
-                    category: 'new'
+                    category:  ['new', 'women shoes']
             
                 },
                 {   id: 6,
@@ -174,7 +174,7 @@
                     totalVotes: 5,
                     numOfItemsSold: 4,
                     isAdded: false,
-                    category: 'bestseller'
+                    category: ['bestseller', 'women clothings']
             
                 },
                 {   id: 7,
@@ -188,7 +188,7 @@
                      totalVotes: 2,
                      numOfItemsSold: 9,
                     isAdded: false,
-                    category: 'bestseller'
+                    category: ['bestseller', 'women accessories']
             
                 },
                 {   id: 8,
@@ -202,7 +202,7 @@
                     totalVotes: 1,
                     numOfItemsSold: 8,
                     isAdded: false,
-                    category: 'bestseller'
+                    category: ['bestseller', 'art']
             
                 },
                 {   id: 9,
@@ -216,7 +216,7 @@
                     totalVotes: 9,
                     numOfItemsSold: 8,
                     isAdded: false,
-                    category: 'trending'
+                    category: ['trending', 'farm produce']
             
                 },
                 {   id: 10,
@@ -230,7 +230,7 @@
                     totalVotes: 11,
                     numOfItemsSold: 7,
                     isAdded: false,
-                    category: 'trending'
+                    category: ['trending', 'women accessories']
             
                 },
                 {   id: 11,
@@ -244,7 +244,7 @@
                     totalVotes: 5,
                     numOfItemsSold: 5,
                     isAdded: false,
-                    category: 'bestseller'
+                    category: ['bestseller', 'women accessories']
             
                 },
                 {   id: 12,
@@ -258,7 +258,7 @@
                     totalVotes: 5,
                     numOfItemsSold: 10,
                     isAdded: false,
-                    category: 'new'
+                    category:  ['new', 'women accessories']
             
                 },
             ]
