@@ -108,7 +108,7 @@
             
                 },
                 {   id: 2,
-                    name: 'Dope Chick',
+                    name: 'Dope Chick red heels',
                     price: 12000,
                     src: '/images/products/women/shoes/freaky_heels.png',
                     quantity: 1,
@@ -118,7 +118,7 @@
                     totalVotes: 8,
                     numOfItemsSold: 10,
                     isAdded: false,
-                    category: ['new', 'women accessories']
+                    category: ['new', 'women shoes']
             
                 },
                 {   id: 3,
@@ -234,7 +234,7 @@
             
                 },
                 {   id: 11,
-                    name: 'Woman Bead',
+                    name: 'Chima red shoe',
                     price: 15000,
                     src: '/images/products/women/shoes/sexy_red_flamingo.png',
                     quantity: 1,
@@ -244,11 +244,11 @@
                     totalVotes: 5,
                     numOfItemsSold: 5,
                     isAdded: false,
-                    category: ['bestseller', 'women accessories']
+                    category: ['bestseller', 'women shoes']
             
                 },
                 {   id: 12,
-                    name: 'Woman Bead',
+                    name: 'Red horse shoes',
                     price: 5000,
                     src: '/images/products/women/shoes/sexy_red_flamingo.png',
                     quantity: 1,
@@ -258,7 +258,7 @@
                     totalVotes: 5,
                     numOfItemsSold: 10,
                     isAdded: false,
-                    category:  ['new', 'women accessories']
+                    category:  ['new', 'women shoes']
             
                 },
             ]
