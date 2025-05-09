@@ -216,7 +216,7 @@
                     totalVotes: 9,
                     numOfItemsSold: 8,
                     isAdded: false,
-                    category: ['trending', 'farm produce']
+                    category: [ 'livestock']
             
                 },
                 {   id: 10,
