@@ -104,7 +104,8 @@
                     star: 3,
                     totalVotes: 200,
                     isAdded: false,
-                    category: ['new']
+                    category: ['new', 'art'],
+                    productPageVisits: 235
             
                 },
                 {   id: 2,
@@ -118,7 +119,8 @@
                     totalVotes: 8,
                     numOfItemsSold: 10,
                     isAdded: false,
-                    category: ['new', 'women shoes']
+                    category: ['new', 'women shoes'],
+                    productPageVisits: 422
             
                 },
                 {   id: 3,
@@ -132,7 +134,8 @@
                      totalVotes: 7,
                      numOfItemsSold: 3,
                      isAdded: false,
-                     category: ['trending',  'men clothings']
+                     category: ['trending',  'men clothings', 'agbada', 'men natives'],
+                     productPageVisits: 334
             
                 },
                 {   id: 4,
@@ -146,7 +149,8 @@
                     totalVotes: 5,
                     numOfItemsSold: 5,
                     isAdded: false,
-                    category: ['trending', 'men clothings']
+                    category: ['trending', 'men clothings', 'agbada', 'men natives'],
+                    productPageVisits: 599
             
                 },
                 {   id: 5,
@@ -160,7 +164,8 @@
                     totalVotes: 5,
                     numOfItemsSold: 6,
                     isAdded: false,
-                    category:  ['new', 'women shoes']
+                    category:  ['new', 'women shoes'],
+                    productPageVisits: 157
             
                 },
                 {   id: 6,
@@ -174,7 +179,8 @@
                     totalVotes: 5,
                     numOfItemsSold: 4,
                     isAdded: false,
-                    category: ['bestseller', 'women clothings']
+                    category: ['bestseller', 'women clothings', 'women natives', 'ankara'],
+                    productPageVisits: 267
             
                 },
                 {   id: 7,
@@ -188,7 +194,8 @@
                      totalVotes: 2,
                      numOfItemsSold: 9,
                     isAdded: false,
-                    category: ['bestseller', 'women accessories']
+                    category: ['bestseller', 'women accessories'],
+                    productPageVisits: 345
             
                 },
                 {   id: 8,
@@ -202,7 +209,8 @@
                     totalVotes: 1,
                     numOfItemsSold: 8,
                     isAdded: false,
-                    category: ['bestseller', 'art']
+                    category: ['bestseller', 'art'],
+                    productPageVisits: 432
             
                 },
                 {   id: 9,
@@ -216,7 +224,8 @@
                     totalVotes: 9,
                     numOfItemsSold: 8,
                     isAdded: false,
-                    category: [ 'livestock']
+                    category: [ 'livestock & animal'],
+                    productPageVisits: 236
             
                 },
                 {   id: 10,
@@ -230,7 +239,8 @@
                     totalVotes: 11,
                     numOfItemsSold: 7,
                     isAdded: false,
-                    category: ['trending', 'women accessories']
+                    category: ['trending', 'women accessories'],
+                    productPageVisits: 117
             
                 },
                 {   id: 11,
@@ -244,7 +254,8 @@
                     totalVotes: 5,
                     numOfItemsSold: 5,
                     isAdded: false,
-                    category: ['bestseller', 'women shoes']
+                    category: ['bestseller', 'women shoes'],
+                    productPageVisits: 256
             
                 },
                 {   id: 12,
@@ -258,7 +269,8 @@
                     totalVotes: 5,
                     numOfItemsSold: 10,
                     isAdded: false,
-                    category:  ['new', 'women shoes']
+                    category:  ['new', 'women shoes'],
+                    productPageVisits: 178
             
                 },
             ]
