@@ -90,6 +90,7 @@
               }
           ]
             
+        
 
           //  Product
             export const Products = [
@@ -179,7 +180,7 @@
                     totalVotes: 5,
                     numOfItemsSold: 4,
                     isAdded: false,
-                    category: ['bestseller', 'women clothings', 'women natives', 'ankara'],
+                    category: ['bestseller', 'women clothings', 'women natives', 'women ankara'],
                     productPageVisits: 267
             
                 },
