@@ -2,10 +2,13 @@ import express from 'express';
 // import dotenv from 'dotenv';
 import 'dotenv/config'
 import cors from 'cors';
-import apiRoutes from './routes/api.js'; // Ensure the file extension is included
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+// Routes middleware
+import authRoutes from './routes/auth.js'; 
+import productRoutes from './routes/products.js'
+import userRoutes from './routes/users.js'
 
 // Load environment variables
 // dotenv.config();
@@ -36,7 +39,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Routes
-app.use('/', apiRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
+
 
 // Start the server
 app.listen(PORT, () => {

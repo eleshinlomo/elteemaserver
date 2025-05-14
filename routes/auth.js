@@ -1,10 +1,8 @@
 import express from 'express'
-import { admin, Products } from '../models/data.js'
+import { Products } from '../models/data.js'
 import { Users} from '../models/data.js'
 import bodyParser  from 'body-parser'
-import { login, logout, registerUser, verifyTwoFactor} from '../controllers/authControllers.js'
-import { authCodeErrorHtml, } from '../htmpages/error.js'
-import { notAuthenticatedHtml } from '../htmpages/notAuthenticatedHtml.js'
+import { login, logout, verifyTwoFactor} from '../controllers/authControllers.js'
 import { sendContactMessage } from '../htmpages/sendContactMessage.js'
 
 const router = express.Router()
@@ -23,41 +21,11 @@ router.get('/api', (req, res)=>{
     res.send('API is working perfectly')
 })
 
-// User Data
-router.get('/api/userdata', (req, res)=>{
-    const {userid} = req.query
-    const user = Users.find((u)=> u.id === userid)
-
-if(user?.role === 'admin'){
-    
-   return res.json({data: Users , "ok": true})
-    }
-
-    return res.status(400).json({error: 'Permission denied', ok: false})
-})
 
 
-router.get('/api/products', (req, res)=>{
-    return res.json({products: Products, "ok": true})
- })
 
 
- router.post('/api/register', (req, res)=>{
-    const {email, username} = req.body
-    console.log(email, username)
-    const response = registerUser(email, username)
-
-        if(response.ok){
-            
-            return res.status(200).json(response)
-        }else{
-            return res.status(400).json(response)
-        }
-
- })
-
-
- router.post('/api/login', async (req, res)=>{
+ router.post('/login', async (req, res)=>{
     const {email} = req.body
     console.log('Email ', email)
     const response = await login(email)
@@ -90,7 +58,7 @@ router.get('/api/products', (req, res)=>{
  
 
 
- router.post('/api/verifycode', async (req, res) => {
+ router.post('/verifycode', async (req, res) => {
   try{
     const { authCode, authEmail } = req.body;
     
@@ -118,7 +86,7 @@ router.get('/api/products', (req, res)=>{
   
 
 // Logout
-router.post('/api/logout', async (req, res)=>{
+router.post('/logout', async (req, res)=>{
    try{
     const {email} = req.body
     if(!email)return {ok: false, error: 'missing user email'}
