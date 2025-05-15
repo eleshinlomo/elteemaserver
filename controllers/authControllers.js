@@ -122,25 +122,11 @@ export const verifyTwoFactor = (code, email) => {
     userInSession = {...userInSession, isLoggedIn: true}
     sendSignInAlert(userInSession)
     console.log('Successfully logged in', userInSession)
+    const {role, ...restOfUser} = user
     return {
       ok: true,
       message: 'Authentication successful',
-      user: {
-        id: userInSession.id,
-        authCode: userInSession.authCode,
-        username: userInSession.username,
-        email: userInSession.email,
-        isLoggedIn: userInSession.isLoggedIn,
-        cart: userInSession.cart,
-        type: userInSession.type,
-        createdAt: userInSession.createdAt,
-        cookiesAccepted: userInSession.cookiesAccepted,
-        name: user.name,
-        phone: user.phone,
-        address: user.address,
-        state: user.state,
-        newsletter: true,
-      }
+      user: restOfUser
     };
   } catch (err) {
     console.error('Verification error:', err);
