@@ -119,14 +119,14 @@ export const verifyTwoFactor = (code, email) => {
       return {error: 'code not found in session', ok: false}
     }
 
-    userInSession = {...userInSession, isLoggedIn: true}
+    const updatedUser = {...userInSession, isLoggedIn: true}
     sendSignInAlert(userInSession)
     console.log('Successfully logged in', userInSession)
-    const {role, ...restOfUser} = user
+    
     return {
       ok: true,
       message: 'Authentication successful',
-      user: restOfUser
+      user: updatedUser
     };
   } catch (err) {
     console.error('Verification error:', err);
