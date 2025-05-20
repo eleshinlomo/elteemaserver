@@ -120,13 +120,15 @@ export const verifyTwoFactor = (code, email) => {
     }
 
     const updatedUser = {...userInSession, isLoggedIn: true}
+    const userIndex = Users.findIndex((index)=> index.id === user.id)
+    Users[userIndex] = updatedUser
     sendSignInAlert(userInSession)
     console.log('Successfully logged in', userInSession)
     
     return {
       ok: true,
       message: 'Authentication successful',
-      user: updatedUser
+      data: updatedUser
     };
   } catch (err) {
     console.error('Verification error:', err);

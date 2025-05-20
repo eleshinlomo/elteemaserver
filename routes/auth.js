@@ -72,8 +72,8 @@ router.get('/api', (req, res)=>{
       // Return the token in JSON (frontend will store it)
       return res.status(200).json({
         ok: response.ok,
-        token: response.verifiedToken,
-        user: response.user,
+        token: response.data.verifiedToken,
+        data: response.data,
       });
     } else {
       return res.status(401).json({ error: response.error});

@@ -73,6 +73,7 @@ export const registerUser = (email, username)=>{
 
 
 export const updateUser = (id, payload)=>{
+  try{
     if(!payload) {
         return {ok: false, error: 'No payload'}
     }
@@ -87,11 +88,16 @@ export const updateUser = (id, payload)=>{
    let userIndex = Users.findIndex((user)=>user.id === id)
 
    if(userIndex === -1){
-    throw new Error(`User with ${id} not found`)
+     return {ok: false, error: `User with ${id} not found`}
    }
 
    const updatedUser = {...Users[userIndex], username: username, firstname: firstname, lastname: lastname, email: email, 
     phone: phone, address: address, location: location}
-   Users[userIndex] = {...Users[userIndex], updatedUser}
-   return Users[userIndex]
+    // Save new user to the database
+    Users[userIndex] = updatedUser
+
+   return {ok: true, data: updatedUser, message: 'success'}
+  }catch(err){
+    console.log(err)
+  }
 }
