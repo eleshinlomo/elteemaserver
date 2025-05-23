@@ -43,7 +43,7 @@ if(user?.role === 'admin'){
 
 //  Update User
  router.post('/updateuser', async (req, res)=>{
-    const {id,username,firstname,lastname,email,phone,address,location} = req.body
+    const {id,username,firstname,lastname,email,phone,address, gender, city, state} = req.body
 
         const payload = {
         id,
@@ -53,7 +53,7 @@ if(user?.role === 'admin'){
         email,
         phone,
         address,
-        location
+        gender, city, state
 
         }
 

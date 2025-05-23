@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url'
 import authRoutes from './routes/auth.js'; 
 import productRoutes from './routes/products.js'
 import userRoutes from './routes/users.js'
+import messageRoutes from './routes/message.js'
 
 // Load environment variables
 // dotenv.config();
@@ -42,6 +43,7 @@ app.use(cors(corsOptions));
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/message', messageRoutes);
 
 
 // Start the server

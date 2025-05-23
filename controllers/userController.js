@@ -53,7 +53,9 @@ export const registerUser = (email, username)=>{
     lastname: '',
     phone: '',
     address: '',
-    location: '',
+    orders: [], //When items in the cart are paid for, they move to orders.
+    gender: '',
+    city: '',
     state: '',
     isNewsletter: true,
     
@@ -63,6 +65,7 @@ export const registerUser = (email, username)=>{
   const user = Users.find((u)=>u.email === email)
   if(user){
     sendNewUserAlert(user)
+    console.log('NEW USER', user)
   }
   return {
 
@@ -77,6 +80,8 @@ export const updateUser = (id, payload)=>{
     if(!payload) {
         return {ok: false, error: 'No payload'}
     }
+
+    console.log('PAYLOAD', payload)
     const {
         username,
         firstname,
@@ -84,7 +89,10 @@ export const updateUser = (id, payload)=>{
         email,
         phone,
         address,
-        location} = payload
+        gender,
+        city,
+        state
+      } = payload
    let userIndex = Users.findIndex((user)=>user.id === id)
 
    if(userIndex === -1){
@@ -92,7 +100,7 @@ export const updateUser = (id, payload)=>{
    }
 
    const updatedUser = {...Users[userIndex], username: username, firstname: firstname, lastname: lastname, email: email, 
-    phone: phone, address: address, location: location}
+    phone: phone, address: address, city: city, state: state, gender: gender}
     // Save new user to the database
     Users[userIndex] = updatedUser
 
