@@ -1,6 +1,4 @@
 import express from 'express'
-import { Products } from '../models/data.js'
-import { Users} from '../models/data.js'
 import bodyParser  from 'body-parser'
 import { login, logout, verifyTwoFactor} from '../controllers/authControllers.js'
 import { sendContactMessage } from '../htmpages/sendContactMessage.js'

@@ -1,6 +1,6 @@
 import { sendEmail } from "../controllers/emailSender.js";
 import { capitalize } from "../utils.js";
-import { admin } from "../models/data.js";
+import { admin } from "../models/userData.js";
 
 const SERVICE = process.env.SERVICE
 export const sendNewUserAlert = async (user) => {

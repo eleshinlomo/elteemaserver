@@ -1,7 +1,7 @@
 
 import { sendEmail } from "../controllers/emailSender.js";
 import { capitalize } from "../utils.js";
-import { admin } from "../models/data.js";
+import { admin } from "../models/userData.js";
 
 const SERVICE = process.env.SERVICE
 export const sendContactMessage = async (name, email, message) => {

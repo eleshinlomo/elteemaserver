@@ -1,5 +1,5 @@
 import express from 'express'
-import { Users} from '../models/data.js'
+import { Users} from '../models/userData.js'
 import bodyParser  from 'body-parser'
 import { registerUser, updateUser } from '../controllers/userController.js'
 

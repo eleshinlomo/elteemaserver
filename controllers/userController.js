@@ -1,5 +1,5 @@
 import { sendNewUserAlert } from "../htmpages/sendNewUserAlert.js";
-import { Users } from "../models/data.js";
+import { Users } from "../models/userData.js";
 
 
 export const registerUser = (email, username)=>{
@@ -56,6 +56,7 @@ export const registerUser = (email, username)=>{
     orders: [], //When items in the cart are paid for, they move to orders.
     gender: '',
     city: '',
+    store: [],
     state: '',
     isNewsletter: true,
     

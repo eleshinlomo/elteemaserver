@@ -1,54 +1,11 @@
-           
 
-           export const admin = {
-                       id:1,
-                       authCode: '0',
-                       username: 'Elesh',
-                       email: 'seun.olatunji2@gmail.com',
-                       type: 'admin',
-                       role: 'admin',
-                       cookiesAccepted: false,
-                       name: '',
-                       phone: '',
-                       address: '',
-                       state: '',
-                       newsletter: true,
-                       
-                   }
-
-            // Anonymous Users
-            export const anonymousUsers = [
-                {
-                    "username": "",
-                    'email': 'anonymous@demo.com',
-                    "cart": [],
-                    "isLoggedIn": false,
-                    "type": 'customer',
-                    "role": "customer",
-                    "createdAt": new Date(),
-                    "cookiesAccepted": false,
-                    name: '',
-                    phone: '',
-                    address: '',
-                    state: '',
-                    newsletter: true,
-                  }
-               
-            ]
-
-
-            // User
-            export const Users= [
-             
-          ]
-            
-        
-
-          //  Product
+//  Product
             export const Products = [
                 {   id: 1,
                     name: 'African Drum',
                     price: 10000,
+                    condition: 'new',
+                    deliver: 'pickup-only',
                     src: '/images/products/african_drum.jpg',
                     numOfItemsSold: 8,
                     description: 'Experience the soul-stirring rhythm of Africa with our authentic African Drum, handcrafted by skilled artisans using premium materials. Each drum carries the rich heritage and vibrant energy of African culture, perfect for musical performances, cultural celebrations, or as a stunning decorative piece.',
@@ -66,6 +23,8 @@
                 {   id: 2,
                     name: 'Dope Chick red heels',
                     price: 12000,
+                    condition: 'new',
+                    deliver: 'yes',
                     src: '/images/products/women/shoes/freaky_heels.png',
                     quantity: 0,
                     stock: 1,
@@ -83,6 +42,8 @@
                 {   id: 3,
                     name: 'Senator Bassey',
                     price: 8000,
+                    condition: 'new',
+                    deliver: 'yes',
                     src: '/images/products/men/clothes/senator_bassey.jpg',
                     quantity: 0,
                     stock: 1,
@@ -100,6 +61,8 @@
                 {   id: 4,
                     name: 'Igara Chicken',
                     price: 5000,
+                    condition: 'new',
+                    deliver: 'pickup-only',
                     src: '/images/products/men/clothes/men_lace.jpg',
                     quantity: 0,
                     stock: 1,
@@ -116,6 +79,8 @@
                 },
                 {   id: 5,
                     name: 'Sexy Red Flamingo',
+                    condition: 'used',
+                    deliver: 'yes',
                     price: 6000,
                     src: '/images/products/women/shoes/sexy_red_flamingo.png',
                     quantity: 0,
@@ -134,6 +99,8 @@
                 {   id: 6,
                     name: 'Ankara Shanti',
                     price: 20000,
+                    condition: 'new',
+                    deliver: 'pickup-only',
                     src: '/images/products/women/clothes/ankara.jpg',
                     quantity: 0,
                     stock: 1,
@@ -151,6 +118,8 @@
                 {   id: 7,
                     name: 'Woman Bead',
                     price: 10000,
+                    condition: 'used',
+                    deliver: 'yes',
                     src: '/images/products/beads.jpg',
                     quantity: 0,
                     stock: 1,
@@ -168,6 +137,8 @@
                 {   id: 8,
                     name: 'Woman Portrait by Fikor',
                     price: 7000,
+                    condition: 'new',
+                    deliver: 'pickup-only',
                     src: '/images/products/woman_portrait.jpg',
                     quantity: 0,
                     stock: 1,
@@ -185,6 +156,8 @@
                 {   id: 9,
                     name: 'Goat',
                     price: 4000,
+                    condition: 'new',
+                    deliver: 'yes',
                     src: '/images/products/animals/goat.jpg',
                     quantity: 0,
                     stock: 1,
@@ -202,6 +175,8 @@
                 {   id: 10,
                     name: 'African Wig',
                     price: 3000,
+                    condition: 'new',
+                    deliver: 'pickup-only',
                     src: '/images/products/women/hairs/afro_wig.jpg',
                     quantity: 1,
                     stock: 1,
@@ -219,6 +194,8 @@
                 {   id: 11,
                     name: 'Chima red shoe',
                     price: 15000,
+                    condition: 'new',
+                    deliver: 'yes',
                     src: '/images/products/women/shoes/sexy_red_flamingo.png',
                     quantity: 1,
                     stock: 1,
@@ -236,6 +213,8 @@
                 {   id: 12,
                     name: 'Red horse shoes',
                     price: 5000,
+                    condition: 'used',
+                    deliver: 'yes',
                     src: '/images/products/women/shoes/sexy_red_flamingo.png',
                     quantity: 1,
                     stock: 1,
@@ -251,8 +230,3 @@
             
                 },
             ]
-
-
-          
-            
-            

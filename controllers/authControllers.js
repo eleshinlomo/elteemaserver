@@ -1,7 +1,7 @@
 
 import { sendSignInAlert } from "../htmpages/sendSignInAlert.js";
 import { sendVerifyEmail } from "../htmpages/sendVerifyEmail.js";
-import { Users} from "../models/data.js"
+import { Users} from "../models/userData.js"
 import jwt from 'jsonwebtoken';
 
 

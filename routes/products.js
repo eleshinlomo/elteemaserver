@@ -1,5 +1,5 @@
 import express from 'express'
-import { Products } from '../models/data.js'
+import { Products } from '../models/productData.js'
 import bodyParser  from 'body-parser'
 
 const router = express.Router()
