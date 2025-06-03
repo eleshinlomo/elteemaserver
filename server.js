@@ -11,6 +11,7 @@ import productRoutes from './routes/products.js'
 import userRoutes from './routes/users.js'
 import messageRoutes from './routes/message.js'
 import feedRoutes from './routes/feedsRoute.js'
+// import paymentRoutes from './routes/payments.js'
 
 // Load environment variables
 // dotenv.config();
@@ -46,6 +47,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/feed', feedRoutes);
+// app.use('/api/payment', paymentRoutes);
 
 
 // Start the server

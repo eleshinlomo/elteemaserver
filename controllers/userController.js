@@ -37,9 +37,11 @@ export const registerUser = (email, username)=>{
 
   let count = 0
   const id = Number(count + 1)
+  const maxId = Users.length > 0 ? Math.max(...Users.map((user)=>user.id)) : 0
 
   const newUser = {
     id: id,
+    userId: maxId + 1,
     authCode: '0',
     "username": username.toLowerCase(),
     'email': email.toLowerCase(),

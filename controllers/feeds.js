@@ -23,7 +23,7 @@ export const createFeed = (payload)=>{
     const newFeed = {
         userId: userId, 
         username: Users[userIndex].username,
-        feedId: maxId, 
+        feedId: newFeedId, 
         text: text, 
         imageUrl: imageUrl,
         likes: 0,
