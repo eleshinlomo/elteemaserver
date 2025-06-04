@@ -10,15 +10,15 @@ const HOME_URL = process.env.HOME_URL
 
 
 // Create feed
-router.post('/createfeed', (req, res)=>{
+router.post('/createfeed', async (req, res)=>{
     const {userId, text, imageUrl} = req.body
     const payload = {userId, text, imageUrl}
-    const response = createFeed(payload)
-    console.log(response)
+    const response = await createFeed(payload)
+  
     if(response.ok){
     return res.status(200).json(response)
     }
-    return res.status(401).json({'ok': false, 'error': response.error})
+    return res.status(401).json(response)
  })
 
 // Get feeds

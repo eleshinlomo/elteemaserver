@@ -88,20 +88,19 @@ export const login = async (email) => {
 
 
 
-const verifyToken = (token) => {
+export const verifyToken = (token) => {
   return jwt.verify(token, process.env.JWT_SECRET);
 };
 
 
 
-
-// Verify 2Factor Code
+// Verify 2Factor Code is used for fisrst login
 export const verifyTwoFactor = (code, email) => {
   try {
     
     const user = Users.find(user => user.email === email);
     if (!user) {
-      return {error: 'user not found in Users', ok: false}
+      return {error: 'user not found', ok: false}
     }
 
     if(code === "0") return {error: 'code is 0', ok: false}
@@ -110,9 +109,6 @@ export const verifyTwoFactor = (code, email) => {
     if (!decoded || decoded.email !== email) {
       return {error: 'code decoding failed', ok: false}
     }
-
-
-  
 
     let userInSession = session.find((user)=> user.authCode === code)
     if(!userInSession){
@@ -161,6 +157,27 @@ export const logout = (email) => {
     return {ok: false, error: err}
   }
 };
+
+// Persist authentication
+export const persistLogin = (token, email)=>{
+    if(!email.trim() || !token){
+      return {"ok":false, error: 'Problem with either email or token'}
+    }
+
+    const decoded = verifyToken(token)
+     if (!decoded || decoded.email !== email) {
+      return {error: 'code decoding failed', ok: false}
+    }
+
+    const user = session.find((user)=>user.email === email)
+
+    if(user){
+      return {ok: true, message: 'User is authenticated'}
+    }
+
+    return {ok: false, error: 'User authentication cannot be verified'}
+}
+
 
 
 

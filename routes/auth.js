@@ -1,7 +1,7 @@
 import express from 'express'
 import bodyParser  from 'body-parser'
-import { login, logout, verifyTwoFactor} from '../controllers/authControllers.js'
-import { sendContactMessage } from '../htmpages/sendContactMessage.js'
+import { login, logout, persistLogin, verifyToken, verifyTwoFactor} from '../controllers/authControllers.js'
+
 
 const router = express.Router()
 router.use(bodyParser.json());
@@ -34,6 +34,21 @@ router.get('/api', (req, res)=>{
     
     console.log(response)
     return res.status(400).json(response) 
+
+ })
+
+  router.post('/persistlogin', async (req, res)=>{
+    const {email, token} = req.body
+    console.log('Email ', email)
+   
+    const response = await persistLogin(token, email)
+    if(response.ok){
+        console.log(response)
+        return res.status(200).json(response)
+    }
+    
+    console.log(response)
+    return res.status(401).json(response) 
 
  })
 

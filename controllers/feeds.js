@@ -1,13 +1,14 @@
 import { Users } from "../models/userData.js"
 import { Feeds } from "../models/feedData.js"
+import { getStore } from "../utils.js"
 
 
 // Add feed
-export const createFeed = (payload)=>{
+export const createFeed = async (payload)=>{
     
     const {userId, text, imageUrl } = payload
     if(!userId || !text || !imageUrl){
-        console.log('userId', userId, 'text', text,'src', imageUrl)
+       
          return {ok: false, error: 'Problem with payload'}
     }
     const userIndex = Users.findIndex((user)=> user.id === userId)
@@ -20,6 +21,9 @@ export const createFeed = (payload)=>{
         : 0;
 
     const newFeedId = maxId + 1
+    const userStore = await getStore(Users[userIndex].username)
+      const store = userStore || [] // array
+    
     const newFeed = {
         userId: userId, 
         username: Users[userIndex].username,
@@ -29,8 +33,8 @@ export const createFeed = (payload)=>{
         likes: 0,
         createdAt: new Date(),
         comments: [], 
-        store: Users[userIndex].store
+        store: store
     }
     Feeds.push(newFeed)
-    return {ok: true, message: 'Feed has been created'}
+    return {ok: true, message: 'Feed has been created', data: newFeed}
 }

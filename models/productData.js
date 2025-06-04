@@ -2,6 +2,7 @@
 //  Product
             export const Products = [
                 {   id: 1,
+                    addedBy: 'elesh',
                     name: 'African Drum',
                     price: 10000,
                     condition: 'new',
@@ -21,6 +22,7 @@
             
                 },
                 {   id: 2,
+                    addedBy: 'elesh',
                     name: 'Dope Chick red heels',
                     price: 12000,
                     condition: 'new',
@@ -40,6 +42,8 @@
             
                 },
                 {   id: 3,
+                    addedBy: 'elesh',
+                    addedBy: 'elesh',
                     name: 'Senator Bassey',
                     price: 8000,
                     condition: 'new',
@@ -59,6 +63,7 @@
             
                 },
                 {   id: 4,
+                    addedBy: 'elesh',
                     name: 'Igara Chicken',
                     price: 5000,
                     condition: 'new',
@@ -78,6 +83,7 @@
             
                 },
                 {   id: 5,
+                    addedBy: 'elesh',
                     name: 'Sexy Red Flamingo',
                     condition: 'used',
                     deliver: 'yes',
@@ -97,6 +103,7 @@
             
                 },
                 {   id: 6,
+                    addedBy: 'elesh',
                     name: 'Ankara Shanti',
                     price: 20000,
                     condition: 'new',
@@ -116,6 +123,7 @@
             
                 },
                 {   id: 7,
+                    addedBy: 'elesh',
                     name: 'Woman Bead',
                     price: 10000,
                     condition: 'used',
@@ -135,6 +143,7 @@
             
                 },
                 {   id: 8,
+                    addedBy: 'elesh',
                     name: 'Woman Portrait by Fikor',
                     price: 7000,
                     condition: 'new',
@@ -154,6 +163,7 @@
             
                 },
                 {   id: 9,
+                    addedBy: 'elesh',
                     name: 'Goat',
                     price: 4000,
                     condition: 'new',
@@ -173,6 +183,7 @@
             
                 },
                 {   id: 10,
+                    addedBy: 'elesh',
                     name: 'African Wig',
                     price: 3000,
                     condition: 'new',
@@ -192,6 +203,7 @@
             
                 },
                 {   id: 11,
+                    addedBy: 'elesh',
                     name: 'Chima red shoe',
                     price: 15000,
                     condition: 'new',
@@ -211,6 +223,7 @@
             
                 },
                 {   id: 12,
+                    addedBy: 'elesh',
                     name: 'Red horse shoes',
                     price: 5000,
                     condition: 'used',
