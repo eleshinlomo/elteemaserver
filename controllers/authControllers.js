@@ -132,7 +132,7 @@ export const verifyTwoFactor = (code, email) => {
   }
 };
 
-// Logout
+// Logout.
 export const logout = (email) => {
   // Find user index instead of the user object
   try{
