@@ -26,7 +26,7 @@ export const createFeed = async (payload)=>{
     
     const newFeed = {
         userId: userId, 
-        username: Users[userIndex].username,
+        postedBy: Users[userIndex].username,
         feedId: newFeedId, 
         text: text, 
         imageUrl: imageUrl,
