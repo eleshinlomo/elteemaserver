@@ -42,7 +42,7 @@ if(user?.role === 'admin'){
 
 
 //  Update User
- router.post('/updateuser', async (req, res)=>{
+ router.put('/updateuser', async (req, res)=>{
     const {id,username,firstname,lastname,email,phone,address, gender, city, state} = req.body
 
         const payload = {

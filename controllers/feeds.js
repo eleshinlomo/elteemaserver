@@ -22,7 +22,7 @@ export const createFeed = async (payload)=>{
 
     const newFeedId = maxId + 1
     const userStore = await getStore(Users[userIndex].username)
-      const store = userStore || [] // array
+      const store = userStore || null
     
     const newFeed = {
         userId: userId, 
