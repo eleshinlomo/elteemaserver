@@ -1,6 +1,28 @@
-// import express from 'express'
-// import bodyParser  from 'body-parser'
+import express from 'express'
+import bodyParser  from 'body-parser'
+import { updatePaymentMethod } from '../controllers/payments.js';
 // import { initializePayment } from '../controllers/payments.js';
+
+
+const router = express.Router()
+router.use(bodyParser.json());
+const HOME_URL = process.env.HOME_URL
+
+
+//  update payment method
+ router.put('/updatepaymentmethod', async (req, res)=>{
+  const {userId, paymentEmail, paymentMethod} = req.body
+  const payload = {userId, paymentEmail, paymentMethod}
+ 
+  const response = await updatePaymentMethod(payload)
+  if(response.ok){
+      console.log(response)
+      return res.status(200).json(response)
+  }
+  
+  return res.status(400).json(response) 
+
+})
 
 
 // const router = express.Router()
@@ -61,4 +83,4 @@
 
 // // })
 
-// export default router
+export default router

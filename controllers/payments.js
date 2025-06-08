@@ -1,7 +1,42 @@
 
-import PaystackPop from '@paystack/inline-js'
+// import PaystackPop from '@paystack/inline-js'
 
-const PAYSTACK_API = process.env.PAYSTACK_API
+import { Users } from "../models/userData.js"
+
+// const PAYSTACK_API = process.env.PAYSTACK_API
+
+
+export const updatePaymentMethod = (payload)=>{
+  try{
+
+    const { userId, paymentEmail, paymentMethod} = payload
+     console.log('PAYLOAD', payload)
+
+     if(!userId) {
+        return {ok: false, error: 'User not found'}
+    }
+
+    if(!paymentEmail || !paymentMethod) {
+        return {ok: false, error: 'No payload'}
+    }
+
+    
+   let userIndex = Users.findIndex((user)=>user.id === userId)
+
+   if(userIndex === -1){
+     return {ok: false, error: `User with ${id} not found`}
+   }
+
+   Users[userIndex] = {...Users[userIndex], paymentEmail: paymentEmail, paymentMethod: paymentMethod}
+    // Save new user to the database
+  
+     console.log('UPDATED PAYMENT', Users[userIndex])
+   return {ok: true, data: Users[userIndex], message: 'success'}
+  }catch(err){
+    console.log(err)
+  }
+}
+
 
 export const initializePayment = async (email, amount) => {
   if(typeof window !== 'undefined') {

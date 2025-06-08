@@ -43,14 +43,16 @@ export const registerUser = (email, username)=>{
     id: id,
     userId: maxId + 1,
     authCode: '0',
-    "username": username.toLowerCase(),
-    'email': email.toLowerCase(),
-    "cart": [],
-    "isLoggedIn": false,
-    "type": "customer",
-    "role": 'customer',
-    "service": "Petrolage Store",
-    "createdAt": new Date(),
+    username: username.toLowerCase(),
+    email: email.toLowerCase(),
+    paymentEmail: '', // Used to pay for orders in stores.
+    paymentMethod: '', // Used to pay for orders in stores.
+    cart: [],
+    isLoggedIn: false,
+    type: "customer",
+    role: 'customer',
+    service: "Petrolage Store",
+    createdAt: new Date(),
     firstname: '',
     lastname: '',
     phone: '',
@@ -107,7 +109,7 @@ export const updateUser = (id, payload)=>{
     // Save new user to the database
     Users[userIndex] = updatedUser
 
-   return {ok: true, data: updatedUser, message: 'success'}
+   return {ok: true, data: Users[userIndex], message: 'success'}
   }catch(err){
     console.log(err)
   }
