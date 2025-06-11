@@ -160,6 +160,7 @@ export const logout = (email) => {
 
 // Persist authentication
 export const persistLogin = (token, email)=>{
+  try{
     if(!email.trim() || !token){
       return {"ok":false, error: 'Problem with either email or token'}
     }
@@ -176,6 +177,9 @@ export const persistLogin = (token, email)=>{
     }
 
     return {ok: false, error: 'User authentication cannot be verified'}
+  }catch(err){
+    console.log(err)
+  }
 }
 
 

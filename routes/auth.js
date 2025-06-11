@@ -38,17 +38,21 @@ router.get('/api', (req, res)=>{
  })
 
   router.post('/persistlogin', async (req, res)=>{
+    try{
     const {email, token} = req.body
     console.log('Email ', email)
    
     const response = await persistLogin(token, email)
-    if(response.ok){
+    if(response?.ok){
         console.log(response)
         return res.status(200).json(response)
     }
     
     console.log(response)
     return res.status(401).json(response) 
+  }catch(err){
+    console.log('ERROR', err)
+  }
 
  })
 
