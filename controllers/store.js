@@ -1,6 +1,4 @@
 import { Users } from "../models/userData.js"
-import { Feeds } from "../models/feedData.js"
-import { getStore } from "../utils.js"
 import { Stores } from "../models/storeData.js"
 
 
@@ -39,7 +37,7 @@ export const createStore = async (payload)=>{
         : 0;
 
     const newStoreId = maxId + 1
-    const userStore = await getStore(Users[userIndex].username)
+    
 
     
     
@@ -55,11 +53,34 @@ export const createStore = async (payload)=>{
         items: []
     }
     Stores.push(newStore)
-    const newUserStore = Stores.find((store)=>store.userId === userId)
-
-
+   
     // update user with the new store
-    Users[userIndex].store = newUserStore
-    const updatedUser = Users[userIndex]
-    return {ok: true, message: 'Store has been created', data: updatedUser}
+    Users[userIndex].store = newStore
+    console.log('UPDATED USER STORE', Users[userIndex])
+    return {ok: true, message: 'Store has been created', data: Users[userIndex]}
+}
+
+// Update Store
+export const updateUserStoreItems = (userId, newItem)=>{
+  if(!userId){
+    return 'No username found'
+  }
+   const user = Users.find((user)=> user.id === userId)
+   
+   user.store.items.push(newItem)
+   return user
+}
+
+// Get store
+export const getUserStore = (username)=>{
+  if(!username.trim()){
+    return 'No username found'
+  }
+   const user = Users.find((user)=> user?.username.toLowerCase() === username.toLowerCase())
+   
+   const userStore = user.store
+   if(userStore){
+    return userStore
+   }
+   return null
 }

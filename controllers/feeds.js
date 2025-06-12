@@ -1,6 +1,6 @@
 import { Users } from "../models/userData.js"
 import { Feeds } from "../models/feedData.js"
-import { getStore } from "../utils.js"
+import { getUserStore } from "./store.js"
 
 
 // Add feed
@@ -21,7 +21,7 @@ export const createFeed = async (payload)=>{
         : 0;
 
     const newFeedId = maxId + 1
-    const userStore = await getStore(Users[userIndex].username)
+    const userStore = await getUserStore(Users[userIndex].username)
       const store = userStore || null
     
     const newFeed = {

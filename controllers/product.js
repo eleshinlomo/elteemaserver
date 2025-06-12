@@ -1,21 +1,9 @@
 import { Products } from "../models/productData.js"
 import { Users } from "../models/userData.js"
+import { getUserStore, updateUserStoreItems } from "./store.js"
 
        
-        // Returns products array for user store items
-        const getUserProducts =  (userId)=>{
-            if(!userId){
-                return {ok: false, error: 'User must be logged in to add product'}
-            }
-            let storeProducts = []
-            const userStoreProducts = Products?.filter((products)=>products.userId === userId)
-            if(userStoreProducts?.length > 0){
-                storeProducts = userStoreProducts
-            }else{
-                storeProducts = []
-            }
-            return {ok: true, message: 'Product has been added', data: storeProducts}
-        }
+      
 
 
 
@@ -53,12 +41,12 @@ import { Users } from "../models/userData.js"
             
             
             // A check to confirm user does not have existing store
-            const productExist = Products.find((product)=>product.productName === productName)
+            const productExist = Products.find((product)=>product.productName.trim() === productName.trim())
             if(productExist){
-                return {ok: false, error: 'You with same name already exists.'}
+                return {ok: false, error: 'A product with same name already exists.'}
             }
             const maxId = Products.length > 0 
-                ? Math.max(...Products.map(product => product.id)) 
+                ? Math.max(...Products.map(product => product.productId)) 
                 : 0;
         
             const newProductId = maxId + 1
@@ -80,14 +68,15 @@ import { Users } from "../models/userData.js"
                 description,
                 store, //Object
                 star: 5,
-                totalVotes: 0,
+                totalVotes: 5,
                 numOfItemsSold: 0,
                 isAdded: false,
                 orderStatus:['processing', 'shipped', 'completed'],
                 productPageVisits: 256 
             }
             Products.push(newProduct)
-            const UpdatedUserStore = getUserProducts(userId)
-            Users[userIndex].store.items = UpdatedUserStore.data
-            return {ok: true, message: 'Product was added to your store', data: Users[userIndex]}
+            const user = updateUserStoreItems(userId, newProduct)
+            if(!user) return {ok: false,error: 'Unable to add item to store'}
+
+            return {ok: true, message: 'Product was added to your store', data: user}
         }

@@ -8,14 +8,3 @@ export const capitalize = (text) => {
   return text; // Return the original input if it's not a string
 };
 
-export const getStore = (username)=>{
-  if(!username.trim()){
-    return 'No username found'
-  }
-   const user = Users.find((user)=> user?.username.toLowerCase() === username.toLowerCase())
-   const userStore = user.store
-   if(userStore){
-    return userStore
-   }
-   return null
-}
