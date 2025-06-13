@@ -12,6 +12,8 @@ export const createStore = async (payload)=>{
         logo,
         phone,
         email,
+        city,
+        state
     } = payload
 
     console.log('STORE PAYLOAD', payload)
@@ -50,7 +52,10 @@ export const createStore = async (payload)=>{
         logo: logo,
         phone: phone,
         email: email.toLowerCase(),
-        items: []
+        city,
+        state,
+        items: [],
+        
     }
     Stores.push(newStore)
    

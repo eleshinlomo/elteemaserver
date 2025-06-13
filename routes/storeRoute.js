@@ -20,6 +20,8 @@ router.post('/createstore', async (req, res)=>{
         logo,
         phone,
         email,
+        city,
+        state
     } = req.body
 
     const payload = {
@@ -29,6 +31,8 @@ router.post('/createstore', async (req, res)=>{
         logo,
         phone,
         email,
+        city,
+        state
     }
 
     const response = await createStore(payload)
