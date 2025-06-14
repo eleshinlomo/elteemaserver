@@ -7,13 +7,13 @@ import { dirname } from 'path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// Configure storage
+// storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Create absolute path to upload directory
+    // We use absolute path to upload directory
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
     
-    // Ensure directory exists
+    // We must ensure directory exists
     fs.mkdirSync(uploadDir, { recursive: true });
     
     cb(null, uploadDir);

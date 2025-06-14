@@ -39,7 +39,8 @@ const corsOptions = {
         'https://myafros.com',
         'https://elteema.com',
         'https://www.elteema.com'
-    ]
+    ],
+    allowedHeaders: ['Content-Type', 'userId'],
 };
 app.use(cors(corsOptions));
 

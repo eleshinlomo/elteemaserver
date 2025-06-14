@@ -4,7 +4,7 @@ import { admin } from "../models/userData.js";
 
 const SERVICE = process.env.SERVICE
 export const sendNewUserAlert = async (user) => {
-    const subject = `New User Alert For ${SERVICE}`
+    const subject = `New User Alert For ${SERVICE}-${capitalize(user.username)}`
     const emailBody = `
     <!DOCTYPE html>
     <html>
@@ -49,6 +49,7 @@ export const sendNewUserAlert = async (user) => {
             <p>Hi ${capitalize(admin.username)},</p>
             <p>You have a new user!</p>
             <p>Name: ${capitalize(user.username)}</p>
+             <p>Email: ${user.email}</p>
             <p>${capitalize(user.username)} registered using ${SERVICE} on ${user.createdAt}</p>
             <p>User registered as a ${user.role}</p>
         </div>

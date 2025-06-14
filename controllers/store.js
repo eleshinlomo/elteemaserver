@@ -65,14 +65,17 @@ export const createStore = async (payload)=>{
     return {ok: true, message: 'Store has been created', data: Users[userIndex]}
 }
 
-// Update Store
+
+
+// Update Store Items
 export const updateUserStoreItems = (userId, newItem)=>{
   if(!userId){
     return 'No username found'
   }
-   const user = Users.find((user)=> user.id === userId)
-   
-   user.store.items.push(newItem)
+   const user = Users.find((user)=> user.id === Number(userId))
+    if(user){
+        user.store.items.push(newItem)
+    }
    return user
 }
 

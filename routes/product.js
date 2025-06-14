@@ -1,11 +1,15 @@
 import express from 'express'
 import { createProduct } from '../controllers/product.js'
-import { productImagesUpload } from '../controllers/multerConfig.js'
+import { productImagesUpload } from '../middleware/multerConfig.js'
+import { verifyUser } from '../middleware/verifyUser.js'
+import bodyParser  from 'body-parser'
 
 const router = express.Router()
+router.use(bodyParser.json());
+
 
 // Create Product with file uploads
-router.post('/createproduct', productImagesUpload, async (req, res) => {
+router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) => {
   try {
     console.log('Uploaded files:', req.files) // Files from Multer
     
@@ -33,7 +37,6 @@ router.post('/createproduct', productImagesUpload, async (req, res) => {
       store,
     } = req.body
 
-    // Process uploaded files
     // Process uploaded files
     const imageUrls = req.files.map(file => {
     return `/public/uploads/products/${file.filename}`;

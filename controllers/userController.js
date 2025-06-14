@@ -39,6 +39,8 @@ export const registerUser = (email, username)=>{
   const id = Number(count + 1)
   const maxId = Users.length > 0 ? Math.max(...Users.map((user)=>user.id)) : 0
 
+
+
   const newUser = {
     id: id,
     userId: maxId + 1,

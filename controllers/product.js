@@ -20,14 +20,8 @@ export const createProduct = async (payload) => {
       description,
       store,
     } = payload
-
-    const userIndex = Users.findIndex((user) => user.id === userId)
-    if (userIndex === -1) {
-      return { 
-        ok: false, 
-        error: 'You must be signed in before adding item to your store.' 
-      }
-    }
+    
+    console.log('ADD ITEM PAYLOAD', payload)
 
     // Check if product already exists
     const productExist = Products.find((product) => 
@@ -62,7 +56,9 @@ export const createProduct = async (payload) => {
       size,
       category,
       description,
-      store,
+      storeName: store.name,
+      storeCity: store.city,
+      storeState: store.state,
       star: 5,
       totalVotes: 5,
       numOfItemsSold: 0,
@@ -77,10 +73,10 @@ export const createProduct = async (payload) => {
     console.log('NEW USER WITH PRODUCT', user)
     
     if (!user) {
-      return res.status(500).json({ 
+      return { 
         ok: false, 
         error: 'Unable to add item to store' 
-      })
+      }
     }
 
     return {
@@ -92,9 +88,9 @@ export const createProduct = async (payload) => {
 
   } catch (error) {
     console.error('Error creating product:', error)
-    return res.status(500).json({ 
+    return { 
       ok: false, 
       error: 'Internal server error' 
-    })
+    }
   }
 }
