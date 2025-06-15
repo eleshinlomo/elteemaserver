@@ -1,7 +1,11 @@
 import { Users } from "../models/userData.js"
 
 export const verifyUser = (req, res, next)=>{
-    const userId = req.headers['userId']
+    
+    const userId =
+    req.headers['userid'] ||
+    req.headers['userId'] ||
+    req.headers['user-id'];
     console.log("Full req.headers:", userId, req.headers)
 
       const user = Users.find((u) =>u.id === Number(userId))

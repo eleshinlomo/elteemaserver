@@ -5,13 +5,14 @@ import { verifyUser } from '../middleware/verifyUser.js'
 import bodyParser  from 'body-parser'
 
 const router = express.Router()
-router.use(bodyParser.json());
+// router.use(bodyParser.json());
+const BASE_URL = process.env.BASE_URL
 
 
 // Create Product with file uploads
 router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) => {
   try {
-    console.log('Uploaded files:', req.files) // Files from Multer
+    
     
     // Check if files were uploaded
     if (!req.files || req.files.length === 0) {
@@ -39,7 +40,7 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
 
     // Process uploaded files
     const imageUrls = req.files.map(file => {
-    return `/public/uploads/products/${file.filename}`;
+    return `${BASE_URL}/uploads/products/${file.filename}`;
     });
 
     const payload = {
