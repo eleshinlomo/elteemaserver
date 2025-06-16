@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url'
 
 // Routes middleware
 import authRoutes from './routes/auth.js'; 
-import productsRoutes from './routes/products.js'
 import userRoutes from './routes/users.js'
 import messageRoutes from './routes/message.js'
 import feedRoutes from './routes/feedsRoute.js'
@@ -46,7 +45,6 @@ app.use(cors(corsOptions));
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/products', productsRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/feed', feedRoutes);

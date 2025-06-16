@@ -1,8 +1,9 @@
 import express from 'express'
-import { createProduct } from '../controllers/product.js'
+import { createProduct, deleteProduct } from '../controllers/product.js'
 import { productImagesUpload } from '../middleware/multerConfig.js'
 import { verifyUser } from '../middleware/verifyUser.js'
 import bodyParser  from 'body-parser'
+import { Products } from '../models/productData.js'
 
 const router = express.Router()
 // router.use(bodyParser.json());
@@ -74,5 +75,23 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
     })
   }
 })
+
+
+
+//  Delete product
+router.delete('/deleteproduct', async (req, res)=>{
+    const {userId, productId} = req.body
+ 
+    if(!productId){
+        return res.status(403).json({ok: false, error: 'ProductId not found'})
+    }
+
+    const response = await deleteProduct(userId, productId)
+    if(response.ok){
+        return res.status(200).json(response)
+    }
+
+    return res.status(403).json(response)
+ })
 
 export default router

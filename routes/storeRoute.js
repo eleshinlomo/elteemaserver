@@ -43,9 +43,11 @@ router.post('/createstore', async (req, res)=>{
     return res.status(401).json(response)
  })
 
-// Get Stores
-router.get('/getstores', (req, res)=>{
-    return res.status(200).json({stores: Stores, "ok": true})
+
+
+ // Get all stores
+router.get('/allstores', (req, res)=>{
+    return res.json({stores: Stores, "ok": true})
  })
 
 
