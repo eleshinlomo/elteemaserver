@@ -4,6 +4,7 @@ import path from 'path'
 import fs from 'fs/promises'; // Using promises for async operations
 import { Stores } from "../models/storeData.js";
 import { Users } from "../models/userData.js";
+import { cleanImagePath, getImageFilesystemPath } from "../utils.js";
 
 
 export const createProduct = async (payload) => {
@@ -111,63 +112,69 @@ export const createProduct = async (payload) => {
 
 // Delete product
 export const deleteProduct = async (userId, productId) => {
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
-    
-    try {
-        const userIndex = Users.findIndex((user) => user.id === userId);
-        if (userIndex === -1) {
-            return { ok: false, error: `User with ID ${userId} not found` };
-        }
-
-        const store = Users[userIndex].store;
-        if (!store || !store.items) {
-            return { ok: false, error: `Store not found for user ${userId}` };
-        }
-
-        const productIndex = store.items.findIndex((p) => p.productId === productId);
-        if (productIndex === -1) {
-            return { ok: false, error: `Product with ID ${productId} not found` };
-        }
-
-        const productToDelete = store.items[productIndex];
-
-        // Delete associated image files
-        if (productToDelete.images) {
-          
-          
-            const imagesToDelete = Array.isArray(productToDelete.images) 
-                ? productToDelete.images 
-                : [productToDelete.images];
-
-            await Promise.all(imagesToDelete.map(async (imageFilename) => {
-                if (!imageFilename) return;
-
-                const splittedPath = imageFilename.split('/')
-                console.log('SPLITTED PATH', splittedPath)
-                const cleanedPath = splittedPath.slice(1)
-                console.log('CLEANED PATH', cleanedPath)
-                
-                const filePath = path.join(uploadDir, imageFilename);
-                
-                try {
-                    await fs.unlink(filePath);
-                    console.log(`Successfully deleted image ${imageFilename}`);
-                } catch (err) {
-                    if (err.code !== 'ENOENT') {
-                        console.log(`Error deleting image ${imageFilename}:`, err);
-                    }
-                }
-            }));
-        }
-
-        // Remove the product from the store
-        store.items.splice(productIndex, 1);
-        Users[userIndex].store = store
-        
-        console.log('Successfully deleted Product');
-        return { ok: true, message: `Successfully deleted Product`, data: Users[userIndex] };
-    } catch (err) {
-        console.error('Error in deleteProduct:', err);
-        return { ok: false, error: `Error deleting Product` };
+  try {
+    // Find user
+    const userIndex = Users.findIndex((user) => user.id === userId);
+    if (userIndex === -1) {
+      return { ok: false, error: `User with ID ${userId} not found` };
     }
+
+    // Get user's store
+    const store = Users[userIndex].store;
+    if (!store?.items) {
+      return { ok: false, error: `Store not found for user ${userId}` };
+    }
+
+    // Find product
+    const productIndex = store.items.findIndex((p) => p.productId === productId);
+    if (productIndex === -1) {
+      return { ok: false, error: `Product with ID ${productId} not found` };
+    }
+
+    const productToDelete = store.items[productIndex];
+
+    // Handle image deletion
+    if (productToDelete.images) {
+      const imagesToDelete = Array.isArray(productToDelete.images)
+        ? productToDelete.images
+        : [productToDelete.images];
+
+      await Promise.all(
+        imagesToDelete.map(async (imagePath) => {
+          if (!imagePath) return;
+
+          try {
+            const cleanPath = cleanImagePath(imagePath);
+            const filePath = getImageFilesystemPath(cleanPath);
+            
+            await fs.unlink(filePath);
+            console.log(`Deleted image: ${cleanPath}`);
+          } catch (err) {
+            // Ignore "file not found" errors
+            if (err.code !== 'ENOENT') {
+              console.error(`Error deleting image ${imagePath}:`, err);
+            }
+          }
+        })
+      );
+    }
+
+    // Remove product from store
+    store.items.splice(productIndex, 1);
+    Users[userIndex].store = store;
+
+    return { 
+      ok: true, 
+      message: 'Product deleted successfully',
+      data: Users[userIndex] 
+    };
+
+  } catch (err) {
+    console.error('Error in deleteProduct:', err);
+    return { 
+      ok: false, 
+      error: 'Failed to delete product',
+      details: err.message 
+    };
+  }
 };
