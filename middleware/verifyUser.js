@@ -2,16 +2,13 @@ import { Users } from "../models/userData.js"
 
 export const verifyUser = (req, res, next)=>{
     
+  // custom header needs to be sent in the request
     const userId =
     req.headers['userid'] ||
     req.headers['userId'] ||
     req.headers['user-id'];
-    console.log("Full req.headers:", userId, req.headers)
-
+  
       const user = Users.find((u) =>u.id === Number(userId))
-        console.log('USERS', Users)
-      console.log('USER MIDDLEWARE', user)
-      console.log('USER.ID', user?.id, 'USERID', userId)
         if (!user) {
           return res.status(403).json({ 
             ok: false, 

@@ -2,17 +2,29 @@ import express from 'express'
 import { Feeds } from '../models/feedData.js'
 import bodyParser  from 'body-parser'
 import { createFeed } from '../controllers/feeds.js';
+import { uploadSingleImage } from '../middleware/singleMulterConfig.js';
+import { verifyUser } from '../middleware/verifyUser.js';
 
 const router = express.Router()
 router.use(bodyParser.json());
-const HOME_URL = process.env.HOME_URL
+const BASE_URL = process.env.BASE_URL
 
 
 
 // Create feed
-router.post('/createfeed', async (req, res)=>{
-    const {userId, text, imageUrl} = req.body
+router.post('/createfeed', verifyUser, uploadSingleImage, async (req, res)=>{
+
+    const {userId, text} = req.body
+    console.log('REQ', req.body)
+
+    const imageUrl = req.file
+  ? `${BASE_URL}/uploads/feed/${req.file.filename}`
+  : null;
+
+    
+
     const payload = {userId, text, imageUrl}
+     console.log('PAYLOAD', payload)
     const response = await createFeed(payload)
   
     if(response.ok){
@@ -20,6 +32,8 @@ router.post('/createfeed', async (req, res)=>{
     }
     return res.status(401).json(response)
  })
+
+
 
 // Get feeds
 router.get('/getfeeds', (req, res)=>{

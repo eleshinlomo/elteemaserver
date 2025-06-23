@@ -5,16 +5,20 @@ import { getUserStore } from "./store.js"
 
 // Add feed
 export const createFeed = async (payload)=>{
-    
+    console.log('NEW FEED', payload)
     const {userId, text, imageUrl } = payload
-    if(!userId || !text || !imageUrl){
-       
-         return {ok: false, error: 'Problem with payload'}
-    }
-    const userIndex = Users.findIndex((user)=> user.id === userId)
+
+    const userIndex = Users.findIndex((user)=> user.id === Number(userId))
     if(userIndex === -1){
          return {ok: false, error: 'You must be signed in before creating post.'}
     }
+
+
+    if(!text){
+         return {ok: false, error: 'Text is empty'}
+    }
+
+  
     
     const maxId = Feeds.length > 0 
         ? Math.max(...Feeds.map(feed => feed.feedId)) 
@@ -22,7 +26,8 @@ export const createFeed = async (payload)=>{
 
     const newFeedId = maxId + 1
     const userStore = await getUserStore(Users[userIndex].username)
-      const store = userStore || null
+    const store = userStore || null
+
     
     const newFeed = {
         userId: userId, 

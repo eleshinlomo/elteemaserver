@@ -1,6 +1,6 @@
 import express from 'express'
 import bodyParser  from 'body-parser'
-import { createStore } from '../controllers/store.js';
+import { createStore, getAllStores, updateStoreOrder } from '../controllers/store.js';
 import { Stores } from '../models/storeData.js';
 
 
@@ -16,7 +16,7 @@ router.post('/createstore', async (req, res)=>{
     const {
         userId,
         tagline,
-        name,
+        storeName,
         logo,
         phone,
         email,
@@ -27,7 +27,7 @@ router.post('/createstore', async (req, res)=>{
     const payload = {
          userId,
          tagline,
-         name,
+        storeName,
         logo,
         phone,
         email,
@@ -47,7 +47,35 @@ router.post('/createstore', async (req, res)=>{
 
  // Get all stores
 router.get('/allstores', (req, res)=>{
-    return res.json({stores: Stores, "ok": true})
+    const stores = getAllStores()
+    console.log('ALL STORES', stores)
+    if(stores?.length > 0){
+        return res.json({stores: stores, "ok": true})
+    }
+     return res.json({error: 'Unable to fetch stores', "ok": false})
+ })
+
+
+  // Update store order
+router.put('/updateorder', (req, res)=>{
+    const {items, buyerId} = req.body
+
+    if(!items || items.length === 0){
+      return res.json({error: 'Items to add not found', "ok": false})
+    }
+
+    if(!buyerId){
+      return res.json({error: 'Buyer id not found', "ok": false})
+    }
+
+   
+
+    const response = updateStoreOrder(items, buyerId)
+    
+    if(response.ok){
+        return res.status(200).json(response)
+    }
+     return res.status(403).json(response)
  })
 
 

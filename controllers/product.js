@@ -8,6 +8,8 @@ import { cleanImagePath, getImageFilesystemPath } from "../utils.js";
 
 
 export const createProduct = async (payload) => {
+
+  
   try {
     const {
       userId,
@@ -22,32 +24,46 @@ export const createProduct = async (payload) => {
       size,
       category,
       description,
-      store,
     } = payload;
 
-    // Check if product already exists across all stores
-    const productExist = Stores.some(store => 
-      store.items.some(product => 
-        product.productName.trim().toLowerCase() === productName.trim().toLowerCase()
-      )
+    // Check if user exists
+    const user = Users.find((u)=>u.id === Number(userId));
+    console.log('USER', user, 'USERID', userId)
+    if (!user) return { ok: false, error: "User not found" };
+
+    // A check to see if product exists (with optional chaining)
+    const store = user.store
+    if(!store) return {ok: false, error: `Store not found for ${user.username}`}
+    const items = store?.items || []
+    let productExist = false
+
+    if(items?.length > 0){
+    productExist = items.some(
+      (product) =>
+        product?.productName?.trim().toLowerCase() ===
+        productName.trim().toLowerCase()
     );
 
-    if (productExist) {
-      return { 
-        ok: false, 
-        error: 'A product with the same name already exists.' 
+  }
+
+  if (productExist) {
+      return {
+        ok: false,
+        error: "A product with the same name already exists.",
       };
     }
 
-    // Calculate max ID across all products in all stores
-    let maxId = 0;
-    Stores.forEach(store => {
-      store.items.forEach(product => {
-        if (product.productId > maxId) {
-          maxId = product.productId;
+    // New productId (with fallback if no store/items)
+    const maxId = items?.length > 0
+      ? Math.max(...items.map((product) => {
+        if(product){
+          return product.productId
+        }else{
+          return 0
         }
-      });
-    });
+  }))
+      : 0;
+ 
 
     const newProductId = maxId + 1;
 
@@ -63,9 +79,10 @@ export const createProduct = async (payload) => {
       deliveryMethod,
       quantity: Number(quantity),
       size,
+      income: 0,
       category,
       description,
-      storeName: store.name,
+      storeName: store.storeName, 
       storeCity: store.city,
       storeState: store.state,
       star: 5,
@@ -73,36 +90,29 @@ export const createProduct = async (payload) => {
       numOfItemsSold: 0,
       totalSales: 0,
       isAdded: false,
-      orderStatus: '',
+      orderStatus: "",
       productPageVisits: 0,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
-    const user = updateUserStoreItems(userId, newProduct);
-    if (!user) {
-      return { 
-        ok: false, 
-        error: 'Unable to update user store with new Item' 
+    const updatedUser = updateUserStoreItems(userId, newProduct); //Returns updated user object
+    if (!updatedUser) {
+      return {
+        ok: false,
+        error: "Unable to update user store with new Item",
       };
-    }
-
-    // We update the specific store
-    const storeIndex = Stores.findIndex(s => s.userId === userId);
-    if (storeIndex !== -1) {
-      Stores[storeIndex].items.push(newProduct);
     }
 
     return {
       ok: true,
-      message: 'Product was added to your store',
-      data: user,
+      message: "Product was added to your store",
+      data: updatedUser,
     };
-
   } catch (error) {
-    console.error('Error creating product:', error);
-    return { 
-      ok: false, 
-      error: 'Internal server error' 
+    console.error("Error creating product:", error);
+    return {
+      ok: false,
+      error: "Internal server error",
     };
   }
 };
@@ -120,18 +130,18 @@ export const deleteProduct = async (userId, productId) => {
     }
 
     // Get user's store
-    const store = Users[userIndex].store;
-    if (!store?.items) {
+    const userStore = Users[userIndex].store;
+    if (!userStore?.items) {
       return { ok: false, error: `Store not found for user ${userId}` };
     }
 
     // Find product
-    const productIndex = store.items.findIndex((p) => p.productId === productId);
+    const productIndex = userStore.items.findIndex((p) => p.productId === productId);
     if (productIndex === -1) {
       return { ok: false, error: `Product with ID ${productId} not found` };
     }
 
-    const productToDelete = store.items[productIndex];
+    const productToDelete = userStore.items[productIndex];
 
     // Handle image deletion
     if (productToDelete.images) {
@@ -160,13 +170,13 @@ export const deleteProduct = async (userId, productId) => {
     }
 
     // Remove product from store
-    store.items.splice(productIndex, 1);
-    Users[userIndex].store = store;
+    Users[userIndex].store?.items.splice(productIndex, 1);
+    const updatedProducts = getAllProducts() // We need to also return updated products
 
     return { 
       ok: true, 
       message: 'Product deleted successfully',
-      data: Users[userIndex] 
+      data: {updatedUser: Users[userIndex], products: updatedProducts }
     };
 
   } catch (err) {
@@ -178,3 +188,25 @@ export const deleteProduct = async (userId, productId) => {
     };
   }
 };
+
+// Get all productsUsers[store{items[{}]}]
+export const getAllProducts = ()=>{
+  let Products = []
+  if(Users?.length > 0){
+    Users.forEach((user)=>{
+      if(user.store){
+       const items = user.store.items
+        if(items?.length > 0){
+          items.forEach((product)=>{
+           Products.push(product)
+        })
+      }
+    }
+    
+  })
+
+  return Products
+}
+return Products
+  
+}

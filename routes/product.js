@@ -1,5 +1,5 @@
 import express from 'express'
-import { createProduct, deleteProduct } from '../controllers/product.js'
+import { createProduct, deleteProduct, getAllProducts } from '../controllers/product.js'
 import { productImagesUpload } from '../middleware/multerConfig.js'
 import { verifyUser } from '../middleware/verifyUser.js'
 import bodyParser  from 'body-parser'
@@ -36,7 +36,7 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
       size,
       category,
       description,
-      store,
+      
     } = req.body
 
     // Process uploaded files
@@ -57,7 +57,7 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
       size,
       category,
       description,
-      store,
+      
     }
 
     const response = await createProduct(payload)
@@ -95,3 +95,13 @@ router.delete('/deleteproduct', async (req, res)=>{
  })
 
 export default router
+
+
+ // Get all products
+router.get('/allproducts',  (req, res)=>{
+    const products = getAllProducts()
+    if(products?.length > 0){
+        return res.json({data: products, "ok": true})
+    }
+     return res.json({error: 'Unable to fetch stores', "ok": false})
+ })
