@@ -94,7 +94,6 @@ router.delete('/deleteproduct', async (req, res)=>{
     return res.status(403).json(response)
  })
 
-export default router
 
 
  // Get all products
@@ -105,3 +104,6 @@ router.get('/allproducts',  (req, res)=>{
     }
      return res.json({error: 'Unable to fetch stores', "ok": false})
  })
+ 
+
+ export default router
