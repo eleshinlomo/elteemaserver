@@ -60,7 +60,7 @@ export const registerUser = (email, username)=>{
     phone: '',
     address: '',
     orders: [], //When items in the cart are paid for, they move to orders.
-    gender: '',
+    gender: '',                             
     city: '',
     store: null,
     state: '',

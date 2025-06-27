@@ -90,7 +90,10 @@ export const updateUserStoreItems = (userId, newItem)=>{
   }
 }
 
-// Get store
+
+
+
+// Get user store
 export const getUserStore = (username)=>{
   if(!username.trim()){
     return 'No username found'
@@ -104,6 +107,8 @@ export const getUserStore = (username)=>{
    return null
 }
 
+
+
 // Get all stores
 export const getAllStores = ()=>{
   if(Users?.length > 0){
@@ -115,6 +120,23 @@ export const getAllStores = ()=>{
 }
 return []
   
+}
+
+
+// Get single store
+export const getSingleStore = async (storeName)=>{
+  if(!storeName.trim()){
+    return {ok: false, error:'Please enter store name'}
+  }
+
+  const stores = await getAllStores()
+  if(stores.length === 0) return {ok: false, error:'All stores are empty'}
+   const store = stores.find((store)=>store.storeName.trim().toLowerCase() === storeName.trim().toLowerCase()) 
+   if(store){
+    return {ok: true, message: store}
+   }
+   
+   return {ok: false, error: 'No store found'}
 }
 
 // Store Orders

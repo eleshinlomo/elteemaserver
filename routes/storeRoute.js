@@ -1,6 +1,6 @@
 import express from 'express'
 import bodyParser  from 'body-parser'
-import { createStore, getAllStores, updateStoreOrder } from '../controllers/store.js';
+import { createStore, getAllStores, getSingleStore, updateStoreOrder } from '../controllers/store.js';
 import { Stores } from '../models/storeData.js';
 
 
@@ -75,6 +75,18 @@ router.put('/updateorder', (req, res)=>{
     if(response.ok){
         return res.status(200).json(response)
     }
+     return res.status(403).json(response)
+ })
+
+
+//  Get Single store
+ router.post('/getstore', async (req, res)=>{
+    const {storeName} = req.body
+     const response = await getSingleStore(storeName)
+     if(response.ok){
+        return res.status(200).json(response)
+     }
+
      return res.status(403).json(response)
  })
 
