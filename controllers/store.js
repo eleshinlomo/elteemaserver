@@ -12,6 +12,7 @@ export const createStore = async (payload)=>{
         logo,
         phone,
         email,
+        industry,
         city,
         state
     } = payload
@@ -55,8 +56,10 @@ export const createStore = async (payload)=>{
         logo: logo,
         phone: phone,
         email: email.toLowerCase(),
-        revenue: [0, 0], // Represent last and current sales
-        conversion: [0, 3.56], // Represent last and current sales
+        income: 0, //Amount earned to be withdrawn into the bank
+        revenue: [0, 0], // Represent last and current value of total income
+        conversion: [0, 3.56], // Represent last and current Conversion rate
+        industry,
         city,
         state,
         items: [],
@@ -66,10 +69,55 @@ export const createStore = async (payload)=>{
         
     }
     
-   
+    Stores.push(newStore)
+    console.log('NEW STORE ADDED TO STORES', Stores)
     // update user with the new store
     Users[userIndex].store = newStore
     return {ok: true, message: 'Store has been created', data: Users[userIndex]}
+}
+
+
+// Update Store
+export const updateStore = async (payload)=>{
+    
+    const {
+        userId,
+        tagline,
+        storeName,
+        logo,
+        phone,
+        email,
+        industry,
+        city,
+        state
+    } = payload
+
+    console.log('STORE PAYLOAD', payload)
+
+    const userIndex = Users.findIndex((user)=> user.id === userId)
+    if(userIndex === -1){
+         return {ok: false, error: 'You must be signed in before updating a store.'}
+    }
+    
+    const storeExist = Users[userIndex].store
+    if(!storeExist){
+       return {ok: false, error: 'No store found for user'}
+    }
+
+
+    // update user with the new store
+    Users[userIndex].store = {
+      ...Users[userIndex].store, 
+        tagline: tagline,
+        storeName: storeName,
+        logo: logo,
+        phone: phone,
+        email: email,
+        industry: industry,
+        city: city,
+        state: state
+      }
+    return {ok: true, message: 'Store has been updated', data: Users[userIndex]}
 }
 
 
@@ -108,30 +156,19 @@ export const getUserStore = (username)=>{
 }
 
 
-
-// Get all stores
-export const getAllStores = ()=>{
-  if(Users?.length > 0){
-  Users.forEach((user)=>{
-    Stores.push(user.store)
-  })
-
-  return Stores
-}
-return []
-  
-}
-
-
 // Get single store
 export const getSingleStore = async (storeName)=>{
   if(!storeName.trim()){
-    return {ok: false, error:'Please enter store name'}
+    return {ok: false, error:'No store name found'}
   }
+
+
 
   const stores = await getAllStores()
   if(stores.length === 0) return {ok: false, error:'All stores are empty'}
-   const store = stores.find((store)=>store.storeName.trim().toLowerCase() === storeName.trim().toLowerCase()) 
+   const store = stores.find((store)=>store?.storeName === storeName.trim().toLowerCase()) 
+
+   
    if(store){
     return {ok: true, message: store}
    }
@@ -139,37 +176,57 @@ export const getSingleStore = async (storeName)=>{
    return {ok: false, error: 'No store found'}
 }
 
-// Store Orders
-export const updateStoreOrder = (items, buyerId) => {
-  console.log('ITEMS', items, 'BUYER ID', buyerId);
-  
-  let updatedBuyer = null;
-  
-  items.forEach((item) => {
-    // Safely handle storeName comparison
-    const seller = Users.find((s) => 
-      s?.store?.storeName && item?.storeName && 
-      s.store.storeName.toLowerCase() === item.storeName.toLowerCase()
+
+
+// Get all stores
+export const getAllStores = ()=>{
+  return Stores
+}
+
+
+
+
+
+
+
+// Update Store Orders
+export const updateStoreOrder = (orders, buyerId) => {
+
+  // Find buyer once (assuming same buyer for all orders)
+  const buyerIndex = Users.findIndex((b) => b.id === Number(buyerId));
+  if (buyerIndex === -1) {
+    return { ok: false, error: 'User id must be provided' };
+  }
+   
+  let sellerIndex;
+  orders.forEach((newOrder)=>{
+    const stores = getAllStores()
+    sellerIndex = stores?.findIndex((s) => s?.storeName?.toLowerCase() === newOrder.storeName?.toLowerCase()
     );
     
-    const buyer = Users.find((b) => b.id === Number(buyerId));
-    
-    console.log('SELLER', seller, 'BUYER', buyer);
-    
-    if (seller) {
-      const sellerStore = seller.store;
-      sellerStore.orders.lastOrders = sellerStore.orders.currentOrders;
-      sellerStore.orders.currentOrders.push(item);
+  })
 
-      // Update buyer if found
-      if (buyer) {
-        buyer.orders.push(item); 
-        updatedBuyer = buyer;
-      }
+    if (sellerIndex === -1) {
+      return {ok: false, error: 'Seller store not found'}
     }
-  });
+  
+   const updatedOrder = orders?.map((order)=>{
+      
+      // Update last orders
+      if(Stores[sellerIndex].orders.currentOrders.length > 0){
+        Stores[sellerIndex].orders.currentOrders.map((oldOrder)=>{
+        Stores[sellerIndex].orders.lastOrders.push(oldOrder)
+      })
+    }
+      // Update current orders
+      Stores[sellerIndex].orders.currentOrders.push(order);
 
-  return updatedBuyer 
-    ? { ok: true, message: updatedBuyer } 
-    : { ok: false, error: 'Error updating store order' };
+      // Update buyer orders
+      Users[buyerIndex].orders.push(order);
+      return Users[buyerIndex]
+      
+    })
+   
+    return {ok: true, message: updatedOrder[0]}
+
 };

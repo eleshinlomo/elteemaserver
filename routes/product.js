@@ -98,11 +98,11 @@ router.delete('/deleteproduct', async (req, res)=>{
 
  // Get all products
 router.get('/allproducts',  (req, res)=>{
-    const products = getAllProducts()
-    if(products?.length > 0){
-        return res.json({data: products, "ok": true})
+    const response = getAllProducts()
+    if(response.ok){
+        return res.status(200).json(response)
     }
-     return res.json({error: 'Unable to fetch stores', "ok": false})
+     return res.status(403).json(response)
  })
  
 

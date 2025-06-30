@@ -35,14 +35,19 @@ export const registerUser = (email, username)=>{
     }
   }
 
-  let count = 0
-  const id = Number(count + 1)
-  const maxId = Users.length > 0 ? Math.max(...Users.map((user)=>user.id)) : 0
-
+     
+     const maxId = Users.length > 0 
+          && Math.max(...Users.map(user => {
+              if(user){
+               return user?.id //Not unique. Only trying to find the highest number of userId
+              }else{
+               return 0
+              }
+          })) 
 
 
   const newUser = {
-    id: id,
+    id: maxId + 1,
     userId: maxId + 1,
     authCode: '0',
     username: username.toLowerCase(),

@@ -94,7 +94,8 @@ export const createProduct = async (payload) => {
       productPageVisits: 0,
       createdAt: new Date().toISOString(),
     };
-
+    
+    Products.push(newProduct)
     const updatedUser = updateUserStoreItems(userId, newProduct); //Returns updated user object
     if (!updatedUser) {
       return {
@@ -189,24 +190,10 @@ export const deleteProduct = async (userId, productId) => {
   }
 };
 
-// Get all productsUsers[store{items[{}]}]
-export const getAllProducts = ()=>{
-  let Products = []
-  if(Users?.length > 0){
-    Users.forEach((user)=>{
-      if(user.store){
-       const items = user.store.items
-        if(items?.length > 0){
-          items.forEach((product)=>{
-           Products.push(product)
-        })
-      }
-    }
-    
-  })
 
-  return Products
-}
-return Products
-  
+// Get all stores
+export const getAllProducts = ()=>{
+ 
+  return {ok: true, message: Products}
+ 
 }

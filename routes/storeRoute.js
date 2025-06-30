@@ -1,7 +1,7 @@
 import express from 'express'
 import bodyParser  from 'body-parser'
-import { createStore, getAllStores, getSingleStore, updateStoreOrder } from '../controllers/store.js';
-import { Stores } from '../models/storeData.js';
+import { createStore, getAllStores, getSingleStore, updateStore, updateStoreOrder } from '../controllers/store.js';
+
 
 
 const router = express.Router()
@@ -20,6 +20,7 @@ router.post('/createstore', async (req, res)=>{
         logo,
         phone,
         email,
+        industry,
         city,
         state
     } = req.body
@@ -31,6 +32,7 @@ router.post('/createstore', async (req, res)=>{
         logo,
         phone,
         email,
+        industry,
         city,
         state
     }
@@ -42,7 +44,42 @@ router.post('/createstore', async (req, res)=>{
     }
     return res.status(401).json(response)
  })
+ 
 
+ // Update Store
+router.put('/updatestore', async (req, res)=>{
+   
+    const {
+        userId,
+        tagline,
+        storeName,
+        logo,
+        phone,
+        email,
+        industry,
+        city,
+        state
+    } = req.body
+
+    const payload = {
+         userId,
+         tagline,
+        storeName,
+        logo,
+        phone,
+        email,
+        industry,
+        city,
+        state
+    }
+
+    const response = await updateStore(payload)
+  
+    if(response.ok){
+    return res.status(200).json(response)
+    }
+    return res.status(401).json(response)
+ })
 
 
  // Get all stores
