@@ -46,6 +46,7 @@ export const createStore = async (payload)=>{
         
 
     const newStoreId = maxId + 1
+    const storePhone = phone || 'Not available'
     
     const newStore = {
         userId: userId, 
@@ -54,7 +55,7 @@ export const createStore = async (payload)=>{
         tagline: tagline.toLowerCase(),
         storeName: storeName.trim().toLowerCase(),
         logo: logo,
-        phone: phone,
+        phone: storePhone,
         email: email.toLowerCase(),
         income: 0, //Amount earned to be withdrawn into the bank
         revenue: [0, 0], // Represent last and current value of total income
