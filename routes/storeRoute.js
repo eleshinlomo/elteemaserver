@@ -21,8 +21,10 @@ router.post('/createstore', async (req, res)=>{
         phone,
         email,
         industry,
+        address,
         city,
-        state
+        state,
+        country
     } = req.body
 
     const payload = {
@@ -33,8 +35,10 @@ router.post('/createstore', async (req, res)=>{
         phone,
         email,
         industry,
+        address,
         city,
-        state
+        state,
+         country
     }
 
     const response = await createStore(payload)
@@ -57,8 +61,10 @@ router.put('/updatestore', async (req, res)=>{
         phone,
         email,
         industry,
+        address,
         city,
-        state
+        state,
+        country
     } = req.body
 
     const payload = {
@@ -69,8 +75,10 @@ router.put('/updatestore', async (req, res)=>{
         phone,
         email,
         industry,
+        address,
         city,
-        state
+        state,
+        country
     }
 
     const response = await updateStore(payload)

@@ -13,8 +13,10 @@ export const createStore = async (payload)=>{
         phone,
         email,
         industry,
+        address,
         city,
-        state
+        state,
+        country
     } = payload
 
     console.log('STORE PAYLOAD', payload)
@@ -61,8 +63,10 @@ export const createStore = async (payload)=>{
         revenue: [0, 0], // Represent last and current value of total income
         conversion: [0, 3.56], // Represent last and current Conversion rate
         industry,
+        address,
         city,
         state,
+        country,
         items: [],
         orders:{lastOrders: [], currentOrders: []}, //Current must be moved to last orders when updating
         avgOrder: 0
@@ -89,11 +93,12 @@ export const updateStore = async (payload)=>{
         phone,
         email,
         industry,
+        address,
         city,
-        state
+        state,
+        country
     } = payload
 
-    console.log('STORE PAYLOAD', payload)
 
     const userIndex = Users.findIndex((user)=> user.id === userId)
     if(userIndex === -1){
@@ -115,9 +120,15 @@ export const updateStore = async (payload)=>{
         phone: phone,
         email: email,
         industry: industry,
+        address: address,
         city: city,
-        state: state
+        state: state,
+        country: country
       }
+    const storeIndex = Stores.findIndex((store)=>store.storeName === Users[userIndex].store.storeName)
+    if(storeIndex !== -1){
+      Stores[storeIndex] = Users[userIndex].store
+    }
     return {ok: true, message: 'Store has been updated', data: Users[userIndex]}
 }
 
