@@ -176,6 +176,8 @@ export const deleteProduct = async (userId, productId) => {
     Users[userIndex].store?.items.splice(productIndex, 1);
     const updatedProducts = getAllProducts() // We need to also return updated products
 
+    Products.splice(productIndex, 1)
+
     return { 
       ok: true, 
       message: 'Product deleted successfully',
