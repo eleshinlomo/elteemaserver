@@ -1,5 +1,6 @@
 import { Users } from "../models/userData.js"
 import { Stores } from "../models/storeData.js"
+import { Products } from "../models/productData.js"
 
 
 // Add Store. Store is an object
@@ -19,7 +20,6 @@ export const createStore = async (payload)=>{
         country
     } = payload
 
-    console.log('STORE PAYLOAD', payload)
 
     const userIndex = Users.findIndex((user)=> user.id === userId)
     if(userIndex === -1){
@@ -75,7 +75,6 @@ export const createStore = async (payload)=>{
     }
     
     Stores.push(newStore)
-    console.log('NEW STORE ADDED TO STORES', Stores)
     // update user with the new store
     Users[userIndex].store = newStore
     return {ok: true, message: 'Store has been created', data: Users[userIndex]}
@@ -125,9 +124,21 @@ export const updateStore = async (payload)=>{
         state: state,
         country: country
       }
+
+    // Update Stores
     const storeIndex = Stores.findIndex((store)=>store.storeName === Users[userIndex].store.storeName)
     if(storeIndex !== -1){
       Stores[storeIndex] = Users[userIndex].store
+    }
+    
+     // Update Products
+    const productIndex = Products.findIndex((product)=>product.storeName === Users[userIndex].store.storeName)
+      if(productIndex !== -1){
+      Products[productIndex] = Users[userIndex].store
+      Products[productIndex].storeName = Users[userIndex].store.storeName
+      Products[productIndex].storePhone = Users[userIndex].store.phone
+      Products[productIndex].storeCity = Users[userIndex].store.city
+      Products[productIndex].storeState = Users[userIndex].store.state
     }
     return {ok: true, message: 'Store has been updated', data: Users[userIndex]}
 }
