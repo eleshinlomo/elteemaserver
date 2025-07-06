@@ -21,7 +21,7 @@ export const createProduct = async (payload) => {
       condition,
       deliveryMethod,
       quantity,
-      size,
+      sizes,
       category,
       description,
     } = payload;
@@ -78,7 +78,7 @@ export const createProduct = async (payload) => {
       condition,
       deliveryMethod,
       quantity: Number(quantity),
-      size,
+      sizes,
       income: 0,
       category,
       description,
@@ -120,6 +120,91 @@ export const createProduct = async (payload) => {
   }
 };
 
+
+
+export const updateProduct = async (payload) => {
+  try {
+    const {
+      userId,
+      productId,
+      addedBy,
+      imageUrls,
+      colors,
+      productName,
+      price,
+      condition,
+      deliveryMethod,
+      quantity,
+      sizes,
+      category,
+      description,
+    } = payload;
+
+    // Check if user exists
+    const user = Users.find((u) => u.id === Number(userId));
+    if (!user) return { ok: false, error: "User not found" };
+
+    // Check if store exists
+    const store = user.store;
+    if (!store) return { ok: false, error: `Store not found for ${user.username}` };
+    
+    // Find product index in user's store items
+    const productIndex = store.items?.findIndex(
+      (product) => product?.productId === Number(productId)
+    );
+
+    if (productIndex === -1 || !store.items?.[productIndex]) {
+      return { ok: false, error: "Product not found in store" };
+    }
+
+    // Create updated product
+    const updatedProduct = {
+      ...store.items[productIndex], // Keep existing properties
+      colors: colors || store.items[productIndex].colors,
+      productName: productName || store.items[productIndex].productName,
+      price: Number(price) || store.items[productIndex].price,
+      condition: condition || store.items[productIndex].condition,
+      deliveryMethod: deliveryMethod || store.items[productIndex].deliveryMethod,
+      quantity: Number(quantity) || store.items[productIndex].quantity,
+      sizes: sizes || store.items[productIndex].sizes,
+      category: category || store.items[productIndex].category,
+      description: description || store.items[productIndex].description,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Update the specific product in the user's store
+    store.items[productIndex] = updatedProduct;
+
+    // Update in global Products array (if needed)
+    const globalProductIndex = Products.findIndex(
+      (p) => p.productId === Number(productId)
+    );
+    if (globalProductIndex !== -1) {
+      Products[globalProductIndex] = updatedProduct;
+    }
+
+    // Update user in Users array
+   const updatedUser = updateUserStoreItems(userId, updatedProduct)
+     if (!updatedUser) {
+      return {
+        ok: false,
+        error: "Unable to update user store with new Item",
+      };
+    }
+
+    return {
+      ok: true,
+      message: "Product was updated in your store",
+      data: updatedUser, // Return the updated user
+    };
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return {
+      ok: false,
+      error: "Internal server error",
+    };
+  }
+};
 
 
 

@@ -1,5 +1,5 @@
 import express from 'express'
-import { createProduct, deleteProduct, getAllProducts } from '../controllers/product.js'
+import { createProduct, deleteProduct, getAllProducts, updateProduct } from '../controllers/product.js'
 import { productImagesUpload } from '../middleware/multerConfig.js'
 import { verifyUser } from '../middleware/verifyUser.js'
 import bodyParser  from 'body-parser'
@@ -33,7 +33,7 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
       condition,
       deliveryMethod,
       quantity,
-      size,
+      sizes,
       category,
       description,
       
@@ -54,7 +54,7 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
       condition,
       deliveryMethod,
       quantity: Number(quantity),
-      size,
+      sizes,
       category,
       description,
       
@@ -76,6 +76,75 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
   }
 })
 
+
+
+// Update Product with file uploads
+router.put('/updateproduct', verifyUser, productImagesUpload, async (req, res) => {
+  try {
+    
+    
+    // Check if files were uploaded
+    // if (!req.files || req.files.length === 0) {
+    //   return res.status(400).json({ 
+    //     ok: false, 
+    //     error: 'At least one product image is required' 
+    //   })
+    // }
+
+    // Get other form data from req.body (text fields)
+    const {
+      userId,
+      productId,
+      addedBy,
+      colors,
+      productName,
+      price,
+      condition,
+      deliveryMethod,
+      quantity,
+      sizes,
+      category,
+      description,
+      
+    } = req.body
+
+    // Process uploaded files
+    const imageUrls = req.files.map(file => {
+    return `${BASE_URL}/uploads/products/${file.filename}`;
+    });
+
+    const payload = {
+      userId,
+      productId,
+      addedBy,
+      imageUrls, 
+      colors: Array.isArray(colors) ? colors : [colors].filter(Boolean),
+      productName,
+      price: Number(price),
+      condition,
+      deliveryMethod,
+      quantity: Number(quantity),
+      sizes,
+      category,
+      description,
+      
+    }
+
+    const response = await updateProduct(payload)
+    
+    if (response.ok) {
+      return res.status(200).json(response)
+    }
+    return res.status(400).json(response)
+    
+  } catch (error) {
+    console.error('Error updating product:', error)
+    return res.status(500).json({
+      ok: false,
+      error: 'Internal server error'
+    })
+  }
+})
 
 
 //  Delete product
