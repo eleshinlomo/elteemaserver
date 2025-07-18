@@ -26,14 +26,15 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
     // Get other form data from req.body (text fields)
     const {
       userId,
-      addedBy,
       colors,
       productName,
       price,
       condition,
       deliveryMethod,
       quantity,
-      sizes,
+       unitCost,
+      shoeSizes,
+      clotheSizes,
       category,
       description,
       
@@ -46,7 +47,6 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
 
     const payload = {
       userId,
-      addedBy,
       imageUrls, 
       colors: Array.isArray(colors) ? colors : [colors].filter(Boolean),
       productName,
@@ -54,7 +54,9 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
       condition,
       deliveryMethod,
       quantity: Number(quantity),
-      sizes,
+       unitCost,
+      shoeSizes,
+      clotheSizes,
       category,
       description,
       
@@ -82,14 +84,7 @@ router.post('/createproduct', verifyUser, productImagesUpload, async (req, res) 
 router.put('/updateproduct', verifyUser, productImagesUpload, async (req, res) => {
   try {
     
-    
-    // Check if files were uploaded
-    // if (!req.files || req.files.length === 0) {
-    //   return res.status(400).json({ 
-    //     ok: false, 
-    //     error: 'At least one product image is required' 
-    //   })
-    // }
+  
 
     // Get other form data from req.body (text fields)
     const {
@@ -102,29 +97,41 @@ router.put('/updateproduct', verifyUser, productImagesUpload, async (req, res) =
       condition,
       deliveryMethod,
       quantity,
-      sizes,
+       unitCost,
+      shoeSizes,
+      clotheSizes,
       category,
       description,
       
     } = req.body
 
-    // Process uploaded files
-    const imageUrls = req.files.map(file => {
-    return `${BASE_URL}/uploads/products/${file.filename}`;
-    });
+
+
+    const imageUrls = Array.isArray(req.body.imageUrls)
+  ? req.body.imageUrls
+  : req.body.imageUrls
+    ? [req.body.imageUrls]
+    : [];
+
+     // Only overwrite images if new files are uploaded
+    const newImageUrls = req.files?.length
+      ? req.files.map(file => `${BASE_URL}/uploads/products/${file.filename}`)
+      : imageUrls; //old images
 
     const payload = {
       userId,
       productId,
       addedBy,
-      imageUrls, 
-      colors: Array.isArray(colors) ? colors : [colors].filter(Boolean),
+      imageUrls: newImageUrls, 
+      colors,
       productName,
       price: Number(price),
       condition,
       deliveryMethod,
       quantity: Number(quantity),
-      sizes,
+       unitCost,
+      shoeSizes,
+      clotheSizes,
       category,
       description,
       
@@ -155,6 +162,10 @@ router.delete('/deleteproduct', async (req, res)=>{
         return res.status(403).json({ok: false, error: 'ProductId not found'})
     }
 
+       if(!userId){
+        return res.status(403).json({ok: false, error: 'ProductId not found'})
+    }
+
     const response = await deleteProduct(userId, productId)
     if(response.ok){
         return res.status(200).json(response)
@@ -166,8 +177,8 @@ router.delete('/deleteproduct', async (req, res)=>{
 
 
  // Get all products
-router.get('/allproducts',  (req, res)=>{
-    const response = getAllProducts()
+router.get('/allproducts',  async (req, res)=>{
+    const response = await getAllProducts()
     if(response.ok){
         return res.status(200).json(response)
     }

@@ -1,123 +1,239 @@
 import { sendNewUserAlert } from "../htmpages/sendNewUserAlert.js";
-import { Users } from "../models/userData.js";
+import { Products } from "../models/productData.js";
+import { Stores } from "../models/storeData.js";
+import { Sessions, Users } from "../models/userData.js";
+import { updateStoreOrder } from "./store.js";
 
 
-export const registerUser = (email, username)=>{
 
-  if(!email || !username) {
-   return {
-    error: 'You must provide email and username',
-    ok: false
-   }
-  }
-
-  const usernameExist = Users.find((user)=>user.username.toLowerCase() === username.toLowerCase())
-  if(usernameExist) {
-    return {
-      error: 'Username already taken',
-      ok: false
-     }
-  }
-
-  const emailExist = Users.find((user)=>user.email.toLowerCase() === email.toLowerCase())
-
-  if(emailExist) {
-    return {
-      error: 'This email exists in our database',
-      ok: false
-     }
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return {
-      error: 'Invalid email format',
-      ok: false
+export const registerUser = async (email, username) => {
+  try {
+    if (!email || !username) {
+      return {
+        error: 'You must provide email and username',
+        ok: false
+      };
     }
-  }
 
-     
-     const maxId = Users.length > 0 
-          && Math.max(...Users.map(user => {
-              if(user){
-               return user?.id //Not unique. Only trying to find the highest number of userId
-              }else{
-               return 0
-              }
-          })) 
+    // Check if username exists (case-insensitive)
+    const usernameExist = await Users.findOne({ 
+      username: { $regex: new RegExp(`^${username}$`, 'i') } 
+    });
+    if (usernameExist) {
+      return {
+        error: 'Username already taken',
+        ok: false
+      };
+    }
 
+    // Check if email exists (case-insensitive)
+    const emailExist = await Users.findOne({ 
+      email: { $regex: new RegExp(`^${email}$`, 'i') } 
+    });
+    if (emailExist) {
+      return {
+        error: 'This email exists in our database',
+        ok: false
+      };
+    }
 
-  const newUser = {
-    id: maxId + 1,
-    userId: maxId + 1,
-    authCode: '0',
-    username: username.toLowerCase(),
-    email: email.toLowerCase(),
-    paymentEmail: '', // Used to pay for orders in stores.
-    paymentMethod: '', // Used to pay for orders in stores.
-    cart: [],
-    isLoggedIn: false,
-    type: "customer",
-    role: 'customer',
-    service: "Petrolage Store",
-    createdAt: new Date(),
-    firstname: '',
-    lastname: '',
-    phone: '',
-    address: '',
-    orders: [], //When items in the cart are paid for, they move to orders.
-    gender: '',                             
-    city: '',
-    store: null,
-    state: '',
-    isNewsletter: true,
-    
-  }
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return {
+        error: 'Invalid email format',
+        ok: false
+      };
+    }
 
-  Users.push(newUser)
-  const user = Users.find((u)=>u.email === email)
-  if(user){
-    sendNewUserAlert(user)
-    console.log('NEW USER', user)
-  }
-  return {
+    // Create and save the new user
+    const newUser = new Users({
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
+    });
 
+   const savedUser = await newUser.save(); // Saves to MongoDB
+
+    // Send alert (if needed)
+    await sendNewUserAlert(savedUser);
+
+    return {
       message: 'You are now registered',
       ok: true
-  } 
+    };
+  } catch (err) {
+    console.error('Error registering user:', err);
+    return {
+      error: 'Server error. Please try again.',
+      ok: false
+    };
+  }
+};
+
+
+
+
+// Update user
+export const updateUser = async (userId, payload) => {
+  try {
+    if (!payload) {
+      return { ok: false, error: 'No payload' };
+    }
+
+    const {
+      cart,
+      firstname,
+      lastname,
+      email,
+      phone,
+      address,
+      gender,
+      city,
+      state
+    } = payload;
+
+    let user = await Users.findById(userId);
+    if (!user) {
+      return { ok: false, error: `User with ID ${userId} not found` };
+    }
+
+    // Only update fields if they exist in the payload
+    if (cart !== undefined) user.cart = cart;
+    if (firstname !== undefined) user.firstname = firstname;
+    if (lastname !== undefined) user.lastname = lastname;
+    if (email !== undefined) user.email = email;
+    if (phone !== undefined) user.phone = phone;
+    if (address !== undefined) user.address = address;
+    if (gender !== undefined) user.gender = gender;
+    if (city !== undefined) user.city = city;
+    if (state !== undefined) user.state = state;
+
+    const savedUpdatedUser = await user.save();
+
+    return {
+      ok: true,
+      data: savedUpdatedUser,
+      message: 'Your profile has been updated'
+    };
+  } catch (err) {
+    console.error("Error updating user:", err);
+    return { ok: false, error: "Something went wrong updating your profile" };
+  }
+};
+
+// Update user cart
+export const updateUserCart = async (userId, updatedCart)=>{
+  const user = await Users.findOne({_id: userId})
+  if(!user){
+     return {ok: false, error: `No user with the ${userId} found`}
+  }
+
+  user.cart = updatedCart
+  user.save()
+  return {ok: true, message: 'User cart has been updated'}
 }
 
 
-export const updateUser = (id, payload)=>{
+// Update user cookie
+export const updateUserCookie = async (userId, isCookieAccepted)=>{
   try{
-    if(!payload) {
-        return {ok: false, error: 'No payload'}
-    }
-
-    console.log('PAYLOAD', payload)
-    const {
-        username,
-        firstname,
-        lastname,
-        email,
-        phone,
-        address,
-        gender,
-        city,
-        state
-      } = payload
-   let userIndex = Users.findIndex((user)=>user.id === id)
-
-   if(userIndex === -1){
-     return {ok: false, error: `User with ${id} not found`}
-   }
-
-   const updatedUser = {...Users[userIndex], username: username, firstname: firstname, lastname: lastname, email: email, 
-    phone: phone, address: address, city: city, state: state, gender: gender}
-    // Save new user to the database
-    Users[userIndex] = updatedUser
-
-   return {ok: true, data: Users[userIndex], message: 'success'}
+  const user = await Users.findOne({_id: userId})
+  if(!user){
+    return {ok: false, error: `User with the id ${userId} not found`}
+  }
+  user.isCookieAccepted = isCookieAccepted
+  user.save()
+  return {ok: true, message: 'You cookie preference has been updated', data: user}
   }catch(err){
     console.log(err)
   }
+}
+
+// Update Payment method
+export const updatePaymentMethod = async (payload)=>{
+  try{
+
+    const { userId, paymentEmail, paymentMethod} = payload
+
+     if(!userId) {
+        return {ok: false, error: 'User not found'}
+    }
+
+    if(!paymentEmail || !paymentMethod) {
+        return {ok: false, error: 'User did not specify payment method'}
+    }
+
+    
+   const user = await Users.findOne({_id: userId})
+
+   if(!user){
+     return {ok: false, error: `User with ${userId} not found`}
+   }
+
+   user.paymentEmail = paymentEmail
+   user.paymentMethod = paymentMethod
+   user.save()
+
+   return {ok: true, data: user, message: 'success'}
+  }catch(err){
+    console.log(err)
+  }
+}
+
+
+// Delete user order
+export const deleteUserOrder = async (userId, orderId)=>{
+  try{
+  const user = await Users.findOne({_id: userId})
+  if(!user){
+    return {ok: false, error: `No user with id ${userId} found`}
+  }
+  
+  const userOrders = user.orders
+  if(userOrders?.length === 0){
+    return {ok: false, error: 'You have not ordered anything'}
+  }
+
+  const orderExists = userOrders.find((order)=>order._id === orderId)
+  console.log('ORDER TO DELETE', orderExists)
+  if(!orderExists){
+    return {of: false, error: `No order with orderId ${orderId} found`}
+  }
+
+  user.orders = userOrders.filter((order)=>order._id !== orderExists._id)
+  user.markModified('orders')
+  await user.save()
+
+
+  // await Stores.deleteOne({userId: userId})
+  
+
+  return {ok: true, message: 'Your order has been deleted successfully', data: user.orders}
+}catch(err){
+  console.log('Error:', err)
+}
+}
+
+
+// Delete user
+export const deleteUser = async (userId)=>{
+  try{
+  const user = await Users.findOne({_id: userId})
+  if(!user){
+    return {ok: false, error: `No user with id ${userId} found`}
+  }
+  
+  const userStore = user.store
+  if(userStore){
+    return {ok: false, error: 'You must first delete your store'}
+  }
+
+  await Products.deleteMany({userId: userId})
+  await Stores.deleteOne({userId: userId})
+  await Sessions.deleteOne({userId: userId})
+  await Users.findByIdAndDelete(userId)
+
+  return {ok: true, message: 'Your account has been deleted successfully'}
+}catch(err){
+  console.log('Error:', err)
+}
 }

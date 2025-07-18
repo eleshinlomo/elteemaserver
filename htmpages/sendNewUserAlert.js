@@ -1,8 +1,11 @@
 import { sendEmail } from "../controllers/emailSender.js";
 import { capitalize } from "../utils.js";
-import { admin } from "../models/userData.js";
+
 
 const SERVICE = process.env.SERVICE
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL
+
 export const sendNewUserAlert = async (user) => {
     const subject = `New User Alert For ${SERVICE}-${capitalize(user.username)}`
     const emailBody = `
@@ -46,7 +49,7 @@ export const sendNewUserAlert = async (user) => {
     <body>
         <div class="header">${subject}</div>
         <div class="content">
-            <p>Hi ${capitalize(admin.username)},</p>
+            <p>Hi ${capitalize(ADMIN_USERNAME)},</p>
             <p>You have a new user!</p>
             <p>Name: ${capitalize(user.username)}</p>
              <p>Email: ${user.email}</p>
@@ -63,7 +66,7 @@ export const sendNewUserAlert = async (user) => {
 
     try {
         
-        const response = await sendEmail(admin.email, emailBody, subject);
+        const response = await sendEmail(ADMIN_EMAIL, emailBody, subject);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);

@@ -1,19 +1,16 @@
-import { Products } from "../models/productData.js"
-import { updateUserStoreItems } from "./store.js"
-import path from 'path'
-import fs from 'fs/promises'; // Using promises for async operations
-import { Stores } from "../models/storeData.js";
+import { Products } from "../models/productData.js";
+import path from 'path';
+import fs from 'fs/promises';
 import { Users } from "../models/userData.js";
 import { cleanImagePath, getImageFilesystemPath } from "../utils.js";
+import { Stores } from "../models/storeData.js";
+
 
 
 export const createProduct = async (payload) => {
-
-  
   try {
     const {
       userId,
-      addedBy,
       imageUrls,
       colors,
       productName,
@@ -21,107 +18,94 @@ export const createProduct = async (payload) => {
       condition,
       deliveryMethod,
       quantity,
-      sizes,
+      unitCost,
+      shoeSizes,
+      clotheSizes,
       category,
       description,
     } = payload;
 
-    // Check if user exists
-    const user = Users.find((u)=>u.id === Number(userId));
-    console.log('USER', user, 'USERID', userId)
-    if (!user) return { ok: false, error: "User not found" };
-
-    // A check to see if product exists (with optional chaining)
-    const store = user.store
-    if(!store) return {ok: false, error: `Store not found for ${user.username}`}
-    const items = store?.items || []
-    let productExist = false
-
-    if(items?.length > 0){
-    productExist = items.some(
-      (product) =>
-        product?.productName?.trim().toLowerCase() ===
-        productName.trim().toLowerCase()
-    );
-
-  }
-
-  if (productExist) {
-      return {
-        ok: false,
-        error: "A product with the same name already exists.",
-      };
+    if (!productName || !price || !description) {
+      return { ok: false, error: "Missing required fields" };
     }
 
-    // New productId (with fallback if no store/items)
-    const maxId = items?.length > 0
-      ? Math.max(...items.map((product) => {
-        if(product){
-          return product.productId
-        }else{
-          return 0
-        }
-  }))
-      : 0;
- 
+    const user = await Users.findById(userId);
+    if (!user) return { ok: false, error: "User not found" };
+    if (!user.store) return { ok: false, error: `Store not found for ${user.username}` };
 
-    const newProductId = maxId + 1;
+    const existingProduct = await Products.findOne({
+      productName: { $regex: new RegExp(`^${productName}$`, 'i') },
+      userId
+    });
+    if (existingProduct) return { ok: false, error: "A product with this name already exists" };
+    
+    // This is needed to update objects in the database when a new field has just been added. Comment this out one existing objects in the databse has been updated with the newly added field
+    // await Products.updateMany(
+    //   {storeId: {$exists: false}},
+    //   {$set: {storeId: false}}
+    // )
 
-    const newProduct = {
-      userId,
-      productId: newProductId,
-      images: imageUrls,
-      addedBy,
-      colors: Array.isArray(colors) ? colors : [colors],
+    const newProduct = new Products({
+      imageUrls,
+      addedBy: user.store.storeName,
+      colors,
       productName,
       price: Number(price),
       condition,
       deliveryMethod,
       quantity: Number(quantity),
-      sizes,
+      unitCost,
+      shoeSizes,
+      clotheSizes,
       income: 0,
       category,
       description,
-      storeName: store.storeName, 
-      storePhone: store.phone,
-      storeCity: store.city,
-      storeState: store.state,
+      storeId: user.store._id,
+      storeName: user.store.storeName,
+      storePhone: user.store.phone,
+      storeCity: user.store.city,
+      storeState: user.store.state,
       reviews: [],
-      star: 5,
+      rating: 5,
       totalVotes: 5,
       numOfItemsSold: 0,
       totalSales: 0,
       isAdded: false,
       orderStatus: "",
       productPageVisits: 0,
-      createdAt: new Date().toISOString(),
-    };
-    
-    Products.push(newProduct)
-    const updatedUser = updateUserStoreItems(userId, newProduct); //Returns updated user object
-    if (!updatedUser) {
-      return {
-        ok: false,
-        error: "Unable to update user store with new Item",
-      };
-    }
+    });
+
+    // First save product
+    const savedProduct = await newProduct.save();
+
+    // Then push product ID into user's store.items array
+    user.store.items.push(savedProduct); // make sure store.items is an array of ObjectId
+    user.markModified('store')
+    const updatedUser = await user.save();
+     
+    // Update Stores with new item
+    const userStoreInStores = await Stores.findOne({userId: user._id})
+    userStoreInStores.items.push(newProduct)
+    await userStoreInStores.save()
+
 
     return {
       ok: true,
-      message: "Product was added to your store",
-      data: updatedUser,
+      message: "Product added successfully",
+      data: updatedUser // or updated user if needed
     };
+
   } catch (error) {
     console.error("Error creating product:", error);
     return {
       ok: false,
-      error: "Internal server error",
+      error: error.message || "Internal server error"
     };
   }
 };
 
 
-
+// Update product
 export const updateProduct = async (payload) => {
   try {
     const {
@@ -135,120 +119,181 @@ export const updateProduct = async (payload) => {
       condition,
       deliveryMethod,
       quantity,
-      sizes,
+      unitCost,
+      shoeSizes,
+      clotheSizes,
       category,
       description,
     } = payload;
 
-    // Check if user exists
-    const user = Users.find((u) => u.id === Number(userId));
-    if (!user) return { ok: false, error: "User not found" };
-
-    // Check if store exists
-    const store = user.store;
-    if (!store) return { ok: false, error: `Store not found for ${user.username}` };
-    
-    // Find product index in user's store items
-    const productIndex = store.items?.findIndex(
-      (product) => product?.productId === Number(productId)
-    );
-
-    if (productIndex === -1 || !store.items?.[productIndex]) {
-      return { ok: false, error: "Product not found in store" };
+    // Find user
+    const user = await Users.findById(userId);
+    if (!user) {
+      return { ok: false, error: `User with ID ${userId} not found.` };
     }
 
-    // Create updated product
-    const updatedProduct = {
-      ...store.items[productIndex], // Keep existing properties
-      colors: colors || store.items[productIndex].colors,
-      productName: productName || store.items[productIndex].productName,
-      price: Number(price) || store.items[productIndex].price,
-      condition: condition || store.items[productIndex].condition,
-      deliveryMethod: deliveryMethod || store.items[productIndex].deliveryMethod,
-      quantity: Number(quantity) || store.items[productIndex].quantity,
-      sizes: sizes || store.items[productIndex].sizes,
-      category: category || store.items[productIndex].category,
-      description: description || store.items[productIndex].description,
-      updatedAt: new Date().toISOString(),
-    };
+    // ✅ Update user.store.items
+    if (user.store?.items) {
+      const storeIndex = user.store.items.findIndex(
+        (item) => item._id.toString() === productId
+      );
+      if (storeIndex !== -1) {
+        const item = user.store.items[storeIndex];
+        if (addedBy !== undefined) item.addedBy = addedBy;
+        if (imageUrls !== undefined) item.imageUrls = imageUrls;
+        if (colors !== undefined) item.colors = colors;
+        if (productName !== undefined) item.productName = productName;
+        if (price !== undefined) item.price = price;
+        if (condition !== undefined) item.condition = condition;
+        if (deliveryMethod !== undefined) item.deliveryMethod = deliveryMethod;
+        if (quantity !== undefined) item.quantity = quantity;
+        if(unitCost !== undefined) item.unitCost = unitCost;
+        if(shoeSizes !== undefined) item.shoeSizes = shoeSizes;
+        if(clotheSizes !== undefined) item.clotheSizes = clotheSizes;
+        if (category !== undefined) item.category = category;
+        if (description !== undefined) item.description = description;
 
-    // Update the specific product in the user's store
-    store.items[productIndex] = updatedProduct;
-
-    // Update in global Products array (if needed)
-    const globalProductIndex = Products.findIndex(
-      (p) => p.productId === Number(productId)
-    );
-    if (globalProductIndex !== -1) {
-      Products[globalProductIndex] = updatedProduct;
+        user.markModified('store');
+      }
     }
 
-    // Update user in Users array
-   const updatedUser = updateUserStoreItems(userId, updatedProduct)
-     if (!updatedUser) {
-      return {
-        ok: false,
-        error: "Unable to update user store with new Item",
-      };
+    // ✅ Update user.cart item if it exists. This makes no sen and needs work. Cart should be updated and not user.cart
+    if (user.cart?.length > 0) {
+      const cartIndex = user.cart.findIndex(
+        (item) => item._id === productId
+      );
+      if (cartIndex !== -1) {
+        const item = user.cart[cartIndex];
+        if (addedBy !== undefined) item.addedBy = addedBy;
+        if (imageUrls !== undefined) item.imageUrls = imageUrls;
+        if (colors !== undefined) item.colors = colors;
+        if (productName !== undefined) item.productName = productName;
+        if (price !== undefined) item.price = price;
+        if (condition !== undefined) item.condition = condition;
+        if (deliveryMethod !== undefined) item.deliveryMethod = deliveryMethod;
+        if (quantity !== undefined) item.quantity = quantity;
+        if(unitCost !== undefined) item.unitCost = unitCost;
+        if(shoeSizes !== undefined) item.shoeSizes = shoeSizes;
+        if(clotheSizes !== undefined) item.clotheSizes = clotheSizes;
+        if (category !== undefined) item.category = category;
+        if (description !== undefined) item.description = description;
+
+        user.markModified('cart');
+      }
+    }
+
+    await user.save(); // ✅ Only save once
+
+    // ✅ Update product in Products collection
+    const updatedProduct = await Products.findOneAndUpdate(
+      { _id: productId, storeId: user.store._id },
+      {
+        $set: {
+          ...(addedBy && { addedBy }),
+          ...(imageUrls && { imageUrls }),
+          ...(colors && { colors }),
+          ...(productName && { productName }),
+          ...(price !== undefined && { price }),
+          ...(condition && { condition }),
+          ...(deliveryMethod && { deliveryMethod }),
+          ...(quantity !== undefined && { quantity }),
+          ...(shoeSizes && { shoeSizes }),
+          ...(clotheSizes && { clotheSizes }),
+          ...(unitCost && { unitCost }),
+          ...(category && { category }),
+          ...(description && { description }),
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return { ok: false, error: 'Product not found or not owned by user.' };
+    }
+
+    // ✅ Update product inside Store model
+    const store = await Stores.findOne({ userId: user._id });
+    if (!store) {
+      return { ok: false, error: 'Store not found for this user.' };
+    }
+
+    const storeIndex = store.items.findIndex(
+      (item) => item._id.toString() === productId
+    );
+    if (storeIndex !== -1) {
+      const item = store.items[storeIndex];
+      if (addedBy !== undefined) item.addedBy = addedBy;
+      if (imageUrls !== undefined) item.imageUrls = imageUrls;
+      if (colors !== undefined) item.colors = colors;
+      if (productName !== undefined) item.productName = productName;
+      if (price !== undefined) item.price = price;
+      if (condition !== undefined) item.condition = condition;
+      if (deliveryMethod !== undefined) item.deliveryMethod = deliveryMethod;
+      if (quantity !== undefined) item.quantity = quantity;
+      if(unitCost !== undefined) item.unitCost = unitCost;
+      if(shoeSizes !== undefined) item.shoeSizes = shoeSizes;
+      if(clotheSizes !== undefined) item.clotheSizes = clotheSizes;
+      if (category !== undefined) item.category = category;
+      if (description !== undefined) item.description = description;
+
+      store.markModified('items');
+      await store.save();
     }
 
     return {
       ok: true,
-      message: "Product was updated in your store",
-      data: updatedUser, // Return the updated user
+      message: 'Product updated successfully',
+      data: user,
     };
   } catch (error) {
-    console.error("Error updating product:", error);
+    console.error('Error updating product:', error);
     return {
       ok: false,
-      error: "Internal server error",
+      error: error.message || 'Internal server error',
     };
   }
 };
 
 
 
+
 // Delete product
 export const deleteProduct = async (userId, productId) => {
   try {
-    // Find user
-    const userIndex = Users.findIndex((user) => user.id === userId);
-    if (userIndex === -1) {
-      return { ok: false, error: `User with ID ${userId} not found` };
+    const product = await Products.findOne({ _id: productId });
+
+    if (!product) {
+      return { ok: false, message: `Unable to find product with ID ${productId}` };
     }
 
-    // Get user's store
-    const userStore = Users[userIndex].store;
-    if (!userStore?.items) {
-      return { ok: false, error: `Store not found for user ${userId}` };
-    }
+    // 1. Delete from Products
+    await Products.findOneAndDelete({
+      _id: product._id,
+      storeId
+    });
 
-    // Find product
-    const productIndex = userStore.items.findIndex((p) => p.productId === productId);
-    if (productIndex === -1) {
-      return { ok: false, error: `Product with ID ${productId} not found` };
-    }
+    // 2. Remove product reference from user's store (match by embedded _id)
+    const updatedUser = await Users.findOneAndUpdate(
+      { _id: userId },
+      { $pull: { 'store.items': { _id: product._id } } },
+      { new: true }
+    );
 
-    const productToDelete = userStore.items[productIndex];
+    // 3. Remove product from Stores collection (also match embedded _id)
+    await Stores.updateOne(
+      { 'items._id': product._id },
+      { $pull: { items: { _id: product._id } } }
+    );
 
-    // Handle image deletion
-    if (productToDelete.images) {
-      const imagesToDelete = Array.isArray(productToDelete.images)
-        ? productToDelete.images
-        : [productToDelete.images];
-
+    // 4. Delete images from filesystem
+    if (product.imageUrls?.length > 0) {
       await Promise.all(
-        imagesToDelete.map(async (imagePath) => {
-          if (!imagePath) return;
-
+        product.imageUrls.map(async (imagePath) => {
           try {
             const cleanPath = cleanImagePath(imagePath);
             const filePath = getImageFilesystemPath(cleanPath);
-            
             await fs.unlink(filePath);
-            console.log(`Deleted image: ${cleanPath}`);
           } catch (err) {
-            // Ignore "file not found" errors
             if (err.code !== 'ENOENT') {
               console.error(`Error deleting image ${imagePath}:`, err);
             }
@@ -257,32 +302,44 @@ export const deleteProduct = async (userId, productId) => {
       );
     }
 
-    // Remove product from store
-    Users[userIndex].store?.items.splice(productIndex, 1);
-    const updatedProducts = getAllProducts() // We need to also return updated products
+    // 5. Fetch updated products
+    const updatedProducts = await Products.find();
 
-    Products.splice(productIndex, 1)
-
-    return { 
-      ok: true, 
+    return {
+      ok: true,
       message: 'Product deleted successfully',
-      data: {updatedUser: Users[userIndex], products: updatedProducts }
+      data: {
+        updatedUser,
+        updatedProducts,
+      }
     };
 
-  } catch (err) {
-    console.error('Error in deleteProduct:', err);
-    return { 
-      ok: false, 
-      error: 'Failed to delete product',
-      details: err.message 
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    return {
+      ok: false,
+      error: error.message || 'Failed to delete product'
     };
   }
 };
 
 
-// Get all stores
-export const getAllProducts = ()=>{
- 
-  return {ok: true, message: Products}
- 
-}
+
+
+// Update Product
+export const getAllProducts = async () => {
+  try {
+    const products = await Products.find()
+    return {
+      ok: true,
+      message: products,
+    };
+
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return {
+      ok: false,
+      error: 'Failed to fetch products'
+    };
+  }
+};

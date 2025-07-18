@@ -1,21 +1,44 @@
-import { Users } from "../models/userData.js"
+import mongoose from "mongoose";
+import { Users } from "../models/userData.js";
 
-export const verifyUser = (req, res, next)=>{
-    
-  // custom header needs to be sent in the request
+export const verifyUser = async (req, res, next) => {
+  try {
     const userId =
-    req.headers['userid'] ||
-    req.headers['userId'] ||
-    req.headers['user-id'];
-  
-      const user = Users.find((u) =>u.id === Number(userId))
-        if (!user) {
-          return res.status(403).json({ 
-            ok: false, 
-            error: 'You must be signed in before adding item to your store.' 
-          })
-        }
+      req.headers["userid"] ||
+      req.headers["userId"] ||
+      req.headers["user-id"];
 
-        next()
-        
-}
+    if (!userId) {
+      return res.status(400).json({
+        ok: false,
+        error: "Missing user ID in headers",
+      });
+    }
+    console.log('USERID', userId)
+    // Validate and convert to ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        ok: false,
+        error: "Invalid user ID format",
+      });
+    }
+
+    const user = await Users.findById(userId); // no need to wrap in ObjectId, findById handles it
+
+    if (!user) {
+      return res.status(403).json({
+        ok: false,
+        error: "User not found",
+      });
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    console.error("verifyUser error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: "Internal server error",
+    });
+  }
+};

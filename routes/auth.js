@@ -68,7 +68,7 @@ router.get('/api', (req, res)=>{
       return res.status(400).json({ error: "Missing code or email", ok: false});
     }
     console.log(authCode, authEmail)
-    const response = verifyTwoFactor(authCode, authEmail);
+    const response = await verifyTwoFactor(authCode, authEmail);
     console.log('Response', response)
     if (response?.ok) {
       // Return the token in JSON (frontend will store it)

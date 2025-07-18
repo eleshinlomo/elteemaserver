@@ -1,15 +1,12 @@
 
 import { sendSignInAlert } from "../htmpages/sendSignInAlert.js";
 import { sendVerifyEmail } from "../htmpages/sendVerifyEmail.js";
-import { Users} from "../models/userData.js"
+import { Users, Sessions} from "../models/userData.js"
 import jwt from 'jsonwebtoken';
 
 
 
 
-
-let session = []
-let codeSession = []
 const HOME_URL = process.env.HOME_URL;
 
 
@@ -44,7 +41,7 @@ export const login = async (email) => {
   }
 
   // Step 3: Find the user by email
-  const user = Users.find((user) => user.email === email);
+  const user = await Users.findOne({email: email.toLowerCase()})
   
   if (!user) {
     return {
@@ -54,9 +51,22 @@ export const login = async (email) => {
   }
 
   
-  const newCode = generateToken(user.id, user.email);
-  const updatedUser = {...user, authCode: newCode}
-  session.push(updatedUser);
+  const newCode = generateToken(user.userId, user.email);
+  user.authCode = newCode
+  user.save()
+  
+// ✅ Create or update the session
+await Sessions.findOneAndUpdate(
+  { email: user.email },
+  {
+    $set: {
+      userId: user._id,
+      authCode: user.authCode
+    }
+  },
+  { upsert: true, new: true }
+);
+
 
   const verifyLink = `${HOME_URL}?code=${newCode}&email=${user.email.toLowerCase()}`;
   
@@ -89,77 +99,81 @@ export const login = async (email) => {
 
 
 export const verifyToken = (token) => {
+  try{
   return jwt.verify(token, process.env.JWT_SECRET);
+  }catch(err){
+    console.log('JWT verify error',err)
+  }
 };
 
 
 
 // Verify 2Factor Code is used for fisrst login
-export const verifyTwoFactor = (code, email) => {
+export const verifyTwoFactor = async (code, email) => {
   try {
-    
-    const user = Users.find(user => user.email === email);
+    const user = await Users.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return {error: 'user not found', ok: false}
+      return { error: 'user not found', ok: false };
     }
 
-    if(code === "0") return {error: 'code is 0', ok: false}
+    if (code === "0") return { error: 'code is 0', ok: false };
 
     const decoded = verifyToken(code);
     if (!decoded || decoded.email !== email) {
-      return {error: 'code decoding failed', ok: false}
+      return { error: 'code decoding failed', ok: false };
     }
 
-    let userInSession = session.find((user)=> user.authCode === code)
-    if(!userInSession){
-      return {error: 'code not found in session', ok: false}
+    let userInSession = await Sessions.findOne({authCode: code, email: email.toLowerCase()});
+    if (!userInSession) {
+      return { error: 'code not found in session', ok: false };
     }
 
-    const updatedUser = {...userInSession, isLoggedIn: true}
-    const userIndex = Users.findIndex((index)=> index.id === user.id)
-    Users[userIndex] = updatedUser
-    sendSignInAlert(userInSession)
-    console.log('Successfully logged in', userInSession)
+    userInSession.isLoggedIn = true;
+    userInSession.save()
+
+    user.isLoggedIn = true;
+    const savedUser = await user.save()
+
     
+    await sendSignInAlert(savedUser);
+    console.log('Successfully logged in', savedUser);
+
     return {
       ok: true,
       message: 'Authentication successful',
-      data: updatedUser
+      data: savedUser
     };
   } catch (err) {
     console.error('Verification error:', err);
-    return {error: err, ok: false};
+    return { error: err, ok: false };
   }
 };
+
 
 // Logout.
-export const logout = (email) => {
-  // Find user index instead of the user object
-  try{
-  const userIndex = session.findIndex((user) => user.email === email);
-  
-  if (userIndex !== -1) {
-    // Create a new array without the user
-    const updatedSession = session.filter((user) => user.email !== email);
-    session = updatedSession; // Replace the session
-    console.log(' Successfully logged out')
-    return {
-      ok: true,
-      message: 'User has been logged out successfully'
-    };
-  }
+export const logout = async (email) => {
+  try {
+    // Delete the session document matching the user's email
+    const result = await Sessions.deleteOne({ "email": email.toLowerCase() });
 
-  return {
-    ok: false,
-    error: 'User not found in session'
-  };
-  }catch(err){
-    return {ok: false, error: err}
+    if (result.deletedCount > 0) {
+      return { ok: true, message: 'User has been logged out successfully'};
+    }
+
+    return {
+      ok: false,
+      error: 'User not found in session'
+    };
+  } catch (err) {
+    console.error('Logout error:', err);
+    return { ok: false, error: err.message };
   }
 };
 
+
+
 // Persist authentication
-export const persistLogin = (token, email)=>{
+export const persistLogin = async (token, email)=>{
   try{
     if(!email.trim() || !token){
       return {"ok":false, error: 'Problem with either email or token'}
@@ -170,10 +184,11 @@ export const persistLogin = (token, email)=>{
       return {error: 'code decoding failed', ok: false}
     }
 
-    const user = session.find((user)=>user.email === email)
+    const getUser = await Sessions.findOne({email: email, authCode: token})
+    const user = await Users.findOne({_id: getUser.userId})
 
     if(user){
-      return {ok: true, message: 'User is authenticated'}
+      return {ok: true, message: 'User is authenticated', data: user}
     }
 
     return {ok: false, error: 'User authentication cannot be verified'}

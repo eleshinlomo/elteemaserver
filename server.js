@@ -13,6 +13,7 @@ import feedRoutes from './routes/feedsRoute.js'
 import storeRoute from './routes/storeRoute.js'
 import paymentRoutes from './routes/payments.js'
 import productRoutes from './routes/product.js'
+import mongoose from 'mongoose'
 
 // Load environment variables
 // dotenv.config();
@@ -25,6 +26,15 @@ const __dirname = path.dirname(__filename)
 
 const app = express();
 const PORT = process.env.PORT || 3005;
+const MONGO_URL = process.env.MONGO_URL
+
+
+mongoose.connect(MONGO_URL)
+  .then(() => console.log('Server connected to the database'))
+  .catch((err) => console.error('Database connection error:', err));
+
+
+
 
 // Middleware
 app.use(express.json());

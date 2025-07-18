@@ -1,6 +1,6 @@
 import express from 'express'
 import bodyParser  from 'body-parser'
-import { createStore, getAllStores, getSingleStore, updateStore, updateStoreOrder } from '../controllers/store.js';
+import { createStore, getAllStores, getSingleStore, updateStore, updateStoreOrder, deleteStore } from '../controllers/store.js';
 
 
 
@@ -17,6 +17,9 @@ router.post('/createstore', async (req, res)=>{
         userId,
         tagline,
         storeName,
+        bankAccountName,
+        bankAccountNumber,
+        bvn,
         logo,
         phone,
         email,
@@ -30,6 +33,9 @@ router.post('/createstore', async (req, res)=>{
     const payload = {
          userId,
          tagline,
+         bankAccountName,
+        bankAccountNumber,
+        bvn,
         storeName,
         logo,
         phone,
@@ -55,6 +61,9 @@ router.put('/updatestore', async (req, res)=>{
    
     const {
         userId,
+        bankAccountName,
+        bankAccountNumber,
+        bvn,
         tagline,
         storeName,
         logo,
@@ -68,8 +77,11 @@ router.put('/updatestore', async (req, res)=>{
     } = req.body
 
     const payload = {
-         userId,
-         tagline,
+        userId,
+        bankAccountName,
+        bankAccountNumber,
+        bvn,
+        tagline,
         storeName,
         logo,
         phone,
@@ -102,20 +114,14 @@ router.get('/allstores', (req, res)=>{
 
 
   // Update store order
-router.put('/updateorder', (req, res)=>{
+router.put('/updateorder', async (req, res)=>{
     const {items, buyerId} = req.body
 
     if(!items || items.length === 0){
       return res.json({error: 'Items to add not found', "ok": false})
     }
 
-    if(!buyerId){
-      return res.json({error: 'Buyer id not found', "ok": false})
-    }
-
-   
-
-    const response = updateStoreOrder(items, buyerId)
+    const response = await updateStoreOrder(items, buyerId)
     
     if(response.ok){
         return res.status(200).json(response)
@@ -133,6 +139,19 @@ router.put('/updateorder', (req, res)=>{
      }
 
      return res.status(403).json(response)
+ })
+
+
+// Delete store
+ router.delete('/deletestore', async (req, res)=>{
+    const {userId} = req.body
+    const response = await deleteStore(userId)
+    if(response.ok){
+     return res.status(200).json(response)
+    }
+ 
+    return res.status(403).json(response)
+ 
  })
 
 

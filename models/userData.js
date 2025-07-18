@@ -1,73 +1,53 @@
 import { Products } from "./productData.js"
+import mongoose from "mongoose"
+
+
+// Session
+const sessionSchema = new mongoose.Schema({
+    userId: {type: mongoose.Schema.Types.ObjectId, ref: 'Users'}, 
+    email: {type: String, default: '', unique: true},
+    authCode: {type: String, default: '', unique: true}
+})
+
+
+// User
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true, lowercase: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  authCode: { type: String, default: '0' },
+  paymentEmail: { type: String, default: '' },
+  paymentMethod: { type: String, default: '' },
+  cart: { type: Array, default: [] },
+  isCookieAccepted: {type: Boolean, default: false},
+  isLoggedIn: { type: Boolean, default: false },
+  type: { type: String, default: "customer" },
+  role: { type: String, default: "customer" },
+  service: { type: String, default: "Petrolage Store" },
+  createdAt: { type: Date, default: Date.now },
+  firstname: { type: String, default: '' },
+  lastname: { type: String, default: '' },
+  phone: { type: String, default: '' },
+  address: { type: String, default: '' },
+  orders: { type: Array, default: [] },
+  gender: { type: String, default: '' },
+  city: { type: String, default: '' },
+  store: { type: Object, default: null },
+  state: { type: String, default: '' },
+  isNewsletter: { type: Boolean, default: true }
+},
+{ timestamps: true}
+)
+
+
+export const Users = mongoose.model("users", userSchema)
+export const Sessions = mongoose.model("sessions", sessionSchema)
+
 
            
            
 
 
-           export const admin = {
-                       id:1,
-                       authCode: '0',
-                       username: 'Elesh',
-                       email: 'seun.olatunji2@gmail.com',
-                       type: 'admin',
-                       role: 'admin',
-                       cookiesAccepted: false,
-                       name: '',
-                       phone: '',
-                       address: '',
-                       state: '',
-                       newsletter: true,
-                       
-                   }
-
-            // Anonymous Users
-            export const anonymousUsers = [
-                {
-                    "username": "",
-                    'email': 'anonymous@demo.com',
-                    "cart": [],
-                    "isLoggedIn": false,
-                    "type": 'customer',
-                    "role": "customer",
-                    "createdAt": new Date(),
-                    "cookiesAccepted": false,
-                    name: '',
-                    phone: '',
-                    address: '',
-                    state: '',
-                    newsletter: true,
-                  }
-               
-            ]
-
-
-            // User
-            // Has only one demo data
-    export const Users= [
-    // {
-    // id: 1,
-    // authCode: '0',
-    // "username": 'elesh',
-    // 'email': 'seun.olatunji2@gmail.com',
-    // "cart": [],
-    // "isLoggedIn": false,
-    // "type": "customer",
-    // "role": 'customer',
-    // "service": "Petrolage Store",
-    // "createdAt": new Date(),
-    // firstname: '',
-    // lastname: '',
-    // phone: '',
-    // address: '',
-    // orders: [], //When items in the cart are paid for, they move to orders.
-    // gender: '',
-    // city: '',
-    // state: '',
-    // isNewsletter: true,
-    // store: {name: 'Elteema', logo: 'Elteema', items: Products},
-    // }
-          ]
-            
+   
         
 
           
