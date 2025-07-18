@@ -267,25 +267,21 @@ export const deleteProduct = async (userId, productId) => {
     }
 
     // 1. Delete from Products
-    await Products.findOneAndDelete({
-      _id: product._id,
-      storeId
-    });
+    await Products.deleteOne({ _id: productId });
 
-    // 2. Remove product reference from user's store (match by embedded _id)
-    const updatedUser = await Users.findOneAndUpdate(
-      { _id: userId },
-      { $pull: { 'store.items': { _id: product._id } } },
-      { new: true }
+    // 2. Remove product from all users' embedded store items
+    await Users.updateMany(
+      { 'store.items._id': product._id },
+      { $pull: { 'store.items': { _id: product._id } } }
     );
 
-    // 3. Remove product from Stores collection (also match embedded _id)
-    await Stores.updateOne(
+    // 3. Remove product from all stores' items
+    await Stores.updateMany(
       { 'items._id': product._id },
       { $pull: { items: { _id: product._id } } }
     );
 
-    // 4. Delete images from filesystem
+    // 4. Delete image files
     if (product.imageUrls?.length > 0) {
       await Promise.all(
         product.imageUrls.map(async (imagePath) => {
@@ -304,6 +300,7 @@ export const deleteProduct = async (userId, productId) => {
 
     // 5. Fetch updated products
     const updatedProducts = await Products.find();
+    const updatedUser = await Users.findOne({_id: userId})
 
     return {
       ok: true,
@@ -313,7 +310,6 @@ export const deleteProduct = async (userId, productId) => {
         updatedProducts,
       }
     };
-
   } catch (error) {
     console.error('Error deleting product:', error);
     return {

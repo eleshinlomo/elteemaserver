@@ -184,8 +184,13 @@ export const persistLogin = async (token, email)=>{
       return {error: 'code decoding failed', ok: false}
     }
 
-    const getUser = await Sessions.findOne({email: email, authCode: token})
-    const user = await Users.findOne({_id: getUser.userId})
+    const userInSession = await Sessions.findOne({email: email, authCode: token})
+    let user;
+    if(!userInSession){
+      return {ok: false, error: 'User not found in session'}
+    }
+    user = await Users.findOne({_id: userInSession.userId})
+    
 
     if(user){
       return {ok: true, message: 'User is authenticated', data: user}
