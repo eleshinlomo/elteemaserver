@@ -186,6 +186,73 @@ export const getSingleStore = async (storeName)=>{
 }
 
 
+// Delete user order
+export const deleteStoreOrder = async (storeName, orderId, buyerId) => {
+  try {
+    const store = await Stores.findOne({ storeName: storeName });
+    if (!store) {
+      return { ok: false, error: `No store with storename ${storeName} not found` };
+    }
+
+    const storeOrders = store.orders.currentOrders || [];
+    if (storeOrders.length === 0) {
+      return { ok: false, error: 'No orders found in your store' };
+    }
+    console.log('STORE ODERS', storeOrders)
+    const orderExists = storeOrders.find((order) => order._id === orderId);
+    if (!orderExists) {
+      return { ok: false, error: `No order with orderId ${orderId} found in your store` };
+    }
+
+    // Remove from buyer's orders
+    const buyer = await Users.findOne({_id: buyerId})
+    if(!buyer){
+      return {ok: false, error: `No buyer with ${buyerId} found`}
+    }
+
+    buyer.orders = buyer.orders.filter((order) => order._id !== orderId);
+    buyer.markModified('orders');
+    await buyer.save();
+
+   
+
+    // Remove from Stores collection
+ 
+      const currentOrdersInStores = store.orders.currentOrders || [];
+      store.orders.currentOrders = currentOrdersInStores.filter(
+        (order) => order._id !== orderId
+      );
+      store.markModified('orders');
+      await store.save();
+    
+
+    // Find the store owner and remove from their store orders
+    const storeInUsers = await Users.findOne({ 'store.storeName': storeName });
+    if(!storeInUsers){
+      return {ok: false, error: `Your store was not found in Users`}
+    }
+  
+      const currentOrdersInUsers = storeInUsers.store.orders.currentOrders || [];
+      storeInUsers.store.orders.currentOrders = currentOrdersInUsers.filter(
+        (order) => order._id !== orderId
+      );
+      storeInUsers.markModified('store');
+      const updatedUser = await storeInUsers.save();
+    
+
+    return {
+      ok: true,
+      message: 'Your store order has been deleted successfully',
+      data: updatedUser,
+    };
+  } catch (err) {
+    console.error('Error deleting order:', err);
+    return { ok: false, error: 'An error occurred while deleting the order' };
+  }
+};
+
+
+
 
 // Get all stores
 export const getAllStores = async () => {
@@ -195,79 +262,6 @@ export const getAllStores = async () => {
   } catch (error) {
     console.error('Error fetching stores:', error);
     return {ok: false, error: 'Could not fetch stores'};
-  }
-};
-
-
-
-// Update Store Orders
-export const updateStoreOrder = async (orders, buyerId) => {
-  try {
-    const buyer = await Users.findOne({ _id: buyerId });
-    if (!buyer) {
-      return { ok: false, error: `The buyer with id ${buyerId} was not found` };
-    }
-
-    const allStores = await Stores.find(); // Get all stores once
-
-    for (const newOrder of orders) {
-      // 1. Find the seller in Stores
-      const seller = allStores.find(
-        (s) => s?.storeName?.toLowerCase() === newOrder.storeName?.toLowerCase()
-      );
-
-      if (!seller) {
-        console.warn('SELLER NOT FOUND for', newOrder.storeName);
-        continue;
-      }
-
-      // 2. Update the seller's main store (in Stores collection)
-      const confirmedSellerStore = await Stores.findOne({ _id: seller._id });
-      if (!confirmedSellerStore) continue;
-
-      if (confirmedSellerStore.orders.currentOrders.length > 0) {
-        confirmedSellerStore.orders.lastOrders.push(...confirmedSellerStore.orders.currentOrders);
-        confirmedSellerStore.orders.currentOrders = [];
-      }
-
-      confirmedSellerStore.orders.currentOrders.push(newOrder);
-      confirmedSellerStore.markModified('orders');
-      await confirmedSellerStore.save();
-
-      // 3. Update the seller’s store *inside the Users collection*
-      const sellerUser = await Users.findOne({
-        'store.storeName': newOrder.storeName,
-      });
-
-      if (!sellerUser || !sellerUser.store) {
-        console.warn(`Store ${newOrder.storeName} not found in any user`);
-        continue;
-      }
-
-      if (sellerUser.store.orders.currentOrders.length > 0) {
-        sellerUser.store.orders.lastOrders.push(...sellerUser.store.orders.currentOrders);
-        sellerUser.store.orders.currentOrders = [];
-      }
-
-      sellerUser.store.orders.currentOrders.push(newOrder);
-      sellerUser.markModified('store');
-      await sellerUser.save();
-
-      // 4. Add order to buyer’s orders
-      buyer.orders.push(newOrder);
-    }
-
-    // Final buyer update
-    buyer.markModified('orders');
-    buyer.cart = [];
-    buyer.markModified('cart');
-    const updatedBuyer = await buyer.save();
-
-    return { ok: true, message: 'Your order has been placed', data: updatedBuyer };
-
-  } catch (err) {
-    console.error('Order Update Error:', err);
-    return { ok: false, error: 'An error occurred while placing the order.' };
   }
 };
 

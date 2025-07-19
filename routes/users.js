@@ -1,7 +1,7 @@
 import express from 'express'
 import { Users} from '../models/userData.js'
 import bodyParser  from 'body-parser'
-import { deleteUser, deleteUserOrder, registerUser, updatePaymentMethod, updateUser, updateUserCart, updateUserCookie } from '../controllers/userController.js'
+import { createUserOrder, deleteUser, deleteUserOrder, registerUser, updatePaymentMethod, updateUser, updateUserCart, updateUserCookie } from '../controllers/userController.js'
 
 const router = express.Router()
 router.use(bodyParser.json());
@@ -146,6 +146,24 @@ router.get('/users', async (req, res) => {
 })
 
 
+  // Create user order
+router.put('/createuserorder', async (req, res)=>{
+    const {items, buyerId} = req.body
+
+    if(!items || items.length === 0){
+      return res.json({error: 'Items to add not found', "ok": false})
+    }
+
+    const response = await createUserOrder(items, buyerId)
+    
+    if(response.ok){
+        return res.status(200).json(response)
+    }
+     return res.status(403).json(response)
+ })
+
+
+//  Delete user order
 router.delete('/deleteuserorder', async (req, res)=>{
    const {userId, orderId} = req.body
    const response = await deleteUserOrder(userId, orderId)

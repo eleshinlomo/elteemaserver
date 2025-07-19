@@ -1,6 +1,6 @@
 import express from 'express'
 import bodyParser  from 'body-parser'
-import { createStore, getAllStores, getSingleStore, updateStore, updateStoreOrder, deleteStore } from '../controllers/store.js';
+import { createStore, getAllStores, getSingleStore, updateStore,  deleteStore, deleteStoreOrder } from '../controllers/store.js';
 
 
 
@@ -113,21 +113,7 @@ router.get('/allstores', (req, res)=>{
  })
 
 
-  // Update store order
-router.put('/updateorder', async (req, res)=>{
-    const {items, buyerId} = req.body
 
-    if(!items || items.length === 0){
-      return res.json({error: 'Items to add not found', "ok": false})
-    }
-
-    const response = await updateStoreOrder(items, buyerId)
-    
-    if(response.ok){
-        return res.status(200).json(response)
-    }
-     return res.status(403).json(response)
- })
 
 
 //  Get Single store
@@ -139,6 +125,19 @@ router.put('/updateorder', async (req, res)=>{
      }
 
      return res.status(403).json(response)
+ })
+
+
+ //  Delete store order
+ router.delete('/deletestoreorder', async (req, res)=>{
+    const {storeName, orderId, buyerId} = req.body
+    const response = await deleteStoreOrder(storeName, orderId, buyerId)
+    if(response.ok){
+     return res.status(200).json(response)
+    }
+ 
+    return res.status(403).json(response)
+ 
  })
 
 

@@ -2,7 +2,7 @@ import { sendNewUserAlert } from "../htmpages/sendNewUserAlert.js";
 import { Products } from "../models/productData.js";
 import { Stores } from "../models/storeData.js";
 import { Sessions, Users } from "../models/userData.js";
-import { updateStoreOrder } from "./store.js";
+
 
 
 
@@ -180,38 +180,150 @@ export const updatePaymentMethod = async (payload)=>{
 }
 
 
+// Update Store Orders
+export const createUserOrder = async (orders, buyerId) => {
+  try {
+    const buyer = await Users.findById(buyerId);
+    if (!buyer) {
+      return { ok: false, error: `The buyer with id ${buyerId} was not found` };
+    }
+
+    // Step 1: Group orders by storeName
+    const ordersByStore = orders.reduce((acc, order) => {
+      const storeName = order.storeName?.toLowerCase();
+      if (storeName) {
+        if (!acc[storeName]) acc[storeName] = [];
+        acc[storeName].push(order);
+      }
+      return acc;
+    }, {});
+
+    // Step 2: Process each store's orders
+    for (const [storeName, storeOrders] of Object.entries(ordersByStore)) {
+      // 2a. Update seller in Stores collection
+      const sellerStore = await Stores.findOne({ storeName });
+      if (!sellerStore) {
+        console.warn(`Seller store not found for "${storeName}"`);
+        continue;
+      }
+
+      // Add new orders to currentOrders while preserving existing ones
+      sellerStore.orders.currentOrders = [
+        ...sellerStore.orders.currentOrders,
+        ...storeOrders.map(order => ({
+          ...order,
+          orderStatus: order.orderStatus, // Ensure new orders have initial status
+          createdAt: new Date()
+        }))
+      ];
+
+      sellerStore.markModified('orders');
+      await sellerStore.save();
+
+      // 2b. Update seller store in Users collection
+      const sellerUser = await Users.findOne({ 'store.storeName': storeName });
+      if (sellerUser?.store) {
+        sellerUser.store.orders.currentOrders = [
+          ...sellerUser.store.orders.currentOrders,
+          ...storeOrders.map(order => ({
+            ...order,
+            orderStatus: order.orderStatus,
+            createdAt: new Date()
+          }))
+        ];
+        sellerUser.markModified('store.orders');
+        await sellerUser.save();
+      }
+
+      // 2c. Add store orders to buyer's order history
+      buyer.orders.push(...storeOrders.map(order => ({
+        ...order,
+        orderStatus: order.orderStatus,
+        createdAt: new Date()
+      })));
+    }
+
+    // Step 3: Clear buyer's cart and save updates
+    buyer.cart = [];
+    buyer.markModified('orders');
+    buyer.markModified('cart');
+    const updatedBuyer = await buyer.save();
+
+    return { 
+      ok: true, 
+      message: 'Your order has been placed', 
+      data: updatedBuyer 
+    };
+
+  } catch (err) {
+    console.error('Order Update Error:', err);
+    return { 
+      ok: false, 
+      error: 'An error occurred while placing the order.',
+      details: err.message 
+    };
+  }
+};
+
+
 // Delete user order
-export const deleteUserOrder = async (userId, orderId)=>{
-  try{
-  const user = await Users.findOne({_id: userId})
-  if(!user){
-    return {ok: false, error: `No user with id ${userId} found`}
+export const deleteUserOrder = async (userId, orderId) => {
+  try {
+    const user = await Users.findOne({ _id: userId });
+    if (!user) {
+      return { ok: false, error: `No user with id ${userId} found` };
+    }
+
+    const userOrders = user.orders || [];
+    if (userOrders.length === 0) {
+      return { ok: false, error: 'You have not ordered anything' };
+    }
+
+    const orderExists = userOrders.find((order) => order._id === orderId);
+    if (!orderExists) {
+      return { ok: false, error: `No order with orderId ${orderId} found` };
+    }
+
+    // Remove from buyer's orders
+    user.orders = userOrders.filter((order) => order._id !== orderId);
+    user.markModified('orders');
+    const updatedUser = await user.save();
+
+    const storeName = orderExists.storeName;
+
+    // Remove from Stores collection
+    const storeInStores = await Stores.findOne({ storeName: storeName });
+    if (storeInStores) {
+      const currentOrdersInStores = storeInStores.orders.currentOrders || [];
+      storeInStores.orders.currentOrders = currentOrdersInStores.filter(
+        (order) => order._id !== orderId
+      );
+      storeInStores.markModified('orders');
+      await storeInStores.save();
+    }
+
+    // Remove from Users collection (the store owner's embedded store)
+    const storeInUsers = await Users.findOne({ 'store.storeName': storeName });
+    if (storeInUsers?.store?.orders) {
+      const currentOrdersInUsers = storeInUsers.store.orders.currentOrders || [];
+      storeInUsers.store.orders.currentOrders = currentOrdersInUsers.filter(
+        (order) => order._id !== orderId
+      );
+      storeInUsers.markModified('store');
+      await storeInUsers.save();
+    }
+
+    return {
+      ok: true,
+      message: 'Your order has been deleted successfully',
+      data: updatedUser.orders,
+    };
+  } catch (err) {
+    console.error('Error deleting order:', err);
+    return { ok: false, error: 'An error occurred while deleting the order' };
   }
-  
-  const userOrders = user.orders
-  if(userOrders?.length === 0){
-    return {ok: false, error: 'You have not ordered anything'}
-  }
+};
 
-  const orderExists = userOrders.find((order)=>order._id === orderId)
-  console.log('ORDER TO DELETE', orderExists)
-  if(!orderExists){
-    return {of: false, error: `No order with orderId ${orderId} found`}
-  }
-
-  user.orders = userOrders.filter((order)=>order._id !== orderExists._id)
-  user.markModified('orders')
-  await user.save()
-
-
-  // await Stores.deleteOne({userId: userId})
-  
-
-  return {ok: true, message: 'Your order has been deleted successfully', data: user.orders}
-}catch(err){
-  console.log('Error:', err)
-}
-}
 
 
 // Delete user
