@@ -7,11 +7,10 @@ import { Stores } from "../models/storeData.js";
 
 
 
-export const createProduct = async (payload) => {
+export const createProduct = async (imageUrls, payload) => {
   try {
     const {
       userId,
-      imageUrls,
       colors,
       productName,
       price,
@@ -78,8 +77,7 @@ export const createProduct = async (payload) => {
     // First save product
     const savedProduct = await newProduct.save();
 
-    // Then push product ID into user's store.items array
-    user.store.items.push(savedProduct); // make sure store.items is an array of ObjectId
+    user.store.items.push(savedProduct); 
     user.markModified('store')
     const updatedUser = await user.save();
      
@@ -106,13 +104,12 @@ export const createProduct = async (payload) => {
 
 
 // Update product
-export const updateProduct = async (payload) => {
+export const updateProduct = async (imageUrls, payload) => {
   try {
     const {
       userId,
       productId,
       addedBy,
-      imageUrls,
       colors,
       productName,
       price,
@@ -125,6 +122,21 @@ export const updateProduct = async (payload) => {
       category,
       description,
     } = payload;
+
+
+    // 1. Get the product first (for fallback imageUrls)
+const existingProduct = await Products.findById(payload.productId);
+if (!existingProduct) {
+  return { ok: false, error: 'Product not found.' };
+}
+
+// 2. Fallback: use existing imageUrls if no new ones are provided
+const finalImageUrls =
+  Array.isArray(imageUrls) && imageUrls.length > 0
+    ? imageUrls
+    : existingProduct.imageUrls;
+
+
 
     // Find user
     const user = await Users.findById(userId);
@@ -140,10 +152,10 @@ export const updateProduct = async (payload) => {
       if (storeIndex !== -1) {
         const item = user.store.items[storeIndex];
         if (addedBy !== undefined) item.addedBy = addedBy;
-        if (imageUrls !== undefined) item.imageUrls = imageUrls;
+        if (imageUrls) item.imageUrls = finalImageUrls;
         if (colors !== undefined) item.colors = colors;
         if (productName !== undefined) item.productName = productName;
-        if (price !== undefined) item.price = price;
+        if (price !== undefined) item.price = Number(price);
         if (condition !== undefined) item.condition = condition;
         if (deliveryMethod !== undefined) item.deliveryMethod = deliveryMethod;
         if (quantity !== undefined) item.quantity = quantity;
@@ -165,7 +177,7 @@ export const updateProduct = async (payload) => {
       if (cartIndex !== -1) {
         const item = user.cart[cartIndex];
         if (addedBy !== undefined) item.addedBy = addedBy;
-        if (imageUrls !== undefined) item.imageUrls = imageUrls;
+        if (imageUrls) item.imageUrls = finalImageUrls;
         if (colors !== undefined) item.colors = colors;
         if (productName !== undefined) item.productName = productName;
         if (price !== undefined) item.price = price;
@@ -190,7 +202,7 @@ export const updateProduct = async (payload) => {
       {
         $set: {
           ...(addedBy && { addedBy }),
-          ...(imageUrls && { imageUrls }),
+          ...(imageUrls && { finalImageUrls}),
           ...(colors && { colors }),
           ...(productName && { productName }),
           ...(price !== undefined && { price }),
@@ -223,7 +235,7 @@ export const updateProduct = async (payload) => {
     if (storeIndex !== -1) {
       const item = store.items[storeIndex];
       if (addedBy !== undefined) item.addedBy = addedBy;
-      if (imageUrls !== undefined) item.imageUrls = imageUrls;
+      if (imageUrls !== undefined) item.imageUrls = finalImageUrls;
       if (colors !== undefined) item.colors = colors;
       if (productName !== undefined) item.productName = productName;
       if (price !== undefined) item.price = price;

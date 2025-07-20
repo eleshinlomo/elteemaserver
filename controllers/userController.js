@@ -316,7 +316,7 @@ export const deleteUserOrder = async (userId, orderId) => {
     return {
       ok: true,
       message: 'Your order has been deleted successfully',
-      data: updatedUser.orders,
+      data: updatedUser,
     };
   } catch (err) {
     console.error('Error deleting order:', err);
