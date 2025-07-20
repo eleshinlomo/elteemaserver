@@ -278,6 +278,31 @@ export const deleteProduct = async (userId, productId) => {
       return { ok: false, message: `Unable to find product with ID ${productId}` };
     }
 
+    // Prevent deleting product if it's in any user order
+    const userHasProductInOrders = await Users.findOne({
+      'orders._id': productId
+    });
+
+    if (userHasProductInOrders) {
+      return {
+        ok: false,
+        error: 'You cannot delete a product that has been ordered by a user. Please cancel the order first.'
+      };
+    }
+
+    // Prevent deleting if in store current orders
+    const storeHasProductInCurrentOrders = await Stores.findOne({
+      'orders.currentOrders._id': productId
+    });
+
+    if (storeHasProductInCurrentOrders) {
+      return {
+        ok: false,
+        error: 'You cannot delete a product that is in an ongoing store order. Please cancel the order first.'
+      };
+    }
+
+
     // 1. Delete from Products
     await Products.deleteOne({ _id: productId });
 
@@ -334,7 +359,7 @@ export const deleteProduct = async (userId, productId) => {
 
 
 
-// Update Product
+// Get all Products
 export const getAllProducts = async () => {
   try {
     const products = await Products.find()

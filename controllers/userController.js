@@ -221,18 +221,18 @@ export const createUserOrder = async (orders, buyerId) => {
       await sellerStore.save();
 
       // 2b. Update seller store in Users collection
-      const sellerUser = await Users.findOne({ 'store.storeName': storeName });
-      if (sellerUser?.store) {
-        sellerUser.store.orders.currentOrders = [
-          ...sellerUser.store.orders.currentOrders,
+     const sellerInUsers = await Users.findOne({ 'store.storeName': new RegExp(`^${storeName}$`, 'i') });
+      if (sellerInUsers?.store) {
+        sellerInUsers.store.orders.currentOrders = [
+          ...sellerInUsers.store.orders.currentOrders,
           ...storeOrders.map(order => ({
             ...order,
             orderStatus: order.orderStatus,
             createdAt: new Date()
           }))
         ];
-        sellerUser.markModified('store.orders');
-        await sellerUser.save();
+        sellerInUsers.markModified('store.orders');
+        await sellerInUsers.save();
       }
 
       // 2c. Add store orders to buyer's order history

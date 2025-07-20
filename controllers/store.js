@@ -104,6 +104,8 @@ export const updateStore = async (payload) => {
     return { ok: false, error: 'No store found for user' };
   }
 
+
+
   // ✅ Update user.store nested object safely
   if (user.store) {
     if (tagline) user.store.tagline = tagline;
@@ -145,8 +147,10 @@ export const updateStore = async (payload) => {
   );
 
   // ✅ Update store fields in all user’s products
+
+ const storeId = user.store._id
   await Products.updateMany(
-    { userId },
+    { storeId },
     {
       $set: {
         ...(storeName && { storeName }),
@@ -198,7 +202,7 @@ export const deleteStoreOrder = async (storeName, orderId, buyerId) => {
     if (storeOrders.length === 0) {
       return { ok: false, error: 'No orders found in your store' };
     }
-    console.log('STORE ODERS', storeOrders)
+  
     const orderExists = storeOrders.find((order) => order._id === orderId);
     if (!orderExists) {
       return { ok: false, error: `No order with orderId ${orderId} found in your store` };
@@ -271,19 +275,33 @@ export const getAllStores = async () => {
 // Delete store
 export const deleteStore = async (userId)=>{
   try{
-  const userStore = await Stores.findOne({userId: userId})
-  if(!userStore){
-    return {ok: false, error: `No store with user id ${userId} found`}
+  
+  const user = await Users.findOne({_id: userId})
+  if(!user){
+    return {ok: false, error: `No user with id ${userId} found`}
   }
-  
-  
-  await Products.deleteMany({storeId: userStore._id})
+
+  const currentOrders = user.store.orders.currentOrders
+
+  if(currentOrders?.length > 0){
+    return {ok: false, error: 'You cannot delete a store with pending orders'}
+  }
+
+  const storeItems = user.store.items
+  if(storeItems?.length > 0){
+    return {ok: false, error: 'Please delete all your store items before deleting your store'}
+  }
+
+
+  await Products.deleteMany({storeId: user.store._id})
   await Users.updateOne(
     {_id: userId},
     {$unset: {store: ""}}
   )
-  await Stores.deleteOne({_id: userStore._id})
+  await Stores.deleteOne({_id: user.store._id})
+
   const updatedUser = await Users.findOne({_id: userId})
+  
   
   return {ok: true, message: 'Your store has been deleted successfully', data: updatedUser}
 }catch(err){
