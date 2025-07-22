@@ -4,6 +4,12 @@ import fs from 'fs/promises';
 import { Users } from "../models/userData.js";
 import { cleanImagePath, getImageFilesystemPath } from "../utils.js";
 import { Stores } from "../models/storeData.js";
+import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+
+
+
+const s3Client = new S3Client({ region: process.env.BUCKET_REGION });
+
 
 
 
@@ -278,7 +284,7 @@ export const deleteProduct = async (userId, productId) => {
       return { ok: false, message: `Unable to find product with ID ${productId}` };
     }
 
-    // Prevent deleting product if it's in any user order
+     // Prevent deleting product if it's in any user order
     const userHasProductInOrders = await Users.findOne({
       'orders._id': productId
     });
@@ -302,42 +308,40 @@ export const deleteProduct = async (userId, productId) => {
       };
     }
 
+    // 🧹 Delete product images from S3
+    if (product.imageUrls?.length > 0) {
+      await Promise.all(product.imageUrls.map(async (url) => {
+        try {
+          const urlParts = url.split('/');
+          const key = urlParts.slice(3).join('/'); // after the bucket name
+          await s3Client.send(new DeleteObjectCommand({
+            Bucket: process.env.BUCKET_NAME,
+            Key: key,
+          }));
+        } catch (err) {
+          console.error(`Error deleting image from S3: ${url}`, err);
+        }
+      }));
+    }
 
-    // 1. Delete from Products
+    // 🗑️ Delete product from Products collection
     await Products.deleteOne({ _id: productId });
 
-    // 2. Remove product from all users' embedded store items
+    // 🧼 Remove product from all users
     await Users.updateMany(
       { 'store.items._id': product._id },
       { $pull: { 'store.items': { _id: product._id } } }
     );
 
-    // 3. Remove product from all stores' items
+    // 🧼 Remove product from all stores
     await Stores.updateMany(
       { 'items._id': product._id },
       { $pull: { items: { _id: product._id } } }
     );
 
-    // 4. Delete image files
-    if (product.imageUrls?.length > 0) {
-      await Promise.all(
-        product.imageUrls.map(async (imagePath) => {
-          try {
-            const cleanPath = cleanImagePath(imagePath);
-            const filePath = getImageFilesystemPath(cleanPath);
-            await fs.unlink(filePath);
-          } catch (err) {
-            if (err.code !== 'ENOENT') {
-              console.error(`Error deleting image ${imagePath}:`, err);
-            }
-          }
-        })
-      );
-    }
-
-    // 5. Fetch updated products
+    // ✅ Return updated state
     const updatedProducts = await Products.find();
-    const updatedUser = await Users.findOne({_id: userId})
+    const updatedUser = await Users.findOne({ _id: userId });
 
     return {
       ok: true,
@@ -355,6 +359,7 @@ export const deleteProduct = async (userId, productId) => {
     };
   }
 };
+
 
 
 

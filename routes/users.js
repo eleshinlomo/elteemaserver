@@ -43,23 +43,8 @@ if(user?.role === 'admin'){
 
 //  Update User
  router.put('/updateuser', async (req, res)=>{
-    const {id, cart, username,firstname,lastname,email,phone,address, gender, city, state} = req.body
-
-        const payload = {
-        userId: id,
-        cart,
-        username,
-        firstname,
-        lastname,
-        email,
-        phone,
-        address,
-        gender, city, state
-
-        }
-
-    console.log(payload)
-    const response = await updateUser(id, payload)
+    const payload = {...req.body}
+    const response = await updateUser(payload)
 
         if(response.ok){
             

@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema({
   city: { type: String, default: '' },
   store: { type: Object, default: null },
   state: { type: String, default: '' },
+  country: {type: String, default: ''},
   isNewsletter: { type: Boolean, default: true }
 },
 { timestamps: true}

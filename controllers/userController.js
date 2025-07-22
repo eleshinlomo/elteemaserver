@@ -73,13 +73,14 @@ export const registerUser = async (email, username) => {
 
 
 // Update user
-export const updateUser = async (userId, payload) => {
+export const updateUser = async (payload) => {
   try {
     if (!payload) {
       return { ok: false, error: 'No payload' };
     }
 
     const {
+      userId,
       cart,
       firstname,
       lastname,
@@ -88,7 +89,8 @@ export const updateUser = async (userId, payload) => {
       address,
       gender,
       city,
-      state
+      state,
+      country
     } = payload;
 
     let user = await Users.findById(userId);
@@ -106,6 +108,7 @@ export const updateUser = async (userId, payload) => {
     if (gender !== undefined) user.gender = gender;
     if (city !== undefined) user.city = city;
     if (state !== undefined) user.state = state;
+    if (country !== undefined) user.country = country;
 
     const savedUpdatedUser = await user.save();
 
