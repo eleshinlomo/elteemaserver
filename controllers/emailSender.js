@@ -20,9 +20,9 @@ export const sendEmail = (recieverEmail, emailBody, messageSubject) => {
 
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-                reject({ error: error.message, ok: false });  // Reject if there’s an error
+                reject({ error: error.message, ok: false });  
             } else {
-                resolve({ accepted: info.accepted, message: 'Verification email sent!', ok: true });  // Resolve with a success message
+                resolve({ accepted: info.accepted, message: 'Verification email sent!', ok: true }); 
             }
         });
     });

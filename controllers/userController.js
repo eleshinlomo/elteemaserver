@@ -1,3 +1,5 @@
+import { sendOrderCancellationEmail } from "../htmpages/orderCancellation.js";
+import { sendOrderConfiramtionEmail } from "../htmpages/orderConfirmations.js";
 import { sendNewUserAlert } from "../htmpages/sendNewUserAlert.js";
 import { Products } from "../models/productData.js";
 import { Stores } from "../models/storeData.js";
@@ -251,6 +253,9 @@ export const createUserOrder = async (orders, buyerId) => {
     buyer.markModified('orders');
     buyer.markModified('cart');
     const updatedBuyer = await buyer.save();
+    if(updatedBuyer){
+      sendOrderConfiramtionEmail(updatedBuyer)
+    }
 
     return { 
       ok: true, 
@@ -287,10 +292,6 @@ export const deleteUserOrder = async (userId, orderId) => {
       return { ok: false, error: `No order with orderId ${orderId} found` };
     }
 
-    // Remove from buyer's orders
-    user.orders = userOrders.filter((order) => order._id !== orderId);
-    user.markModified('orders');
-    const updatedUser = await user.save();
 
     const storeName = orderExists.storeName;
 
@@ -314,6 +315,16 @@ export const deleteUserOrder = async (userId, orderId) => {
       );
       storeInUsers.markModified('store');
       await storeInUsers.save();
+    }
+
+    
+    // Remove from buyer's orders
+    user.orders = userOrders.filter((order) =>order._id !== orderId);
+
+    user.markModified('orders');
+    const updatedUser = await user.save();
+    if(updatedUser){
+      sendOrderCancellationEmail(updatedUser, orderId)
     }
 
     return {
