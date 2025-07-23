@@ -103,49 +103,60 @@ router.post('/createproduct', upload.array('images'), async (req, res) => {
 // Update Product with file uploads
 router.put('/updateproduct', upload.array('images'), async (req, res) => {
   try {
-    
-       // Image upload
-    const files = req.files;
+    // Process uploaded images
+    const imageUrls = await Promise.all(
+      (req.files || []).map(async (file) => {
+        const ext = file.originalname.split('.').pop()?.toLowerCase();
+        if (!ext || !['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) {
+          throw new Error(`Invalid file extension for file ${file.originalname}`);
+        }
 
-      const imageUrls = await Promise.all(files.map(async (file, index) => {
-      const ext = file.originalname.split('.').pop()?.toLowerCase();
-      if (!ext || !['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) {
-        throw new Error(`Invalid file extension for file ${index}`);
-      }
+        const key = `products/${Date.now()}-${file.originalname}`;
+        
+        await s3Client.send(new PutObjectCommand({
+          Bucket: process.env.BUCKET_NAME,
+          Key: key,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        }));
 
-      const key = `products/${Date.now()}-${file.originalname}`;
+        return `https://${process.env.BUCKET_NAME}.s3.amazonaws.com/${key}`;
+      })
+    );
 
-      await s3Client.send(new PutObjectCommand({
-        Bucket: process.env.BUCKET_NAME,
-        Key: key,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      }));
-
-      return `https://${process.env.BUCKET_NAME}.s3.amazonaws.com/${key}`;
-    }));
-
-
+    // Parse other form data
     const payload = {
       ...req.body,
-      
-    }
-   
-    const response = await updateProduct(imageUrls, payload)
+      userId: req.body.userId,
+      productId: req.body.productId,
+      imagesToRemove: Array.isArray(req.body.imagesToRemove) 
+    ? req.body.imagesToRemove 
+    : [req.body.imagesToRemove].filter(Boolean),
+      colors: JSON.parse(req.body.colors || '[]'),
+      shoeSizes: JSON.parse(req.body.shoeSizes || '[]'),
+      clotheSizes: JSON.parse(req.body.clotheSizes || '[]'),
+      price: parseFloat(req.body.price),
+      quantity: parseInt(req.body.quantity),
+      unitCost: parseInt(req.body.unitCost),
+    };
+
+    const response = await updateProduct(imageUrls, payload);
     
     if (response.ok) {
-      return res.status(200).json(response)
+      return res.status(200).json(response);
     }
-    return res.status(400).json(response)
+    return res.status(400).json(response);
     
   } catch (error) {
-    console.error('Error updating product:', error)
+    console.error('Error updating product:', error);
     return res.status(500).json({
       ok: false,
-      error: 'Internal server error'
-    })
+      error: error.message || 'Internal server error'
+    });
   }
-})
+});
+
+
 
 
 //  Delete product

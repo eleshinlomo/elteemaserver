@@ -67,6 +67,7 @@ export const createProduct = async (imageUrls, payload) => {
       description,
       storeId: user.store._id,
       storeName: user.store.storeName,
+      storeAddress: user.store.address,
       storePhone: user.store.phone,
       storeCity: user.store.city,
       storeState: user.store.state,
@@ -109,7 +110,8 @@ export const createProduct = async (imageUrls, payload) => {
 };
 
 
-// Update product
+
+
 export const updateProduct = async (imageUrls, payload) => {
   try {
     const {
@@ -127,99 +129,98 @@ export const updateProduct = async (imageUrls, payload) => {
       clotheSizes,
       category,
       description,
+      imagesToRemove = []
     } = payload;
 
+    // 1. Get the existing product first
+    const existingProduct = await Products.findById(productId);
+    if (!existingProduct) {
+      return { ok: false, error: 'Product not found.' };
+    }
 
-    // 1. Get the product first (for fallback imageUrls)
-const existingProduct = await Products.findById(payload.productId);
-if (!existingProduct) {
-  return { ok: false, error: 'Product not found.' };
-}
+    // 2. Process images - remove deleted ones from S3
+    for (const url of imagesToRemove) {
+      try {
+        const urlParts = url.split('/');
+        const key = urlParts.slice(3).join('/');
+        await s3Client.send(new DeleteObjectCommand({
+          Bucket: process.env.BUCKET_NAME,
+          Key: key,
+        }));
+      } catch (err) {
+        console.error(`Error deleting image from S3: ${url}`, err);
+      }
+    }
 
-// 2. Fallback: use existing imageUrls if no new ones are provided
-const finalImageUrls =
-  Array.isArray(imageUrls) && imageUrls.length > 0
-    ? imageUrls
-    : existingProduct.imageUrls;
+    // 3. Combine kept existing images with new ones
+    const keptExistingImages = existingProduct.imageUrls.filter(
+      url => !imagesToRemove.includes(url)
+    );
+    const finalImageUrls = [...keptExistingImages, ...imageUrls];
 
-
-
-    // Find user
+    // 4. Find and update user
     const user = await Users.findById(userId);
     if (!user) {
       return { ok: false, error: `User with ID ${userId} not found.` };
     }
 
-    // ✅ Update user.store.items
+    // Update user.store.items
     if (user.store?.items) {
       const storeIndex = user.store.items.findIndex(
         (item) => item._id.toString() === productId
       );
       if (storeIndex !== -1) {
         const item = user.store.items[storeIndex];
-        if (addedBy !== undefined) item.addedBy = addedBy;
-        if (imageUrls) item.imageUrls = finalImageUrls;
-        if (colors !== undefined) item.colors = colors;
-        if (productName !== undefined) item.productName = productName;
-        if (price !== undefined) item.price = Number(price);
-        if (condition !== undefined) item.condition = condition;
-        if (deliveryMethod !== undefined) item.deliveryMethod = deliveryMethod;
-        if (quantity !== undefined) item.quantity = quantity;
-        if(unitCost !== undefined) item.unitCost = unitCost;
-        if(shoeSizes !== undefined) item.shoeSizes = shoeSizes;
-        if(clotheSizes !== undefined) item.clotheSizes = clotheSizes;
-        if (category !== undefined) item.category = category;
-        if (description !== undefined) item.description = description;
+        item.addedBy = addedBy || item.addedBy;
+        item.imageUrls = finalImageUrls;
+        item.colors = colors || item.colors;
+        item.productName = productName || item.productName;
+        item.price = price !== undefined ? Number(price) : item.price;
+        item.condition = condition || item.condition;
+        item.deliveryMethod = deliveryMethod || item.deliveryMethod;
+        item.quantity = quantity !== undefined ? quantity : item.quantity;
+        item.unitCost = unitCost !== undefined ? unitCost : item.unitCost;
+        item.shoeSizes = shoeSizes || item.shoeSizes;
+        item.clotheSizes = clotheSizes || item.clotheSizes;
+        item.category = category || item.category;
+        item.description = description || item.description;
 
         user.markModified('store');
       }
     }
 
-    // ✅ Update user.cart item if it exists. This makes no sen and needs work. Cart should be updated and not user.cart
+    // Update user.cart if needed
     if (user.cart?.length > 0) {
       const cartIndex = user.cart.findIndex(
         (item) => item._id === productId
       );
       if (cartIndex !== -1) {
         const item = user.cart[cartIndex];
-        if (addedBy !== undefined) item.addedBy = addedBy;
-        if (imageUrls) item.imageUrls = finalImageUrls;
-        if (colors !== undefined) item.colors = colors;
-        if (productName !== undefined) item.productName = productName;
-        if (price !== undefined) item.price = price;
-        if (condition !== undefined) item.condition = condition;
-        if (deliveryMethod !== undefined) item.deliveryMethod = deliveryMethod;
-        if (quantity !== undefined) item.quantity = quantity;
-        if(unitCost !== undefined) item.unitCost = unitCost;
-        if(shoeSizes !== undefined) item.shoeSizes = shoeSizes;
-        if(clotheSizes !== undefined) item.clotheSizes = clotheSizes;
-        if (category !== undefined) item.category = category;
-        if (description !== undefined) item.description = description;
-
+        item.imageUrls = finalImageUrls;
         user.markModified('cart');
       }
     }
 
-    await user.save(); // ✅ Only save once
+    await user.save();
 
-    // ✅ Update product in Products collection
+    // Update product in Products collection
     const updatedProduct = await Products.findOneAndUpdate(
       { _id: productId, storeId: user.store._id },
       {
         $set: {
-          ...(addedBy && { addedBy }),
-          ...(imageUrls && { finalImageUrls}),
-          ...(colors && { colors }),
-          ...(productName && { productName }),
-          ...(price !== undefined && { price }),
-          ...(condition && { condition }),
-          ...(deliveryMethod && { deliveryMethod }),
-          ...(quantity !== undefined && { quantity }),
-          ...(shoeSizes && { shoeSizes }),
-          ...(clotheSizes && { clotheSizes }),
-          ...(unitCost && { unitCost }),
-          ...(category && { category }),
-          ...(description && { description }),
+          addedBy: addedBy || existingProduct.addedBy,
+          imageUrls: finalImageUrls,
+          colors: colors || existingProduct.colors,
+          productName: productName || existingProduct.productName,
+          price: price !== undefined ? Number(price) : existingProduct.price,
+          condition: condition || existingProduct.condition,
+          deliveryMethod: deliveryMethod || existingProduct.deliveryMethod,
+          quantity: quantity !== undefined ? quantity : existingProduct.quantity,
+          unitCost: unitCost !== undefined ? unitCost : existingProduct.unitCost,
+          shoeSizes: shoeSizes || existingProduct.shoeSizes,
+          clotheSizes: clotheSizes || existingProduct.clotheSizes,
+          category: category || existingProduct.category,
+          description: description || existingProduct.description,
         },
       },
       { new: true }
@@ -229,7 +230,7 @@ const finalImageUrls =
       return { ok: false, error: 'Product not found or not owned by user.' };
     }
 
-    // ✅ Update product inside Store model
+    // Update product in Store model
     const store = await Stores.findOne({ userId: user._id });
     if (!store) {
       return { ok: false, error: 'Store not found for this user.' };
@@ -240,19 +241,19 @@ const finalImageUrls =
     );
     if (storeIndex !== -1) {
       const item = store.items[storeIndex];
-      if (addedBy !== undefined) item.addedBy = addedBy;
-      if (imageUrls !== undefined) item.imageUrls = finalImageUrls;
-      if (colors !== undefined) item.colors = colors;
-      if (productName !== undefined) item.productName = productName;
-      if (price !== undefined) item.price = price;
-      if (condition !== undefined) item.condition = condition;
-      if (deliveryMethod !== undefined) item.deliveryMethod = deliveryMethod;
-      if (quantity !== undefined) item.quantity = quantity;
-      if(unitCost !== undefined) item.unitCost = unitCost;
-      if(shoeSizes !== undefined) item.shoeSizes = shoeSizes;
-      if(clotheSizes !== undefined) item.clotheSizes = clotheSizes;
-      if (category !== undefined) item.category = category;
-      if (description !== undefined) item.description = description;
+      item.addedBy = addedBy || item.addedBy;
+      item.imageUrls = finalImageUrls;
+      item.colors = colors || item.colors;
+      item.productName = productName || item.productName;
+      item.price = price !== undefined ? Number(price) : item.price;
+      item.condition = condition || item.condition;
+      item.deliveryMethod = deliveryMethod || item.deliveryMethod;
+      item.quantity = quantity !== undefined ? quantity : item.quantity;
+      item.unitCost = unitCost !== undefined ? unitCost : item.unitCost;
+      item.shoeSizes = shoeSizes || item.shoeSizes;
+      item.clotheSizes = clotheSizes || item.clotheSizes;
+      item.category = category || item.category;
+      item.description = description || item.description;
 
       store.markModified('items');
       await store.save();
@@ -261,7 +262,10 @@ const finalImageUrls =
     return {
       ok: true,
       message: 'Product updated successfully',
-      data: user,
+      data: {
+        updatedUser: user,
+        updatedProduct
+      },
     };
   } catch (error) {
     console.error('Error updating product:', error);

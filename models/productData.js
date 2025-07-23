@@ -24,6 +24,7 @@ const productSchema = mongoose.Schema({
       storeId: {type: mongoose.Schema.Types.ObjectId},
       storeName: {type: String, default: ''},
       storePhone: {type: String, default: ''},
+      storeAddress: {type: String, default: ''},
       storeCity: {type: String, default: ''},
       storeState: {type: String, default: ''},
       reviews: {type: [String], default: []},
