@@ -5,17 +5,16 @@ import { capitalize } from "../utils.js";
 
 const SERVICE = process.env.SERVICE
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
 
 
-export const sendContactMessage = async (name, email, message) => {
+export const sendContactMessage = async (name, email,subject, message) => {
     
-    const subject = `Message from ${SERVICE} Contact Page`
     const emailBody = `
     <!DOCTYPE html>
     <html>
     <head>
-        <title>${subject}</title>
+        <title>Message from contact page-${subject}</title>
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -50,16 +49,16 @@ export const sendContactMessage = async (name, email, message) => {
         </style>
     </head>
     <body>
-        <div class="header">${subject}</div>
+        <div class="header">Message from contact page-${subject}</div>
         <div class="content">
-            <p>Hi ${capitalize(ADMIN_USERNAME)},</p>
+            <p>Hi Team,</p>
             <p>You have a new message from a user!</p>
             <p>User Name: ${capitalize(capitalize(name))}</p>
             <p>User Email: ${email}</p>
             <p>${message}</p>
         </div>
         <div class="footer">
-            <p>This email is from the ${SERVICE} team</p>
+            <p>This email is from the ${SERVICE} contact page.</p>
             <p>If you didn't request this email, you can safely ignore it.</p>
         </div>
     </body>
@@ -68,7 +67,7 @@ export const sendContactMessage = async (name, email, message) => {
 
     try {
         
-        const response = await sendEmail(ADMIN_EMAIL, emailBody, subject);
+        const response = await sendEmail(SUPPORT_EMAIL, emailBody, subject);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);
