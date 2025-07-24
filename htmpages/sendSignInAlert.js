@@ -12,6 +12,7 @@ const today = date.getDay()
 const subject = 'Sign in Notification'
 const HOME_URL = process.env.HOME_URL
 const SERVICE = process.env.SERVICE
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
 
 const SignInAlertEnailBody = `
 
@@ -141,7 +142,7 @@ const SignInAlertEnailBody = `
         </div>
         
         <h3>🙌 Need Help?</h3>
-        <p>Contact our support team at <a href="mailto:support@petrolagegroup.com">support@petrolagegroup.com</a> if you need assistance regaining access to your account.</p>
+        <p>Contact our support team at <a href="mailto:${SUPPORT_EMAIL}>support@petrolagegroup.com</a> if you need assistance regaining access to your account.</p>
         
         <div class="footer">
             <div style="margin-bottom: 15px;">

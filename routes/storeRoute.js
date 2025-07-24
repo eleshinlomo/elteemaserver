@@ -130,8 +130,8 @@ router.get('/allstores', (req, res)=>{
 
  //  Delete store order
  router.delete('/deletestoreorder', async (req, res)=>{
-    const {storeName, orderId, buyerId} = req.body
-    const response = await deleteStoreOrder(storeName, orderId, buyerId)
+    const {storeName, orderId, buyerId, reason} = req.body
+    const response = await deleteStoreOrder(storeName, orderId, buyerId, reason)
     if(response.ok){
      return res.status(200).json(response)
     }

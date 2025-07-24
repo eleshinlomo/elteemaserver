@@ -1,9 +1,11 @@
 import { sendEmail } from "../controllers/emailSender.js";
 import { capitalize } from "../utils.js";
 
-export const sendOrderCancellationEmail = async (user, orderId) => {
+export const sendUserOrderCancellationEmail = async (user, orderId) => {
     const HOME_URL = process.env.HOME_URL
     const subject = 'Your Elteema order is cancelled'
+    const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
+
     const emailBody = `
     <!DOCTYPE html>
     <html>
@@ -61,7 +63,7 @@ export const sendOrderCancellationEmail = async (user, orderId) => {
             .button {
                 display: inline-block;
                 padding: 12px 30px;
-                background: linear-gradient(135deg, #6bff89ff 0%, #11c24cff 100%);
+                background: linear-gradient(135deg, #0c2e13ff 0%, #094f20ff 100%);
                 color: white !important;
                 text-decoration: none;
                 border-radius: 30px;
@@ -125,7 +127,7 @@ export const sendOrderCancellationEmail = async (user, orderId) => {
                 
                 <div class="message">
                     Need help or have questions about your order?<br>
-                    Reply to this email or contact us at support@petrolagegroup.com.
+                    Reply to this email or contact us at ${SUPPORT_EMAIL}.
                 </div>
                 
                 <div class="thank-you">

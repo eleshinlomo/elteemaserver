@@ -1,4 +1,4 @@
-import { sendOrderCancellationEmail } from "../htmpages/orderCancellation.js";
+import { sendUserOrderCancellationEmail } from "../htmpages/orderCancelledByUser.js";
 import { sendOrderConfiramtionEmail } from "../htmpages/orderConfirmations.js";
 import { sendNewUserAlert } from "../htmpages/sendNewUserAlert.js";
 import { Products } from "../models/productData.js";
@@ -324,7 +324,7 @@ export const deleteUserOrder = async (userId, orderId) => {
     user.markModified('orders');
     const updatedUser = await user.save();
     if(updatedUser){
-      sendOrderCancellationEmail(updatedUser, orderId)
+      sendUserOrderCancellationEmail(updatedUser, orderId)
     }
 
     return {

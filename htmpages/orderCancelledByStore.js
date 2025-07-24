@@ -1,16 +1,17 @@
+
 import { sendEmail } from "../controllers/emailSender.js";
 import { capitalize } from "../utils.js";
 
-export const sendOrderConfiramtionEmail = async (user) => {
+export const sendStoreOrderCancellationEmail = async (user, orderId, reason) => {
     const HOME_URL = process.env.HOME_URL
-    const subject = 'Your Order Confirmation from Elteema'
+    const subject = 'Your Elteema order is cancelled'
     const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
 
     const emailBody = `
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Your Order Confirmation from Elteema</title>
+        <title>Your Elteema order is cancelled</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
             
@@ -63,7 +64,7 @@ export const sendOrderConfiramtionEmail = async (user) => {
             .button {
                 display: inline-block;
                 padding: 12px 30px;
-                background: linear-gradient(135deg, #162f1bff 0%, #0b411dff 100%);
+                background: linear-gradient(135deg, #0c2e13ff 0%, #094f20ff 100%);
                 color: white !important;
                 text-decoration: none;
                 border-radius: 30px;
@@ -108,19 +109,21 @@ export const sendOrderConfiramtionEmail = async (user) => {
         <div class="container">
             <div class="header">
                 <div class="logo">Elteema</div>
-                <div>Your Order is Confirmed!</div>
+                <div>Your Elteema order is cancelled!</div>
             </div>
             
             <div class="content">
                 <div class="greeting">Hi ${capitalize(user?.username)},</div>
                 
                 <div class="message">
-                    Thank you for your order! We're excited to let you know that we've received your order 
-                    and it's now being processed. We'll notify you as soon as your items ship.
+                    The seller has cancelled your order with id: ${orderId}. 
+                    We will process your refund within 5-7 business days.
+
+                    <p>Reason: ${reason}</p>
                 </div>
                 
                 <div class="button-container">
-                    <a href="${`${HOME_URL}/dashboard/orders/userorderpage`}" class="button">Track Your Order</a>
+                    <a href="${`${HOME_URL}/dashboard/orders/userorderpage`}" class="button">See other pending orders</a>
                 </div>
                 
                 <div class="divider"></div>

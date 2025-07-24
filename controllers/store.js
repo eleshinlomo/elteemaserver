@@ -1,6 +1,7 @@
 import { Users } from "../models/userData.js"
 import { Stores } from "../models/storeData.js"
 import { Products } from "../models/productData.js"
+import { sendStoreOrderCancellationEmail } from "../htmpages/orderCancelledByStore.js"
 
 
 // Add Store. Store is an object
@@ -191,7 +192,7 @@ export const getSingleStore = async (storeName)=>{
 
 
 // Delete user order
-export const deleteStoreOrder = async (storeName, orderId, buyerId) => {
+export const deleteStoreOrder = async (storeName, orderId, buyerId, reason) => {
   try {
     const store = await Stores.findOne({ storeName: storeName });
     if (!store) {
@@ -242,6 +243,7 @@ export const deleteStoreOrder = async (storeName, orderId, buyerId) => {
       );
       storeInUsers.markModified('store');
       const updatedUser = await storeInUsers.save();
+      sendStoreOrderCancellationEmail(updatedUser, orderId, reason)
     
 
     return {

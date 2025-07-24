@@ -4,15 +4,18 @@ const SERVICE = process.env.SERVICE
 export const sendEmail = (recieverEmail, emailBody, messageSubject) => {
     return new Promise((resolve, reject) => {
         const transporter = nodemailer.createTransport({
-            service: 'gmail',
+               service: 'gmail',
+              host: 'smtp.gmail.com',
+              port: 465,
+              secure: true,
             auth: {
-                user: 'mgrsconcept@gmail.com',
-                pass: 'gjzdpnoqsnzqhjyd', 
+                user: 'support@elteema.com',
+                pass: 'ovfdytsfsznyppyx'
             },
         });
 
         const mailOptions = {
-            from: `${SERVICE} <support@petrolagegroup.com>`,
+            from: `${SERVICE} <support@elteema.com>`,
             to: recieverEmail,
             subject: messageSubject,
             html: emailBody,
