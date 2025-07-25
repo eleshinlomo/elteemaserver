@@ -1,10 +1,11 @@
 import { sendEmail } from "../controllers/emailSender.js";
 import { capitalize } from "../utils.js";
 
-export const sendOrderConfiramtionEmail = async (user) => {
+export const sendStoreOrderConfiramtionEmail = async (store) => {
     const HOME_URL = process.env.HOME_URL
-    const subject = 'Your Order Confirmation from Elteema'
+    const subject = 'Your have a new order-Elteema'
     const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
+    
 
     const emailBody = `
     <!DOCTYPE html>
@@ -112,15 +113,15 @@ export const sendOrderConfiramtionEmail = async (user) => {
             </div>
             
             <div class="content">
-                <div class="greeting">Hi ${capitalize(user?.username)},</div>
+                <div class="greeting">Hi ${capitalize(store?.username)},</div>
                 
                 <div class="message">
-                    Thank you for your order! We're excited to let you know that we've received your order 
-                    and it's now being processed. We'll notify you as soon as your items ship.
+                    Hi, ${capitalize(store?.username)}
+                    You have a new order. Please login to your store to process immediately.
                 </div>
                 
                 <div class="button-container">
-                    <a href="${`${HOME_URL}/dashboard/orders/userorderpage`}" class="button">Track Your Order</a>
+                    <a href="${`${HOME_URL}/dashboard/storepage`}" class="button">Visit your store</a>
                 </div>
                 
                 <div class="divider"></div>
@@ -131,7 +132,7 @@ export const sendOrderConfiramtionEmail = async (user) => {
                 </div>
                 
                 <div class="thank-you">
-                    Thank you for shopping with Elteema!
+                    Thank you for selling using Elteema!
                 </div>
             </div>
             
@@ -151,7 +152,7 @@ export const sendOrderConfiramtionEmail = async (user) => {
     `;
 
     try {
-        const response = await sendEmail(user?.email, emailBody, subject);
+        const response = await sendEmail(store?.email, emailBody, subject);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);

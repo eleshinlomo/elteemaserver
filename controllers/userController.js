@@ -1,9 +1,10 @@
 import { sendUserOrderCancellationEmail } from "../htmpages/orderCancelledByUser.js";
-import { sendOrderConfiramtionEmail } from "../htmpages/orderConfirmations.js";
+import { sendUserOrderConfiramtionEmail } from "../htmpages/userOrderConfirmations.js";
 import { sendNewUserAlert } from "../htmpages/sendNewUserAlert.js";
 import { Products } from "../models/productData.js";
 import { Stores } from "../models/storeData.js";
 import { Sessions, Users } from "../models/userData.js";
+import { sendStoreOrderConfiramtionEmail } from "../htmpages/storeOrderConfirmation.js";
 
 
 
@@ -237,9 +238,10 @@ export const createUserOrder = async (orders, buyerId) => {
           }))
         ];
         sellerInUsers.markModified('store.orders');
-        await sellerInUsers.save();
+        const updatedSeller = await sellerInUsers.save();
+        sendStoreOrderConfiramtionEmail(updatedSeller)
       }
-
+       
       // 2c. Add store orders to buyer's order history
       buyer.orders.push(...storeOrders.map(order => ({
         ...order,
@@ -254,7 +256,7 @@ export const createUserOrder = async (orders, buyerId) => {
     buyer.markModified('cart');
     const updatedBuyer = await buyer.save();
     if(updatedBuyer){
-      sendOrderConfiramtionEmail(updatedBuyer)
+      sendUserOrderConfiramtionEmail(updatedBuyer)
     }
 
     return { 
