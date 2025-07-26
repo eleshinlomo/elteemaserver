@@ -90,7 +90,8 @@ export const createProduct = async (imageUrls, payload) => {
      
     // Update Stores with new item
     const userStoreInStores = await Stores.findOne({userId: user._id})
-    userStoreInStores.items.push(newProduct)
+    userStoreInStores.items.push(savedProduct)
+    userStoreInStores.markModified('items')
     await userStoreInStores.save()
 
 
