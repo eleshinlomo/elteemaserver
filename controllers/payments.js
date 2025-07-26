@@ -3,9 +3,6 @@
 import { Users } from "../models/userData.js"
 import https from 'https'
 
-const PAYSTACK_API_KEY = process.env.PAYSTACK_API_KEY
-
-// const PAYSTACK_API = process.env.PAYSTACK_API
 
 
 
