@@ -5,6 +5,7 @@ import { Products } from "../models/productData.js";
 import { Stores } from "../models/storeData.js";
 import { Sessions, Users } from "../models/userData.js";
 import { sendStoreOrderConfiramtionEmail } from "../htmpages/storeOrderConfirmation.js";
+import { sendUserSellerOrderCancellationEmail } from "../htmpages/orderCancelledByUserSellerConfirmation.js";
 
 
 
@@ -277,7 +278,7 @@ export const createUserOrder = async (orders, buyerId) => {
 
 
 // Delete user order
-export const deleteUserOrder = async (userId, orderId) => {
+export const deleteUserOrder = async (userId, orderId, reason) => {
   try {
     const user = await Users.findOne({ _id: userId });
     if (!user) {
@@ -317,6 +318,7 @@ export const deleteUserOrder = async (userId, orderId) => {
       );
       storeInUsers.markModified('store');
       await storeInUsers.save();
+      sendUserSellerOrderCancellationEmail(user, storeInUsers, orderExists, reason) // We inform seller
     }
 
     
@@ -326,7 +328,8 @@ export const deleteUserOrder = async (userId, orderId) => {
     user.markModified('orders');
     const updatedUser = await user.save();
     if(updatedUser){
-      sendUserOrderCancellationEmail(updatedUser, orderId)
+      
+      sendUserOrderCancellationEmail(updatedUser, orderExists, reason)
     }
 
     return {

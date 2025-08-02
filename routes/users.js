@@ -151,8 +151,8 @@ router.put('/createuserorder', async (req, res)=>{
 
 //  Delete user order
 router.delete('/deleteuserorder', async (req, res)=>{
-   const {userId, orderId} = req.body
-   const response = await deleteUserOrder(userId, orderId)
+   const {userId, orderId, reason} = req.body
+   const response = await deleteUserOrder(userId, orderId, reason)
    if(response.ok){
     return res.status(200).json(response)
    }
