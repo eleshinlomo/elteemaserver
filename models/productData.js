@@ -28,6 +28,7 @@ const productSchema = mongoose.Schema({
       storeCity: {type: String, default: ''},
       storeState: {type: String, default: ''},
       reviews: {type: [String], default: []},
+      return: {type: String, default: ''},
       star: {type: Number, default: 5, min: 1},
       totalVotes: {type: Number, default: 5, min: 0},
       numOfItemsSold: {type: Number, default: 0},
