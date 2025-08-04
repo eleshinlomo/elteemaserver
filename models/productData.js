@@ -16,6 +16,8 @@ const productSchema = mongoose.Schema({
       deliveryMethod: {type: String, default: ''},
       quantity: {type: Number, default: 0},
       unitCost: {type: Number, default: 1},
+      selectedSize: {type: String, default: ''},
+      selectedColor: {type: String, default: ''},
       shoeSizes: {type: [String], default: []},
       clotheSizes: {type: [String], default: []},
       income: {type: Number, default: 0, min: 0},

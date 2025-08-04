@@ -187,7 +187,7 @@ export const updatePaymentMethod = async (payload)=>{
 }
 
 
-// Update Store Orders
+// Create User Orders
 export const createUserOrder = async (orders, buyerId) => {
   try {
     const buyer = await Users.findById(buyerId);
