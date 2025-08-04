@@ -123,22 +123,29 @@ router.put('/updateproduct', upload.array('images'), async (req, res) => {
         return `https://${process.env.BUCKET_NAME}.s3.amazonaws.com/${key}`;
       })
     );
+  
 
-    // Parse other form data
-    const payload = {
-      ...req.body,
-      userId: req.body.userId,
-      productId: req.body.productId,
-      imagesToRemove: Array.isArray(req.body.imagesToRemove) 
-    ? req.body.imagesToRemove 
-    : [req.body.imagesToRemove].filter(Boolean),
-      colors: JSON.parse(req.body.colors || '[]'),
-      shoeSizes: JSON.parse(req.body.shoeSizes || '[]'),
-      clotheSizes: JSON.parse(req.body.clotheSizes || '[]'),
-      price: parseFloat(req.body.price),
-      quantity: parseInt(req.body.quantity),
-      unitCost: parseInt(req.body.unitCost),
-    };
+    // Utility to normalize array fields
+const normalizeArrayField = (field) => {
+  if (Array.isArray(field)) return field;
+  if (typeof field === 'string') return [field];
+  return [];
+};
+
+const payload = {
+  ...req.body,
+  userId: req.body.userId,
+  productId: req.body.productId,
+  imagesToRemove: normalizeArrayField(req.body.imagesToRemove),
+  colors: normalizeArrayField(req.body.colors),
+  shoeSizes: normalizeArrayField(req.body.shoeSizes),
+  clotheSizes: normalizeArrayField(req.body.clotheSizes),
+  price: parseFloat(req.body.price),
+  quantity: parseInt(req.body.quantity),
+  unitCost: parseInt(req.body.unitCost),
+};
+
+
 
     const response = await updateProduct(imageUrls, payload);
     
