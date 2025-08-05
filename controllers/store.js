@@ -245,7 +245,7 @@ export const deleteStoreOrder = async (storeName, orderId, buyerId, reason) => {
       );
       storeInUsers.markModified('store');
       const updatedUser = await storeInUsers.save();
-      userNoticationOrderCancelledByStore(updatedUser, orderExists, reason)
+      userNoticationOrderCancelledByStore(buyer, orderExists, reason)
       storeNotificationOrderCancelledByStore(updatedUser, storeInUsers, orderExists, reason)
     
 
