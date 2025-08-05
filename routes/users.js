@@ -12,16 +12,9 @@ const HOME_URL = process.env.HOME_URL
 
 
 // User Data
-router.get('/userdata', (req, res)=>{
-    const {userid} = req.query
-    const user = Users.find((u)=> u.id === userid)
-
-if(user?.role === 'admin'){
-    
-   return res.json({data: Users , "ok": true})
-    }
-
-    return res.status(400).json({error: 'Permission denied', ok: false})
+router.get('/users', async (req, res)=>{
+    const users = await Users.find()
+   return res.json({users: users, ok: true})
 })
 
 

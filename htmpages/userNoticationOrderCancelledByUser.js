@@ -1,12 +1,10 @@
-
 import { sendEmail } from "../controllers/emailSender.js";
 import { capitalize } from "../utils.js";
 
-export const sendUserSellerOrderCancellationEmail = async (user, store, order, reason) => {
+export const userNotificationOrderCancelledByUser = async (user, order, reason) => {
     const HOME_URL = process.env.HOME_URL
-    const subject = 'Buyer cancelled order'
+    const subject = 'You cancelled your order'
     const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
-    const buyerName = user ? `${user.firstname} ${user.lastname}` : ''
 
     const emailBody = `
     <!DOCTYPE html>
@@ -110,9 +108,6 @@ export const sendUserSellerOrderCancellationEmail = async (user, store, order, r
                 color: #6b73ff;
                 margin-top: 20px;
             }
-            .warning {
-              color: red;
-            }
         </style>
     </head>
     <body>
@@ -123,29 +118,23 @@ export const sendUserSellerOrderCancellationEmail = async (user, store, order, r
             </div>
             
             <div class="content">
-                <div class="greeting">Hi ${capitalize(order?.storeName)}</div>
+                <div class="greeting">Hi ${capitalize(user?.username)},</div>
                 
                 <div class="message">
-                    <p>Your order with id: ${order?._id} has been cancelled by the buyer. 
+                    <p>Your order with id: ${order?._id} has been successfully cancelled. 
                     If this order was completed using card payment, 
                     we will process your refund within 5-7 business days. Elteema does not handle refunds 
-                    for orders completed by direct cash transer to the seller.
+                    for orders completed by direct cash transfer to the seller.
                     <p>
-                    <p>If you have completed this order using cash transfer, 
-                    please reach out to the buyer directly to process the buyer's refund</p>
+                    <p>If you have completed this order using cash transfer, please reach out to the seller directly for refund</p>
                     <p><span class='product-info'>Product Name</span>: ${order?.productName}</p>
                     <p><span class='product-info'>Reason for cancellation</span>: ${reason}</p>
-                    <p><span class='product-info'>Buyer Name</span>: ${buyerName}</p>
-                    <p><span class='product-info'>Buyer Contact Number</span>: ${user?.phone}</p>
-                    <p><span class='product-info'>Quantity of items bought</span>: ${order?.quantity}</p>
-                    <p><span class='product-info'>Amount To Refund</span>: N${(order?.price * order?.quantity)} including delivery cost if already paid.</p>
-
-                    <p class='warning'>Please ensure refund is processed within 5-7 business days to avoid adminstrative action on your store.
-                     If you would like to open a dispute on this order, Please contact us immediately.</p>
+                    <p><span class='product-info'>Store Name</span>: ${order?.storeName}</p>
+                    <p><span class='product-info'>Store Contact Number</span>: ${order?.storePhone}</p>
                 </div>
                 
                 <div class="button-container">
-                    <a href="${`${HOME_URL}/dashboard/storepage`}" class="button">See other pending orders</a>
+                    <a href="${`${HOME_URL}/dashboard/orders/userorderpage`}" class="button">See other pending orders</a>
                 </div>
                 
                 <div class="divider"></div>
@@ -156,7 +145,7 @@ export const sendUserSellerOrderCancellationEmail = async (user, store, order, r
                 </div>
                 
                 <div class="thank-you">
-                    Thank you for selling with Elteema!
+                    Thank you for shopping with Elteema!
                 </div>
             </div>
             
@@ -176,7 +165,7 @@ export const sendUserSellerOrderCancellationEmail = async (user, store, order, r
     `;
 
     try {
-        const response = await sendEmail(store?.email, emailBody, subject);
+        const response = await sendEmail(user?.email, emailBody, subject);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);

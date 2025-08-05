@@ -1,11 +1,11 @@
-import { sendUserOrderCancellationEmail } from "../htmpages/orderCancelledByUser.js";
+import {  userNotificationOrderCancelledByUser } from "../htmpages/userNoticationOrderCancelledByUser.js";
 import { sendUserOrderConfiramtionEmail } from "../htmpages/userOrderConfirmations.js";
 import { sendNewUserAlert } from "../htmpages/sendNewUserAlert.js";
 import { Products } from "../models/productData.js";
 import { Stores } from "../models/storeData.js";
 import { Sessions, Users } from "../models/userData.js";
 import { sendStoreOrderConfiramtionEmail } from "../htmpages/storeOrderConfirmation.js";
-import { sendUserSellerOrderCancellationEmail } from "../htmpages/orderCancelledByUserSellerConfirmation.js";
+import { storeNotificationOrderCancelledByBuyer } from "../htmpages/storeNotificationOrderCancelledByBuyer.js";
 
 
 
@@ -318,7 +318,7 @@ export const deleteUserOrder = async (userId, orderId, reason) => {
       );
       storeInUsers.markModified('store');
       await storeInUsers.save();
-      sendUserSellerOrderCancellationEmail(user, storeInUsers, orderExists, reason) // We inform seller
+      storeNotificationOrderCancelledByBuyer(user, storeInUsers, orderExists, reason) // We inform seller
     }
 
     
@@ -329,7 +329,7 @@ export const deleteUserOrder = async (userId, orderId, reason) => {
     const updatedUser = await user.save();
     if(updatedUser){
       
-      sendUserOrderCancellationEmail(updatedUser, orderExists, reason)
+      userNotificationOrderCancelledByUser(updatedUser, orderExists, reason)
     }
 
     return {

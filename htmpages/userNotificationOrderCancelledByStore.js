@@ -2,9 +2,9 @@
 import { sendEmail } from "../controllers/emailSender.js";
 import { capitalize } from "../utils.js";
 
-export const sendStoreOrderCancellationEmail = async (user, orderId, reason) => {
+export const userNoticationOrderCancelledByStore = async (user, order, reason) => {
     const HOME_URL = process.env.HOME_URL
-    const subject = 'Your Elteema order is cancelled'
+    const subject = 'Seller cancelled your order'
     const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
 
     const emailBody = `
@@ -103,6 +103,10 @@ export const sendStoreOrderCancellationEmail = async (user, orderId, reason) => 
                 color: #6b73ff;
                 margin-top: 20px;
             }
+             .product-info {
+             color: green;
+             font-weigth: 400;
+            }
         </style>
     </head>
     <body>
@@ -116,10 +120,19 @@ export const sendStoreOrderCancellationEmail = async (user, orderId, reason) => 
                 <div class="greeting">Hi ${capitalize(user?.username)},</div>
                 
                 <div class="message">
-                    The seller has cancelled your order with id: ${orderId}. 
-                    We will process your refund within 5-7 business days.
+                    The seller has cancelled your order with id: ${order?._id}. 
+                </div>
 
-                    <p>Reason: ${reason}</p>
+                  <div class="message">
+                    If this order was completed using card payment, 
+                    we will process your refund within 5-7 business days. Elteema does not handle refunds 
+                    for orders completed by direct cash transfer to the seller.
+                    <p>
+                    <p>If you have completed this order using cash transfer, please reach out to the seller directly for refund</p>
+                    <p><span class='product-info'>Product Name</span>: ${order?.productName}</p>
+                    <p><span class='product-info'>Reason for cancellation</span>: ${reason}</p>
+                    <p><span class='product-info'>Store Name</span>: ${order?.storeName}</p>
+                    <p><span class='product-info'>Store Contact Number</span>: ${order?.storePhone}</p>
                 </div>
                 
                 <div class="button-container">

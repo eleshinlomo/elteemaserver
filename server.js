@@ -46,6 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const corsOptions = {
     origin: [
         'http://localhost:3000', 
+        'http://localhost:3001', 
         'https://myafros.com',
         'https://elteema.com',
         'https://www.elteema.com'

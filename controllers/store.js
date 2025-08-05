@@ -1,7 +1,9 @@
 import { Users } from "../models/userData.js"
 import { Stores } from "../models/storeData.js"
 import { Products } from "../models/productData.js"
-import { sendStoreOrderCancellationEmail } from "../htmpages/orderCancelledByStore.js"
+import { userNoticationOrderCancelledByStore } from "../htmpages/userNotificationOrderCancelledByStore.js"
+import { storeNotificationOrderCancelledByBuyer } from "../htmpages/storeNotificationOrderCancelledByBuyer.js"
+import { storeNotificationOrderCancelledByStore } from "../htmpages/storeNotificationOrderCancelledByStore.js"
 
 
 // Add Store. Store is an object
@@ -243,7 +245,8 @@ export const deleteStoreOrder = async (storeName, orderId, buyerId, reason) => {
       );
       storeInUsers.markModified('store');
       const updatedUser = await storeInUsers.save();
-      sendStoreOrderCancellationEmail(updatedUser, orderId, reason)
+      userNoticationOrderCancelledByStore(updatedUser, orderExists, reason)
+      storeNotificationOrderCancelledByStore(updatedUser, storeInUsers, orderExists, reason)
     
 
     return {
