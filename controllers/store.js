@@ -206,18 +206,20 @@ export const deleteStoreOrder = async (storeName, orderId, buyerId, reason) => {
       return { ok: false, error: 'No orders found in your store' };
     }
   
-    const orderExists = storeOrders.find((order) => order._id === orderId);
+    const orderExists = storeOrders.find((order) => order._id.equals(orderId));
     if (!orderExists) {
       return { ok: false, error: `No order with orderId ${orderId} found in your store` };
     }
 
     // Remove from buyer's orders
     const buyer = await Users.findOne({_id: buyerId})
+   
     if(!buyer){
       return {ok: false, error: `No buyer with ${buyerId} found`}
     }
-
-    buyer.orders = buyer.orders.filter((order) => order._id !== orderId);
+     
+     console.log('BUYER TO DELETE ORDER', buyer)
+    buyer.orders = buyer.orders.filter((order) => !order._id.equals(orderId));
     buyer.markModified('orders');
     await buyer.save();
 
@@ -227,7 +229,7 @@ export const deleteStoreOrder = async (storeName, orderId, buyerId, reason) => {
  
       const currentOrdersInStores = store.orders.currentOrders || [];
       store.orders.currentOrders = currentOrdersInStores.filter(
-        (order) => order._id !== orderId
+        (order) => !order._id.equals(orderId)
       );
       store.markModified('orders');
       await store.save();
@@ -241,7 +243,7 @@ export const deleteStoreOrder = async (storeName, orderId, buyerId, reason) => {
   
       const currentOrdersInUsers = storeInUsers.store.orders.currentOrders || [];
       storeInUsers.store.orders.currentOrders = currentOrdersInUsers.filter(
-        (order) => order._id !== orderId
+        (order) => !order._id.equals(orderId)
       );
       storeInUsers.markModified('store');
       const updatedUser = await storeInUsers.save();
