@@ -299,7 +299,6 @@ export const deleteUserOrder = async (userId, orderId, reason) => {
     }
 
     const orderExists = userOrders.find((order)=> order._id.equals(orderId));
-    console.log('ORDERID', orderExists?._id, 'TARGETID', orderId)
     if (!orderExists) {
       return { ok: false, error: `No order with orderId ${orderId} found` };
     }
@@ -313,7 +312,7 @@ export const deleteUserOrder = async (userId, orderId, reason) => {
     if (storeInStores) {
       const currentOrdersInStores = storeInStores.orders.currentOrders || [];
       storeInStores.orders.currentOrders = currentOrdersInStores.filter(
-        (order) => !order._id.equals(orderId)
+        (order)=> !order._id.equals(orderId)
       );
       storeInStores.markModified('orders');
       await storeInStores.save();
