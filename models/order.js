@@ -10,6 +10,7 @@ const orderSchema = mongoose.Schema({
       imageUrls: {type: [String], default: []},
       addedBy : {type: String, default: ''},
       buyerName: {type: String, default: ''},
+      buyerEmail: {type: String, default: ''},
       buyerPhone : {type: String, default: ''},
       buyerAddress : {type: String, default: ''},
       eta : {type: String, default: ''},

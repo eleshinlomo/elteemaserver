@@ -13,6 +13,7 @@ import feedRoutes from './routes/feedsRoute.js'
 import storeRoute from './routes/storeRoute.js'
 import paymentRoutes from './routes/payments.js'
 import productRoutes from './routes/product.js'
+import adminRoutes from './routes/admin.js'
 import stripeRoutes from './routes/stripeRoutes.js'
 import mongoose from 'mongoose'
 
@@ -64,7 +65,7 @@ app.use('/api/feed', feedRoutes);
 app.use('/api/store', storeRoute);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/product', productRoutes);
-app.use('/api/webhooks', stripeRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 // Start the server
