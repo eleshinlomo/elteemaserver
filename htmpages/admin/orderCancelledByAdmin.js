@@ -3,7 +3,7 @@
 import { sendEmail } from "../../controllers/emailSender.js";
 import { capitalize } from "../../utils.js";
 
-export const storeNotificationOrderCancelledByAdmin = async (order, reason) => {
+export const storeNotificationOrderCancelledByAdmin = async (buyerEmail, order, reason) => {
     const HOME_URL = process.env.HOME_URL
     const subject = 'Order cancelled by admin-Elteema'
     const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
@@ -177,7 +177,7 @@ export const storeNotificationOrderCancelledByAdmin = async (order, reason) => {
     `;
 
     try {
-        const response = await sendEmail(order?.buyerEmail, emailBody, subject);
+        const response = await sendEmail(buyerEmail, emailBody, subject);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);

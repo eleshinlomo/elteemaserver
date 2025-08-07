@@ -8,35 +8,44 @@ import { Users } from "../../models/userData.js"
 export const deleteOrder = async (payload) => {
   const { selectedOrderId, reason } = payload;
 
-  // Find the order
-  const order = await Orders.findById(selectedOrderId);
-  if (!order) {
-    return { ok: false, error: `No order with id: ${selectedOrderId} found` };
-  }
-
-  // Delete order from Orders collection
-  await Orders.deleteOne({ _id: selectedOrderId });
-
-  // Remove order from all stores' currentOrders arrays
-  const stores = await Stores.find({ "orders.currentOrders._id": selectedOrderId });
-  for (const store of stores) {
-    store.orders.currentOrders = store.orders.currentOrders.filter(
-      (order) => order._id.toString() !== selectedId
-    );
-    await store.save();
-  }
-
-  // Remove order from all users' orders
+  // Remove order from all users
   const users = await Users.find({ "orders._id": selectedOrderId });
   for (const user of users) {
     user.orders = user.orders.filter(
       (order) => order._id.toString() !== selectedOrderId
     );
+    user.markModified('orders');
     await user.save();
   }
 
-  // Notify cancellation
-  await storeNotificationOrderCancelledByAdmin(order, reason);
+  // Remove order from all stores
+  const stores = await Stores.find({ "orders.currentOrders._id": selectedOrderId });
+  for (const store of stores) {
+    store.orders.currentOrders = store.orders.currentOrders.filter(
+      (order) => order._id.toString() !== selectedOrderId
+    );
+    store.markModified('orders.currentOrders');
+    await store.save();
+  }
+
+  // Find and delete the order from Orders collection
+  const orderInOrders = await Orders.findById(selectedOrderId);
+  if (orderInOrders) {
+    await Orders.deleteOne({ _id: selectedOrderId });
+  }
+
+  // Notify user (optional)
+  if (orderInOrders?.buyerId) {
+    const buyer = await Users.findById(orderInOrders.buyerId);
+    if (buyer?.email) {
+      await storeNotificationOrderCancelledByAdmin(
+        buyer.email,
+        orderInOrders,
+        reason
+      );
+    }
+  }
 
   return { ok: true, message: 'Order has been deleted successfully' };
 };
+
