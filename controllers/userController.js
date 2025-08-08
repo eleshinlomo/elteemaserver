@@ -298,21 +298,21 @@ export const deleteUserOrder = async (userId, orderId, reason) => {
       return { ok: false, error: 'You have not ordered anything' };
     }
 
-    const orderExists = userOrders.find((order)=> order._id.equals(orderId));
+    const orderExists = userOrders.find(
+      (order) => order?._id?.toString() === orderId?.toString()
+    );
     if (!orderExists) {
       return { ok: false, error: `No order with orderId ${orderId} found` };
     }
 
-     
-
     const storeName = orderExists.storeName;
 
     // Remove from Stores collection
-    const storeInStores = await Stores.findOne({ storeName: storeName });
+    const storeInStores = await Stores.findOne({ storeName });
     if (storeInStores) {
       const currentOrdersInStores = storeInStores.orders.currentOrders || [];
       storeInStores.orders.currentOrders = currentOrdersInStores.filter(
-        (order)=> !order._id.equals(orderId)
+        (order) => order?._id?.toString() !== orderId?.toString()
       );
       storeInStores.markModified('orders');
       await storeInStores.save();
@@ -323,22 +323,22 @@ export const deleteUserOrder = async (userId, orderId, reason) => {
     if (storeInUsers?.store?.orders) {
       const currentOrdersInUsers = storeInUsers.store.orders.currentOrders || [];
       storeInUsers.store.orders.currentOrders = currentOrdersInUsers.filter(
-        (order) => !order._id.equals(orderId)
+        (order) => order?._id?.toString() !== orderId?.toString()
       );
       storeInUsers.markModified('store');
       await storeInUsers.save();
-      storeNotificationOrderCancelledByBuyer(user, storeInUsers, orderExists, reason) // We inform seller
+      storeNotificationOrderCancelledByBuyer(user, storeInUsers, orderExists, reason); // Inform seller
     }
 
-    
     // Remove from buyer's orders
-    user.orders = userOrders.filter((order) => !order._id.equals(orderId));
+    user.orders = userOrders.filter(
+      (order) => order?._id?.toString() !== orderId?.toString()
+    );
 
     user.markModified('orders');
     const updatedUser = await user.save();
-    if(updatedUser){
-      
-      userNotificationOrderCancelledByUser(updatedUser, orderExists, reason)
+    if (updatedUser) {
+      userNotificationOrderCancelledByUser(updatedUser, orderExists, reason);
     }
 
     return {
@@ -351,6 +351,7 @@ export const deleteUserOrder = async (userId, orderId, reason) => {
     return { ok: false, error: 'An error occurred while deleting the order' };
   }
 };
+
 
 
 
