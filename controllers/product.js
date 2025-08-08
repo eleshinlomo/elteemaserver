@@ -232,7 +232,7 @@ export const updateProduct = async (imageUrls, payload) => {
     }
 
     // Update product in Store model
-    const store = await Stores.findOne({ userId: user._id });
+    const store = await Stores.findOne({ _id: user?.store?._id });
     if (!store) {
       return { ok: false, error: 'Store not found for this user.' };
     }
