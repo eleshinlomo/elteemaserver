@@ -101,6 +101,45 @@ router.post('/createproduct', upload.array('images'), async (req, res) => {
 
 
 // Update Product with file uploads
+// Utility to normalize array-like inputs into flat string arrays
+const normalizeArrayField = (field) => {
+  if (field === undefined || field === null) return [];
+
+  if (Array.isArray(field)) {
+    return field.flat(Infinity)
+      .map(String)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  if (typeof field === 'string') {
+    const str = field.trim();
+
+    // Try JSON parsing e.g. '["Red","Blue"]'
+    try {
+      const parsed = JSON.parse(str);
+      if (Array.isArray(parsed)) {
+        return parsed.flat(Infinity)
+          .map(String)
+          .map(s => s.trim())
+          .filter(Boolean);
+      }
+    } catch (e) { /* ignore */ }
+
+    // Comma-separated string e.g. "Red, Blue"
+    if (str.includes(',')) {
+      return str.split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    return [str];
+  }
+
+  return [String(field)];
+};
+
+// Update Product with file uploads
 router.put('/updateproduct', upload.array('images'), async (req, res) => {
   try {
     // Process uploaded images
@@ -123,29 +162,19 @@ router.put('/updateproduct', upload.array('images'), async (req, res) => {
         return `https://${process.env.BUCKET_NAME}.s3.amazonaws.com/${key}`;
       })
     );
-  
 
-    // Utility to normalize array fields
-const normalizeArrayField = (field) => {
-  if (Array.isArray(field)) return field;
-  if (typeof field === 'string') return [field];
-  return [];
-};
-
-const payload = {
-  ...req.body,
-  userId: req.body.userId,
-  productId: req.body.productId,
-  imagesToRemove: normalizeArrayField(req.body.imagesToRemove),
-  colors: normalizeArrayField(req.body.colors),
-  shoeSizes: normalizeArrayField(req.body.shoeSizes),
-  clotheSizes: normalizeArrayField(req.body.clotheSizes),
-  price: parseFloat(req.body.price),
-  quantity: parseInt(req.body.quantity),
-  unitCost: parseInt(req.body.unitCost),
-};
-
-
+    const payload = {
+      ...req.body,
+      userId: req.body.userId,
+      productId: req.body.productId,
+      imagesToRemove: normalizeArrayField(req.body.imagesToRemove),
+      colors: normalizeArrayField(req.body.colors),
+      shoeSizes: normalizeArrayField(req.body.shoeSizes),
+      clotheSizes: normalizeArrayField(req.body.clotheSizes),
+      price: parseFloat(req.body.price),
+      quantity: parseInt(req.body.quantity),
+      unitCost: parseInt(req.body.unitCost),
+    };
 
     const response = await updateProduct(imageUrls, payload);
     
@@ -162,6 +191,7 @@ const payload = {
     });
   }
 });
+
 
 
 

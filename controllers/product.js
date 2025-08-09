@@ -84,21 +84,24 @@ export const createProduct = async (imageUrls, payload) => {
     // First save product
     const savedProduct = await newProduct.save();
 
-    user.store.items.push(savedProduct); 
+    user?.store?.items.push(savedProduct); 
     user.markModified('store')
     const updatedUser = await user.save();
      
     // Update Stores with new item
-    const userStoreInStores = await Stores.findOne({userId: user._id})
-    userStoreInStores.items.push(savedProduct)
-    userStoreInStores.markModified('items')
-    await userStoreInStores.save()
-
+    const userStoreInStores = await Stores.findOne({ userId: user._id.toString()});
+if (userStoreInStores) {
+  userStoreInStores.items.push(savedProduct);
+  userStoreInStores.markModified('items');
+  await userStoreInStores.save();
+} else {
+  console.warn(`No store found in Stores collection for userId: ${user._id}`);
+}
 
     return {
       ok: true,
       message: "Product added successfully",
-      data: updatedUser // or updated user if needed
+      data: updatedUser 
     };
 
   } catch (error) {
@@ -132,6 +135,30 @@ export const updateProduct = async (imageUrls, payload) => {
       description,
       imagesToRemove = []
     } = payload;
+
+    // Normalize helper to ensure flat string arrays
+    const normalizeColors = (val) => {
+      if (!val) return [];
+      if (Array.isArray(val)) {
+        return val.flat(Infinity).map(String).map(s => s.trim()).filter(Boolean);
+      }
+      if (typeof val === 'string') {
+        const str = val.trim();
+        try {
+          const parsed = JSON.parse(str);
+          if (Array.isArray(parsed)) {
+            return parsed.flat(Infinity).map(String).map(s => s.trim()).filter(Boolean);
+          }
+        } catch {}
+        if (str.includes(',')) {
+          return str.split(',').map(s => s.trim()).filter(Boolean);
+        }
+        return [str];
+      }
+      return [String(val)];
+    };
+
+    const processedColors = normalizeColors(colors);
 
     // 1. Get the existing product first
     const existingProduct = await Products.findById(productId);
@@ -174,7 +201,7 @@ export const updateProduct = async (imageUrls, payload) => {
         const item = user.store.items[storeIndex];
         item.addedBy = addedBy || item.addedBy;
         item.imageUrls = finalImageUrls;
-        item.colors = colors || item.colors;
+        item.colors = processedColors.length ? processedColors : item.colors;
         item.productName = productName || item.productName;
         item.price = price !== undefined ? Number(price) : item.price;
         item.condition = condition || item.condition;
@@ -193,7 +220,7 @@ export const updateProduct = async (imageUrls, payload) => {
     // Update user.cart if needed
     if (user.cart?.length > 0) {
       const cartIndex = user.cart.findIndex(
-        (item) => item._id === productId
+        (item) => item._id.toString() === productId
       );
       if (cartIndex !== -1) {
         const item = user.cart[cartIndex];
@@ -204,14 +231,14 @@ export const updateProduct = async (imageUrls, payload) => {
 
     await user.save();
 
-    // Update product in Products collection
+    // 5. Update product in Products collection
     const updatedProduct = await Products.findOneAndUpdate(
       { _id: productId, storeId: user.store._id },
       {
         $set: {
           addedBy: addedBy || existingProduct.addedBy,
           imageUrls: finalImageUrls,
-          colors: colors || existingProduct.colors,
+          colors: processedColors.length ? processedColors : existingProduct.colors,
           productName: productName || existingProduct.productName,
           price: price !== undefined ? Number(price) : existingProduct.price,
           condition: condition || existingProduct.condition,
@@ -231,7 +258,7 @@ export const updateProduct = async (imageUrls, payload) => {
       return { ok: false, error: 'Product not found or not owned by user.' };
     }
 
-    // Update product in Store model
+    // 6. Update store document
     const store = await Stores.findOne({ _id: user?.store?._id });
     if (!store) {
       return { ok: false, error: 'Store not found for this user.' };
@@ -244,7 +271,7 @@ export const updateProduct = async (imageUrls, payload) => {
       const item = store.items[storeIndex];
       item.addedBy = addedBy || item.addedBy;
       item.imageUrls = finalImageUrls;
-      item.colors = colors || item.colors;
+      item.colors = processedColors.length ? processedColors : item.colors;
       item.productName = productName || item.productName;
       item.price = price !== undefined ? Number(price) : item.price;
       item.condition = condition || item.condition;
@@ -338,15 +365,23 @@ export const deleteProduct = async (userId, productId) => {
       { $pull: { 'store.items': { _id: product._id } } }
     );
 
-    // 🧼 Remove product from all stores
+    // 🧼 Remove product from Stores collection
     await Stores.updateMany(
       { 'items._id': product._id },
       { $pull: { items: { _id: product._id } } }
     );
 
+      // 🧼 Remove product from user store
+    const user = await Users.findOne({_id: userId})
+    if(!user){
+      return {ok: false, error: `User with id ${userId} not found`}
+    }
+    user.store.items = user?.store?.items.filter((item)=> item._id.toString() !== productId)
+    user.markModified('store')
+    const updatedUser = await user.save()
+
     // ✅ Return updated state
     const updatedProducts = await Products.find();
-    const updatedUser = await Users.findOne({ _id: userId });
 
     return {
       ok: true,
