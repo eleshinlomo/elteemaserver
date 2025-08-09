@@ -44,11 +44,6 @@ export const createProduct = async (imageUrls, payload) => {
     });
     if (existingProduct) return { ok: false, error: "A product with this name already exists" };
     
-    // This is needed to update objects in the database when a new field has just been added. Comment this out one existing objects in the databse has been updated with the newly added field
-    // await Products.updateMany(
-    //   {storeId: {$exists: false}},
-    //   {$set: {storeId: false}}
-    // )
 
     const newProduct = new Products({
       imageUrls,
@@ -88,8 +83,8 @@ export const createProduct = async (imageUrls, payload) => {
     user.markModified('store')
     const updatedUser = await user.save();
      
-    // Update Stores with new item
-    const userStoreInStores = await Stores.findOne({ userId: user._id.toString()});
+    // Save item in store
+  const userStoreInStores = await Stores.findOne({ _id : user?.store?._id?.toString()});
 if (userStoreInStores) {
   userStoreInStores.items.push(savedProduct);
   userStoreInStores.markModified('items');
@@ -223,8 +218,20 @@ export const updateProduct = async (imageUrls, payload) => {
         (item) => item._id.toString() === productId
       );
       if (cartIndex !== -1) {
-        const item = user.cart[cartIndex];
+        const item = user.cart[storeIndex];
+        item.addedBy = addedBy || item.addedBy;
         item.imageUrls = finalImageUrls;
+        item.colors = processedColors.length ? processedColors : item.colors;
+        item.productName = productName || item.productName;
+        item.price = price !== undefined ? Number(price) : item.price;
+        item.condition = condition || item.condition;
+        item.deliveryMethod = deliveryMethod || item.deliveryMethod;
+        item.quantity = quantity !== undefined ? quantity : item.quantity;
+        item.unitCost = unitCost !== undefined ? unitCost : item.unitCost;
+        item.shoeSizes = shoeSizes || item.shoeSizes;
+        item.clotheSizes = clotheSizes || item.clotheSizes;
+        item.category = category || item.category;
+        item.description = description || item.description;
         user.markModified('cart');
       }
     }
@@ -259,7 +266,7 @@ export const updateProduct = async (imageUrls, payload) => {
     }
 
     // 6. Update store document
-    const store = await Stores.findOne({ _id: user?.store?._id });
+    const store = await Stores.findOne({ _id: user?.store?._id.toString() });
     if (!store) {
       return { ok: false, error: 'Store not found for this user.' };
     }
