@@ -191,11 +191,13 @@ export const persistLogin = async (token, email)=>{
     }
     user = await Users.findOne({_id: userInSession.userId})
     
-
+    
     if(user){
+      user.lastLogin = new Date()
+      await user.save()
       return {ok: true, message: 'User is authenticated', data: user}
     }
-
+    
     return {ok: false, error: 'User authentication cannot be verified'}
   }catch(err){
     console.log(err)

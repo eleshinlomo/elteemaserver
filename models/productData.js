@@ -9,6 +9,7 @@ const productSchema = mongoose.Schema({
       imageUrls: {type: [String], default: []},
       addedBy : {type: String, default: ''},
       eta : {type: String, default: ''},
+      isHidden : {type: Boolean, default: false},
       colors: {type: [String], default: []},
       productName: {type: String, default: ''},
       price: {type: Number, default: 0, min: 0},

@@ -5,10 +5,12 @@ import { Users } from "../models/userData.js";
 import { cleanImagePath, getImageFilesystemPath } from "../utils.js";
 import { Stores } from "../models/storeData.js";
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import mongoose from 'mongoose'
 
 
 
 const s3Client = new S3Client({ region: process.env.BUCKET_REGION });
+
 
 
 
@@ -310,6 +312,75 @@ export const updateProduct = async (imageUrls, payload) => {
     };
   }
 };
+
+
+
+
+// Hide or Unhide product
+export const modifyProductDisplay = async (payload) => {
+  const { isHidden, productId, userId } = payload;
+
+  try {
+    // 1. Update in Users collection (nested array)
+    const user = await Users.findOneAndUpdate(
+      {
+        _id: userId,
+        "store.items._id": productId
+      },
+      {
+        $set: { "store.items.$.isHidden": isHidden }
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return { ok: false, error: `No user with the id ${userId} found or product not in user store` };
+    }
+
+    // 2. Update in Products collection (direct field)
+    const product = await Products.findOneAndUpdate(
+      { _id: productId },
+      { $set: { isHidden: isHidden } },
+      { new: true }
+    );
+
+    if (!product) {
+      return { ok: false, error: `No product with the id ${productId} found` };
+    }
+
+  
+
+const store = await Stores.findOneAndUpdate(
+  {
+    _id: user?.store?._id, // string match
+    'items._id': productId.toString() // string match
+  },
+  { $set: { 'items.$.isHidden': isHidden } },
+  { new: true }
+);
+
+
+    if (!store) {
+      return { ok: false, error: `No product with the id ${productId} found in store` };
+    }
+
+    // 3. Get updated list of products
+    const updatedProducts = await Products.find();
+    const updatedUser = user
+
+    return {
+      ok: true,
+      message: "Product successfully modified",
+      data: { updatedUser, updatedProducts }
+    };
+
+  } catch (err) {
+    console.log('Hide product err:', err);
+    return { ok: false, error: 'Server error' };
+  }
+};
+
+
 
 
 

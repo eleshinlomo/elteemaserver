@@ -1,5 +1,5 @@
 import express from 'express'
-import { createProduct, deleteProduct, getAllProducts, updateProduct } from '../controllers/product.js'
+import { createProduct, deleteProduct, getAllProducts, modifyProductDisplay, updateProduct } from '../controllers/product.js'
 import { productImagesUpload } from '../middleware/multerConfig.js'
 import { verifyUser } from '../middleware/verifyUser.js'
 import bodyParser  from 'body-parser'
@@ -191,6 +191,23 @@ router.put('/updateproduct', upload.array('images'), async (req, res) => {
     });
   }
 });
+
+
+// Only modifies product properties except images
+router.put('/modifyproduct', async (req, res)=>{
+  
+   const payload = {...req.body}
+   const {isHidden} = payload
+    
+   const response = await modifyProductDisplay(payload)
+ 
+   if (response.ok) {
+      return res.status(200).json(response);
+    }
+    return res.status(400).json(response);
+    
+
+})
 
 
 

@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema({
   store: { type: Object, default: null },
   state: { type: String, default: '' },
   country: {type: String, default: ''},
+  lastLogin: { type: Date, default: null },
   isNewsletter: { type: Boolean, default: true }
 },
 { timestamps: true}

@@ -12,6 +12,8 @@ export const capitalize = (text) => {
 
 
 
+
+
 /**
  * Cleans image paths by removing base URL and normalizing
  * @param {string|string[]} imagePath - The image path(s) to clean
