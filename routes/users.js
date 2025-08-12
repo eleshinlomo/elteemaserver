@@ -127,7 +127,6 @@ router.get('/users', async (req, res) => {
   // Create user order
 router.put('/createuserorder', async (req, res)=>{
     const {items, buyerId} = req.body
-    console.log('REQ', req.body)
 
     if(!items || items.length === 0){
       return res.json({error: 'Items to add not found', "ok": false})

@@ -132,7 +132,7 @@ export const updateStore = async (payload) => {
 
   // ✅ Update the main store in `Stores` collection
   await Stores.updateOne(
-    { userId},
+    { _id: user.store?._id},
     {
       $set: {
         ...(tagline && { tagline }),
@@ -182,11 +182,11 @@ export const updateStore = async (payload) => {
 
 
 // Get single store
-export const getSingleStore = async (storeName)=>{
-  if(!storeName.trim()){
+export const getSingleStore = async (storeId)=>{
+  if(!storeId){
     return {ok: false, error:'No store name found'}
   }
-  const store = await Stores.findOne({storeName: storeName.toLowerCase()})
+  const store = await Stores.findById(storeId)
   if(!store) return {ok: false, error:'No store found'}
     return {ok: true, message: store}
    

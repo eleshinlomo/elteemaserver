@@ -1,15 +1,15 @@
 import { Products } from "../models/productData.js";
-import path from 'path';
-import fs from 'fs/promises';
 import { Users } from "../models/userData.js";
 import { cleanImagePath, getImageFilesystemPath } from "../utils.js";
 import { Stores } from "../models/storeData.js";
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import mongoose from 'mongoose'
+import { Orders } from "../models/order.js";
 
 
 
 const s3Client = new S3Client({ region: process.env.BUCKET_REGION });
+
 
 
 
@@ -393,30 +393,23 @@ export const deleteProduct = async (userId, productId) => {
     if (!product) {
       return { ok: false, message: `Unable to find product with ID ${productId}` };
     }
+    
+      const user = await Users.findOne({_id: userId})
+    if(!user){
+      return {ok: false, error: `User with id ${userId} not found`}
+    }
+    
+     const sellerOrders = user?.store?.orders?.currentOrders.find((order)=>order?.productId?.toString() === productId.toString())
+    
 
-     // Prevent deleting product if it's in any user order
-    const userHasProductInOrders = await Users.findOne({
-      'orders._id': productId
-    });
-
-    if (userHasProductInOrders) {
+    if (sellerOrders) {
       return {
         ok: false,
         error: 'You cannot delete a product that has been ordered by a user. Please cancel the order first.'
       };
     }
 
-    // Prevent deleting if in store current orders
-    const storeHasProductInCurrentOrders = await Stores.findOne({
-      'orders.currentOrders._id': productId
-    });
-
-    if (storeHasProductInCurrentOrders) {
-      return {
-        ok: false,
-        error: 'You cannot delete a product that is in an ongoing store order. Please cancel the order first.'
-      };
-    }
+  
 
     // 🧹 Delete product images from S3
     if (product.imageUrls?.length > 0) {
@@ -450,10 +443,6 @@ export const deleteProduct = async (userId, productId) => {
     );
 
       // 🧼 Remove product from user store
-    const user = await Users.findOne({_id: userId})
-    if(!user){
-      return {ok: false, error: `User with id ${userId} not found`}
-    }
     user.store.items = user?.store?.items.filter((item)=> item._id.toString() !== productId)
     user.markModified('store')
     const updatedUser = await user.save()

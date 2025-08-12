@@ -118,8 +118,8 @@ router.get('/allstores', (req, res)=>{
 
 //  Get Single store
  router.post('/getstore', async (req, res)=>{
-    const {storeName} = req.body
-     const response = await getSingleStore(storeName)
+    const {storeId} = req.body
+     const response = await getSingleStore(storeId)
      if(response.ok){
         return res.status(200).json(response)
      }
