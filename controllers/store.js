@@ -1,9 +1,11 @@
 import { Users } from "../models/userData.js"
 import { Stores } from "../models/storeData.js"
+import { Orders } from "../models/order.js"
 import { Products } from "../models/productData.js"
 import { userNoticationOrderCancelledByStore } from "../htmpages/userNotificationOrderCancelledByStore.js"
 import { storeNotificationOrderCancelledByBuyer } from "../htmpages/storeNotificationOrderCancelledByBuyer.js"
 import { storeNotificationOrderCancelledByStore } from "../htmpages/storeNotificationOrderCancelledByStore.js"
+import { trusted } from "mongoose"
 
 
 // Add Store. Store is an object
@@ -193,6 +195,91 @@ export const getSingleStore = async (storeId)=>{
 }
 
 
+// Update order payment status
+export const updateStoreOrderPaymentStatus = async (payload) => {
+  const { orderId, status } = payload;
+  const order = await Orders.findById(orderId);
+  if (!order) {
+    return { ok: false, error: `No order with id ${orderId} found` };
+  }
+
+  order.paymentStatus = status;
+  await order.save();
+
+  const { buyerId, storeId } = order;
+
+  // Update order in store
+  const store = await Stores.findOneAndUpdate(
+    { _id: storeId.toString(), 'orders.currentOrders._id': order._id },
+    { $set: { 'orders.currentOrders.$': order } },
+    { new: true }
+  );
+
+  if (!store) {
+    return { ok: false, error: `No store with id ${storeId} found` };
+  }
+
+  // Update order in seller's account
+  const updatedSeller = await Users.findOneAndUpdate(
+    { _id: store.userId.toString(), 'store.orders.currentOrders._id': order._id },
+    { $set: { 'store.orders.currentOrders.$': order } },
+    { new: true }
+  );
+
+  // Update order in buyer's account
+  await Users.findOneAndUpdate(
+    { _id: buyerId.toString(), 'orders._id': order._id },
+    { $set: { 'orders.$': order } },
+    { new: true }
+  );
+
+  return { ok: true, message: 'Order status updated successfully', data: updatedSeller };
+};
+
+
+// Update order status
+export const updateStoreOrderStatus = async (payload) => {
+  const { orderId, orderStatusValue } = payload;
+  console.log('PAYLOAD', payload)
+  const order = await Orders.findById(orderId);
+  if (!order) {
+    return { ok: false, error: `No order with id ${orderId} found` };
+  }
+
+  order.orderStatus = orderStatusValue;
+  await order.save();
+
+  const { buyerId, storeId } = order;
+
+  // Update order in store
+  const store = await Stores.findOneAndUpdate(
+    { _id: storeId.toString(), 'orders.currentOrders._id': order._id },
+    { $set: { 'orders.currentOrders.$': order } },
+    { new: true }
+  );
+
+  if (!store) {
+    return { ok: false, error: `No store with id ${storeId} found` };
+  }
+
+  // Update order in seller's account
+  const updatedSeller = await Users.findOneAndUpdate(
+    { _id: store.userId.toString(), 'store.orders.currentOrders._id': order._id },
+    { $set: { 'store.orders.currentOrders.$': order } },
+    { new: true }
+  );
+
+  // Update order in buyer's account
+  await Users.findOneAndUpdate(
+    { _id: buyerId.toString(), 'orders._id': order._id },
+    { $set: { 'orders.$': order } },
+    { new: true }
+  );
+
+  return { ok: true, message: 'Order status updated successfully', data: updatedSeller };
+};
+
+
 // Delete user order
 export const deleteStoreOrder = async (storeName, orderId, buyerId, reason) => {
   try {
@@ -226,7 +313,6 @@ export const deleteStoreOrder = async (storeName, orderId, buyerId, reason) => {
    
 
     // Remove from Stores collection
- 
       const currentOrdersInStores = store.orders.currentOrders || [];
       store.orders.currentOrders = currentOrdersInStores.filter(
         (order) => !order._id.equals(orderId)

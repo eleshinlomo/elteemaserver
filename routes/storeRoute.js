@@ -1,6 +1,7 @@
 import express from 'express'
 import bodyParser  from 'body-parser'
-import { createStore, getAllStores, getSingleStore, updateStore,  deleteStore, deleteStoreOrder } from '../controllers/store.js';
+import { createStore, getAllStores, getSingleStore, updateStore,  deleteStore, 
+    deleteStoreOrder, updateStoreOrderStatus, updateStoreOrderPaymentStatus } from '../controllers/store.js';
 
 
 
@@ -101,11 +102,31 @@ router.put('/updatestore', async (req, res)=>{
     return res.status(401).json(response)
  })
 
+// Update store order status
+ router.put('/updatestoreorderstatus', async (req, res)=>{
+    const payload = {...req.body}
+    const response = await updateStoreOrderStatus(payload)
+    if(response.ok){
+        return res.json(response)
+    }
+     return res.json(response)
+ })
+
+ // Update store order payment status
+ router.put('/updatestoreorderpaymentstatus', async (req, res)=>{
+    const payload = {...req.body}
+    const response = await updateStoreOrderPaymentStatus(payload)
+    if(response.ok){
+        return res.json(response)
+    }
+     return res.json(response)
+ })
+
+
 
  // Get all stores
 router.get('/allstores', (req, res)=>{
     const stores = getAllStores()
-    console.log('ALL STORES', stores)
     if(stores?.length > 0){
         return res.json({stores: stores, "ok": true})
     }
