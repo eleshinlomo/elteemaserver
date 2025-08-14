@@ -245,23 +245,28 @@ router.delete('/deleteproduct', async (req, res)=>{
  // Get all products
 router.get('/allproducts',  async (req, res)=>{
     
-const ip = await getPublicIP()
+
+ const ip = await getPublicIP();
 let geoData;
-if(ip){
-  geoData = await getLocationFromIP(ip)
-  if(geoData){
-  console.log(geoData)
-   let data = await Data.findOne()
-   if(!data){
-    data = new Data()
-   }
 
-    data.requests.push(geoData)
-    data.markModified('requests')
-    await data.save()
+if (ip) {
+  geoData = await getLocationFromIP(ip);
+  if (geoData) {
+    console.log(geoData);
 
+    let data = await Data.findOne();
+    if (!data) {
+      data = new Data();
+    }
+
+    // Only push if this IP doesn't already exist
+    if (!data.requests.some(r => r.ip === geoData.ip)) {
+      data.requests.push(geoData);
+      await data.save();
+    }
   }
 }
+
 
     const response = await getAllProducts()
     if(response.ok){
