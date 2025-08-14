@@ -7,11 +7,16 @@ import { Products } from '../models/productData.js'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import multer from 'multer'
+import { getLocationFromIP, getPublicIP } from '../controllers/geolocation.js'
+import { Data } from '../models/data.js'
+
+
 
 const upload = multer(); 
 const router = express.Router()
 // router.use(bodyParser.json());
 const BASE_URL = process.env.BASE_URL
+
 
 
 
@@ -234,18 +239,33 @@ router.delete('/deleteproduct', async (req, res)=>{
  })
 
 
+ 
+
 
  // Get all products
 router.get('/allproducts',  async (req, res)=>{
     
-    const ip =
-  req.headers['x-forwarded-for']?.split(',').shift() || 
-  req.socket.remoteAddress;
-console.log('GEO', req.ip);
+const ip = await getPublicIP()
+let geoData;
+if(ip){
+  geoData = await getLocationFromIP(ip)
+  if(geoData){
+  console.log(geoData)
+   let data = await Data.findOne()
+   if(!data){
+    data = new Data()
+   }
+
+    data.requests.push(geoData)
+    data.markModified('requests')
+    await data.save()
+
+  }
+}
 
     const response = await getAllProducts()
     if(response.ok){
-        return res.status(200).json(response)
+        return res.status(200).json({response, geoData})
     }
      return res.status(403).json(response)
  })
