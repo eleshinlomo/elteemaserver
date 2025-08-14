@@ -237,6 +237,12 @@ router.delete('/deleteproduct', async (req, res)=>{
 
  // Get all products
 router.get('/allproducts',  async (req, res)=>{
+    
+    const ip =
+  req.headers['x-forwarded-for']?.split(',').shift() || 
+  req.socket.remoteAddress;
+console.log('GEO', req.ip);
+
     const response = await getAllProducts()
     if(response.ok){
         return res.status(200).json(response)

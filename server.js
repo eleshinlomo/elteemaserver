@@ -56,6 +56,7 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization', 'userId'],
 };
 app.use(cors(corsOptions));
+app.set('trust proxy', true);
 
 // Routes
 app.use('/api/auth', authRoutes);
