@@ -246,7 +246,7 @@ router.delete('/deleteproduct', async (req, res)=>{
 router.get('/allproducts',  async (req, res)=>{
     
 
- const ip = await getPublicIP();
+ const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 let geoData;
 
 if (ip) {
