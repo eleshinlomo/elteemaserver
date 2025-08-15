@@ -54,6 +54,7 @@ export const registerUser = async (email, username) => {
     const newUser = new Users({
       username: username.toLowerCase(),
       email: email.toLowerCase(),
+      service: 'Elteema'
     });
 
    const savedUser = await newUser.save(); // Saves to MongoDB

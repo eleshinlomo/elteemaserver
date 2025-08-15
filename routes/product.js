@@ -260,10 +260,10 @@ if (ip) {
     }
 
     // Only push if this IP doesn't already exist
-    if (!data.requests.some(r => r.ip === geoData.ip)) {
-      data.requests.push(geoData);
-      await data.save();
-    }
+    // if (!data.requests.some(r => r.ip === geoData.ip)) {
+    //   data.requests.push(geoData);
+    //   await data.save();
+    // }
   }
 }
 
