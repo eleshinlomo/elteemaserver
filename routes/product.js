@@ -9,6 +9,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import multer from 'multer'
 import { getLocationFromIP, getPublicIP } from '../controllers/geolocation.js'
 import { Data } from '../models/data.js'
+import axios from 'axios'
 
 
 
@@ -245,8 +246,13 @@ router.delete('/deleteproduct', async (req, res)=>{
  // Get all products
 router.get('/allproducts',  async (req, res)=>{
     
-
- const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+let ip = ''
+ ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+ if(ip === '::1'){
+  ip = '73.128.89.250'
+ }
+ const newRes = await axios.get(`https://ipinfo.io/${ip}`)
+ console.log('newRes', newRes)
 let geoData;
 
 if (ip) {
