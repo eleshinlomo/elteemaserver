@@ -369,6 +369,11 @@ export const deleteUser = async (userId)=>{
     return {ok: false, error: 'You must first delete your store'}
   }
 
+  const userOrders = user.orders
+  if(userOrders?.length > 0){
+    return {ok: false, error: 'Please cancel your pending orders before deleting your account'}
+  }
+
   await Products.deleteMany({userId: userId})
   await Stores.deleteOne({userId: userId})
   await Sessions.deleteOne({userId: userId})

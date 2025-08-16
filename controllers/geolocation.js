@@ -16,6 +16,7 @@ export async function getLocationFromIP(ip) {
   try {
     // Using ip-api.com (Free tier available)
     const response = await axios.get(`http://ip-api.com/json/${ip}?fields=country,regionName,city,region,query`);
+    console.log('GEO', response.data)
     const { country, regionName, city, region, query } = response.data;
   
     const geoData = { country, state: regionName, city, region, ip: query}
