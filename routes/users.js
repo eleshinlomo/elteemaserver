@@ -11,11 +11,6 @@ const HOME_URL = process.env.HOME_URL
 
 
 
-// User Data
-router.get('/users', async (req, res)=>{
-    const users = await Users.find()
-   return res.json({users: users, ok: true})
-})
 
 
 
@@ -94,18 +89,7 @@ router.get('/users', async (req, res)=>{
 
  })
 
-router.get('/users', async (req, res) => {
-  try {
-    const users = await Users.find(); // Wait for the query to complete
-    if (users.length > 0) {
-      return res.status(200).json(users); // Return users if found
-    }
-    res.status(404).json({ ok: false, error: 'No users found' }); // No users case
-  } catch (err) {
-    console.error('Error fetching users:', err);
-    res.status(500).json({ ok: false, error: 'Server error' }); // Database error
-  }
-});
+
 
 
 //  update payment method

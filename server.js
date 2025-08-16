@@ -16,7 +16,7 @@ import productRoutes from './routes/product.js'
 import adminRoutes from './routes/admin.js'
 import stripeRoutes from './routes/stripeRoutes.js'
 import mongoose from 'mongoose'
-
+import fetch from 'node-fetch'
 // Load environment variables
 // dotenv.config();
 console.log('Loaded STORE_URL:', process.env.STORE_URL);
