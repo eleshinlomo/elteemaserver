@@ -9,6 +9,6 @@ const feedSchema = mongoose.Schema({
         likes: {type: Number, default: 0}, 
         comments: {type: [String], default: []},
         store: {type: Object}
-}, {timeStamps: true})
+}, {timestamps: true})
 
 export const Feeds = mongoose.model('feeds', feedSchema)

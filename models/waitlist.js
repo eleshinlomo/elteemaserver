@@ -8,6 +8,6 @@ const waitlistSchema = mongoose.Schema({
         clientType: {type: String, default: ''}, 
         numOfProperties: {type: Number, default: 0}, 
         email: {type: String, default: ''}, 
-}, {timeStamps: true})
+}, {timestamps: true})
 
 export const Waitlists = mongoose.model('waitlists', waitlistSchema)
