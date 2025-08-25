@@ -1,13 +1,49 @@
 import express from 'express'
 import bodyParser  from 'body-parser'
 import { deleteOrder } from '../controllers/admin/order.js';
-import { adminUpdateUser } from '../controllers/admin/userController.js';
+import { adminUpdateUser, sendMailshot } from '../controllers/admin/userAdmin.js';
 import { Users } from '../models/userData.js';
+import { adminLogin } from '../controllers/admin/auth.js';
+
+
 
 
 const router = express.Router()
 router.use(bodyParser.json());
 const HOME_URL = process.env.HOME_URL
+
+
+
+//  Send Mailshot
+ router.post('/sendmailshot', async (req, res)=>{
+    const payload = {...req.body}
+    const response = await sendMailshot(payload)
+
+        if(response.ok){
+            
+            return res.status(200).json(response)
+        }else{
+            return res.status(400).json(response)
+        }
+
+ })
+
+
+//  Update User
+ router.post('/adminlogin', async (req, res)=>{
+    const payload = {...req.body}
+    const response = await adminLogin(payload)
+
+        if(response.ok){
+            
+            return res.status(200).json(response)
+        }else{
+            return res.status(400).json(response)
+        }
+
+ })
+
+
 
 //  Update User
  router.put('/updateuser', async (req, res)=>{

@@ -153,7 +153,7 @@ export const updateUserCookie = async (userId, isCookieAccepted)=>{
   user.save()
   return {ok: true, message: 'You cookie preference has been updated', data: user}
   }catch(err){
-    console.log(err)
+    console.log('Cookie update Error', err)
   }
 }
 

@@ -153,6 +153,7 @@ export const verifyTwoFactor = async (code, email) => {
 // Logout.
 export const logout = async (email) => {
   try {
+      if(!email)return {ok: false, error: 'missing user email'}
     // Delete the session document matching the user's email
     const result = await Sessions.deleteOne({ "email": email.toLowerCase() });
 

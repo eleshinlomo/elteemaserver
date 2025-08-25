@@ -1,6 +1,23 @@
 
+import { sendAbandonedCartEmail } from "../../htmpages/admin/abandonedCart.js";
+import { sendCustomEmail } from "../../htmpages/admin/customEmail.js";
 import { Users } from "../../models/userData.js";
 
+// Mailshot
+export const sendMailshot = (payload)=>{
+   const {selectedUsers, messageToSend} = payload
+   console.log('SELECTED USERS', payload)
+   const subject = messageToSend?.subject
+   const message = messageToSend?.message
+   selectedUsers.forEach((user)=>{
+       if(messageToSend.id === 1){
+       sendCustomEmail(user, subject, message)
+       }else if(messageToSend.id === 4){
+         sendAbandonedCartEmail(user, subject, message)
+       }
+   })
+   return {ok: true, message: 'Mailshot has been sent'}
+}
 
 // export const registerUser = async (email, username) => {
 //   try {
@@ -110,7 +127,7 @@ export const adminUpdateUser = async (payload) => {
     if (city !== undefined) user.city = city;
     if (state !== undefined) user.state = state;
     if (country !== undefined) user.country = country;
-    if (isAdmin !== undefined && user.isSuperAdmin) user.isAdmin = isAdmin;
+    if (isAdmin !== undefined && user.isAdmin) user.isAdmin = isAdmin;
     if (isSuperAdmin !== undefined && user.isSuperAdmin) user.isSuperAdmin = isSuperAdmin;
 
     const savedUpdatedUser = await user.save();

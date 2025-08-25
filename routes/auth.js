@@ -91,11 +91,10 @@ router.get('/api', (req, res)=>{
 router.post('/logout', async (req, res)=>{
    try{
     const {email} = req.body
-    if(!email)return {ok: false, error: 'missing user email'}
 
-      const response = logout(email)
+      const response = await logout(email)
       if(response.ok){
-        res.status(200).json(response.message)
+        res.status(200).json(response)
       }
     
     res.status(400).send(response)
