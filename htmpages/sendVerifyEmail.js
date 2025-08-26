@@ -2,6 +2,7 @@ import { sendEmail } from "../controllers/emailSender.js";
 import { capitalize } from "../utils.js";
 
 export const sendVerifyEmail = async (email, link, username) => {
+    console.log('EMAIL',email,'LINK', link,'USERNAME', username)
     const subject = 'Elteema Verification link'
     const emailBody = `
     <!DOCTYPE html>
@@ -59,7 +60,7 @@ export const sendVerifyEmail = async (email, link, username) => {
     `;
 
     try {
-        const response = await sendEmail(email, emailBody,subject);
+        const response = await sendEmail(email, emailBody, subject);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);

@@ -75,7 +75,7 @@ await Sessions.findOneAndUpdate(
 
     const senderResponse = await sendVerifyEmail(user.email, verifyLink, user.username);
     
-    if (senderResponse?.ok) {
+    if (senderResponse.ok) {
       return {
         message: `We sent a verification code to your email. \n Ensure to also check your spam to find it.`,
         ok: true
