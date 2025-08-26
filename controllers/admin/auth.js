@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 const NODE_ENV = process.env.NODE_ENV
 
 
-const HOME_URL = NODE_ENV === 'development' ? process.env.ADMIN_HOME_URL : 'https://elteema.online'
+const ADMIN_HOME_URL = process.env.ADMIN_HOME_URL 
 
 
 
@@ -70,7 +70,7 @@ await Sessions.findOneAndUpdate(
 );
 
 
-  const verifyLink = `${HOME_URL}?code=${newCode}&email=${user.email.toLowerCase()}`;
+  const verifyLink = `${ADMIN_HOME_URL}?code=${newCode}&email=${user.email.toLowerCase()}`;
   
   try {
    
