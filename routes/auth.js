@@ -5,7 +5,7 @@ import { login, logout, persistLogin, verifyToken, verifyTwoFactor} from '../con
 
 const router = express.Router()
 router.use(bodyParser.json());
-const HOME_URL = process.env.HOME_URL
+
 
 
 
@@ -25,14 +25,11 @@ router.get('/api', (req, res)=>{
 
  router.post('/login', async (req, res)=>{
     const {email} = req.body
-    console.log('Email ', email)
     const response = await login(email)
     if(response.ok){
-        console.log(response)
         return res.status(200).json(response)
     }
     
-    console.log(response)
     return res.status(400).json(response) 
 
  })

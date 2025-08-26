@@ -52,8 +52,8 @@ const corsOptions = {
         'https://myafros.com',
         'https://elteema.com',
         'https://www.elteema.com',
-        // 'https://elteema.online',
-        // 'https://www.elteema.online',
+        'https://elteema.online',
+        'https://www.elteema.online',
         'https://rentalora.com',
         'https://www.rentalora.com'
     ],

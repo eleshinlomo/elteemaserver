@@ -258,7 +258,6 @@ let geoData;
 if (ip) {
   geoData = await getLocationFromIP(ip);
   if (geoData) {
-    console.log(geoData);
 
     let data = await Data.findOne();
     if (!data) {

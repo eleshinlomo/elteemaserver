@@ -3,7 +3,6 @@ import { Stores } from "../models/storeData.js"
 import { Orders } from "../models/order.js"
 import { Products } from "../models/productData.js"
 import { userNoticationOrderCancelledByStore } from "../htmpages/userNotificationOrderCancelledByStore.js"
-import { storeNotificationOrderCancelledByBuyer } from "../htmpages/storeNotificationOrderCancelledByBuyer.js"
 import { storeNotificationOrderCancelledByStore } from "../htmpages/storeNotificationOrderCancelledByStore.js"
 import { trusted } from "mongoose"
 

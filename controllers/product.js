@@ -1,10 +1,7 @@
 import { Products } from "../models/productData.js";
 import { Users } from "../models/userData.js";
-import { cleanImagePath, getImageFilesystemPath } from "../utils.js";
 import { Stores } from "../models/storeData.js";
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import mongoose from 'mongoose'
-import { Orders } from "../models/order.js";
 
 
 
