@@ -26,11 +26,13 @@ const generateToken = (userId, email) => {
 
 
 
-export const adminLogin = async (email) => {
+export const adminLogin = async (payload) => {
+  const {email} = payload
   // Step 1: Check if the email is valid
-  if (!email || email.trim() === '') {
+  if (!email) {
     return { error: 'Please provide your email', ok: false };
   }
+  console.log('EMAIL', email)
 
   // Step 2: Validate email format
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
