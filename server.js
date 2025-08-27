@@ -20,7 +20,7 @@ import mongoose from 'mongoose'
 import fetch from 'node-fetch'
 // Load environment variables
 // dotenv.config();
-console.log('Loaded STORE_URL:', process.env.STORE_URL);
+
 
 // Derive __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);

@@ -6,12 +6,6 @@ import https from 'https'
 
 
 
-
-
-
-
-
-
 export const initiaLizePayment = async (userId, amount)=>{
 
   try{

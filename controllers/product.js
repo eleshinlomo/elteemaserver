@@ -8,10 +8,6 @@ import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
 const s3Client = new S3Client({ region: process.env.BUCKET_REGION });
 
 
-
-
-
-
 export const createProduct = async (imageUrls, payload) => {
   try {
     const {

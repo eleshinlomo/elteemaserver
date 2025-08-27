@@ -16,7 +16,6 @@ const HOME_URL = process.env.HOME_URL
 
  router.post('/register', async (req, res)=>{
     const {email, username} = req.body
-    console.log(email, username)
     const response = await registerUser(email, username)
 
         if(response.ok){
@@ -54,7 +53,7 @@ const HOME_URL = process.env.HOME_URL
      
         }
 
-    console.log(payload)
+
     const response = await updateUserCart(userId, updatedCart)
 
         if(response.ok){
@@ -77,7 +76,6 @@ const HOME_URL = process.env.HOME_URL
      
         }
 
-    console.log(payload)
     const response = await updateUserCookie(userId, isCookieAccepted)
 
         if(response.ok){
@@ -99,7 +97,6 @@ const HOME_URL = process.env.HOME_URL
  
   const response = await updatePaymentMethod(payload)
   if(response.ok){
-      console.log(response)
       return res.status(200).json(response)
   }
   

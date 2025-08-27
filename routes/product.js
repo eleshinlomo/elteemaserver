@@ -252,7 +252,6 @@ let ip = ''
   ip = '73.128.89.250'
  }
  const newRes = await axios.get(`https://ipinfo.io/${ip}`)
- console.log('newRes', newRes)
 let geoData;
 
 if (ip) {

@@ -149,7 +149,8 @@ const generateEmailTemplate = ({
             <div style="text-align:center;margin:20px 0;color:#4a5568;line-height:1.6;font-size:14px;">
                 <strong>Need help or have questions about your order?</strong><br>
                 Reply to this email or contact us at 
-                <a href="mailto:${supportEmail}" style="color:#1eaf3b;text-decoration:none;font-weight:600;">${supportEmail}</a>
+                <a href="mailto:${supportEmail}" style="color:#1eaf3b;text-decoration:none;font-weight:600;">
+                ${supportEmail}</a>
             </div>
             
             <div style="font-style:italic;color:#1eaf3b;margin-top:20px;text-align:center;font-size:15px;font-weight:500;">

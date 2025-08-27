@@ -14,7 +14,7 @@ export const verifyUser = async (req, res, next) => {
         error: "Missing user ID in headers",
       });
     }
-    console.log('USERID', userId)
+
     // Validate and convert to ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({
