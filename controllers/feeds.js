@@ -5,7 +5,6 @@ import { Feeds } from "../models/feedData.js"
 
 // Add feed
 export const createFeed = async (payload)=>{
-    console.log('NEW FEED', payload)
     const {userId, text, imageUrl } = payload
 
     const user = await Users.findOne({_id: userId})

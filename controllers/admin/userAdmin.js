@@ -3,21 +3,7 @@ import { sendAbandonedCartEmail } from "../../htmpages/admin/abandonedCart.js";
 import { sendCustomEmail } from "../../htmpages/admin/customEmail.js";
 import { Users } from "../../models/userData.js";
 
-// Mailshot
-export const sendMailshot = (payload)=>{
-   const {selectedUsers, messageToSend} = payload
-   console.log('SELECTED USERS', payload)
-   const subject = messageToSend?.subject
-   const message = messageToSend?.message
-   selectedUsers.forEach((user)=>{
-       if(messageToSend.id === 1){
-       sendCustomEmail(user, subject, message)
-       }else if(messageToSend.id === 4){
-         sendAbandonedCartEmail(user, subject, message)
-       }
-   })
-   return {ok: true, message: 'Mailshot has been sent'}
-}
+
 
 // export const registerUser = async (email, username) => {
 //   try {

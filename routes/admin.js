@@ -1,7 +1,8 @@
 import express from 'express'
 import bodyParser  from 'body-parser'
 import { deleteOrder } from '../controllers/admin/order.js';
-import { adminUpdateUser, sendMailshot } from '../controllers/admin/userAdmin.js';
+import { adminUpdateUser} from '../controllers/admin/userAdmin.js';
+import { sendMailshot } from '../controllers/admin/mailshot.js';
 import { Users } from '../models/userData.js';
 import { adminLogin } from '../controllers/admin/auth.js';
 
