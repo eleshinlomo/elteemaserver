@@ -32,7 +32,6 @@ export const adminLogin = async (payload) => {
   if (!email) {
     return { error: 'Please provide your email', ok: false };
   }
-  console.log('EMAIL', email)
 
   // Step 2: Validate email format
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
