@@ -2,7 +2,7 @@ import { sendEmail } from "../controllers/emailSender.js";
 import { capitalize } from "../utils.js";
 
 export const sendVerifyEmail = async (email, link, username) => {
-    console.log('EMAIL',email,'LINK', link,'USERNAME', username)
+
     const subject = 'Elteema Verification link'
     const emailBody = `
     <!DOCTYPE html>
