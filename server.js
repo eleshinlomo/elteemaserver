@@ -49,7 +49,7 @@ mongoose.connect(MONGO_URL)
 // CORS configuration
 const corsOptions = {
     origin: ["*"],
-    credentials: true,
+    // credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'userId'],
 };
 
