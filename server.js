@@ -44,11 +44,10 @@ const corsOptions = {
         'http://localhost:3000', 
         'http://localhost:3001', 
         'https://myafros.com',
-         'https://www.elteema.com',
-        // 'https://elteema.com',
-          'https://www.elteema.online',
+        'https://www.elteema.com',
+        'https://elteema.com',
+        'https://www.elteema.online',
         'https://elteema.online',
-      
         'https://rentalora.com',
         'https://www.rentalora.com'
     ],
