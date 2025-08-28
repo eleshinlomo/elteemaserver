@@ -5,12 +5,7 @@ import { Users, Sessions} from "../models/userData.js"
 import jwt from 'jsonwebtoken';
 
 
-
-
 const HOME_URL = process.env.HOME_URL;
-
-
-
 
 
 const generateToken = (userId, email) => {
@@ -71,9 +66,10 @@ await Sessions.findOneAndUpdate(
   const verifyLink = `${HOME_URL}?code=${newCode}&email=${user.email.toLowerCase()}`;
   
   try {
-   
+    const userEmail = user.email
+    const username = user.username
 
-    const senderResponse = await sendVerifyEmail(user.email, verifyLink, user.username);
+    const senderResponse = await sendVerifyEmail(userEmail, verifyLink, username);
     
     if (senderResponse.ok) {
       return {

@@ -60,7 +60,7 @@ export const sendVerifyEmail = async (email, link, username) => {
     `;
 
     try {
-        const response = await sendEmail(email, emailBody, subject);
+        const response = await sendEmail(email, subject, emailBody);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);

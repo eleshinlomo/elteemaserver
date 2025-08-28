@@ -1,7 +1,9 @@
 import nodemailer from 'nodemailer';
 const SERVICE = process.env.SERVICE
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
+const SUPPORT_PASS = process.env.SUPPORT_PASS
 
-export const sendEmail = async (recieverEmail, emailBody, messageSubject) => {
+export const sendEmail = async (recieverEmail, messageSubject, emailBody ) => {
     return  await new Promise((resolve, reject) => {
         const transporter = nodemailer.createTransport({
                service: 'gmail',
@@ -9,8 +11,8 @@ export const sendEmail = async (recieverEmail, emailBody, messageSubject) => {
               port: 465,
               secure: true,
             auth: {
-                user: 'support@elteema.com',
-                pass: 'ovfdytsfsznyppyx'
+                user: SUPPORT_EMAIL,
+                pass: SUPPORT_PASS
             },
         });
 
