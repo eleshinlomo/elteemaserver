@@ -11,7 +11,7 @@ import { adminLogin } from '../controllers/admin/auth.js';
 
 const router = express.Router()
 router.use(bodyParser.json());
-const HOME_URL = process.env.HOME_URL
+
 
 
 

@@ -57,7 +57,7 @@ export const registerUser = async (email, username) => {
       service: 'Elteema'
     });
 
-   const savedUser = await newUser.save(); // Saves to MongoDB
+   const savedUser = await newUser.save(); 
 
     // Send alert (if needed)
     await sendNewUserAlert(savedUser);

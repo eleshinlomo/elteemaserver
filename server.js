@@ -18,7 +18,7 @@ import prototypeRoutes from './routes/waitlist.js'
 import stripeRoutes from './routes/stripeRoutes.js'
 import mongoose from 'mongoose'
 import fetch from 'node-fetch'
-import morgan from 'morgan'
+
 // Load environment variables
 // dotenv.config();
 
@@ -64,9 +64,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.set('trust proxy', true);
 
-if (process.env.NODE_ENV !== "production") {
-  app.use(morgan("dev")); 
-}
+
 
 // Routes
 app.use('/api/auth', authRoutes);
