@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
 const SERVICE = process.env.SERVICE
 
-export const sendEmail = (recieverEmail, emailBody, messageSubject) => {
-    return new Promise((resolve, reject) => {
+export const sendEmail = async (recieverEmail, emailBody, messageSubject) => {
+    return  await new Promise((resolve, reject) => {
         const transporter = nodemailer.createTransport({
                service: 'gmail',
               host: 'smtp.gmail.com',
@@ -20,7 +20,7 @@ export const sendEmail = (recieverEmail, emailBody, messageSubject) => {
             subject: messageSubject,
             html: emailBody,
         };
-
+  
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 reject({ error: error.message, ok: false });  
@@ -28,7 +28,10 @@ export const sendEmail = (recieverEmail, emailBody, messageSubject) => {
                 resolve({ accepted: info.accepted, message: 'Verification email sent!', ok: true }); 
             }
         });
+        
     });
+
+
 };
 
 
