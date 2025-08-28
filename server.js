@@ -37,19 +37,21 @@ mongoose.connect(MONGO_URL)
   .then(() => console.log('Server connected to the database'))
   .catch((err) => console.error('Database connection error:', err));
 
-// 'http://localhost:3000', 
-//         'http://localhost:3001', 
-//         'https://myafros.com',
-//         'https://www.elteema.com',
-//         'https://elteema.com',
-//         'https://www.elteema.online',
-//         'https://elteema.online',
-//         'https://rentalora.com',
-//         'https://www.rentalora.com'
+
 // CORS configuration
 const corsOptions = {
-  origin: ["*"],
-  credentials: false,
+  origin: [
+     'http://localhost:3000', 
+        'http://localhost:3001', 
+        'https://myafros.com',
+        'https://www.elteema.com',
+        'https://elteema.com',
+        'https://www.elteema.online',
+        'https://elteema.online',
+        'https://rentalora.com',
+        'https://www.rentalora.com'
+  ],
+  credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "userId"],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 };
