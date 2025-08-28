@@ -48,9 +48,12 @@ mongoose.connect(MONGO_URL)
 //         'https://www.rentalora.com'
 // CORS configuration
 const corsOptions = {
-    origin: ["*"],
-    // credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'userId'],
+  origin: (origin, callback) => {
+    callback(null, origin || "*");
+  },
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization", "userId"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 };
 
 app.use(cors(corsOptions));
