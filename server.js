@@ -36,8 +36,10 @@ const MONGO_URL = process.env.MONGO_URL
 mongoose.connect(MONGO_URL)
   .then(() => console.log('Server connected to the database'))
   .catch((err) => console.error('Database connection error:', err));
+  
 
-
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); 
 
 
 // Middleware
@@ -61,8 +63,7 @@ const corsOptions = {
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'userId'],
 };
-app.use(cors(corsOptions));
-app.set('trust proxy', true);
+
 
 
 
