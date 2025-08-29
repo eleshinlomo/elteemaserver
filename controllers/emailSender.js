@@ -27,7 +27,7 @@ export const sendEmail = async (recieverEmail, messageSubject, emailBody ) => {
             if (error) {
                 reject({ error: error.message, ok: false });  
             } else {
-                resolve({ accepted: info.accepted, message: 'Verification email sent!', ok: true }); 
+                resolve({ accepted: info.accepted, message: 'Email sent successfully!', ok: true }); 
             }
         });
         

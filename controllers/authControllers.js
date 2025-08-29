@@ -175,7 +175,7 @@ export const persistLogin = async (token, email)=>{
     if(!email.trim() || !token){
       return {"ok":false, error: 'Problem with either email or token'}
     }
-
+  
     const decoded = verifyToken(token)
      if (!decoded || decoded.email !== email) {
       return {error: 'code decoding failed', ok: false}

@@ -67,7 +67,7 @@ export const sendContactMessage = async (name, email,subject, message) => {
 
     try {
         
-        const response = await sendEmail(SUPPORT_EMAIL, emailBody, subject);
+        const response = await sendEmail(email, subject, emailBody);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);
