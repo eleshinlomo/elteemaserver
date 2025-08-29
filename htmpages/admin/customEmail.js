@@ -132,7 +132,7 @@ export const sendCustomEmail = async (user, messageSubject, message) => {
                 </div>
                 
                 <div class="button-container">
-                    <a href="${`${HOME_URL}/dashboard`}" 
+                    <a href="https://elteema.com/dashboard" 
                     class="button">Log in to your dashboard</a>
                 </div>
                 
@@ -155,7 +155,6 @@ export const sendCustomEmail = async (user, messageSubject, message) => {
                     <a href="#" class="social-icon">📧</a>
                 </div>
                 <p>© ${new Date().getFullYear()} Elteema. All rights reserved.</p>
-                <p>Ikorodu, Lagos, Nigeria</p>
                 <p>If you didn't request this email, you can safely ignore it.</p>
             </div>
         </div>
@@ -164,7 +163,7 @@ export const sendCustomEmail = async (user, messageSubject, message) => {
     `;
 
     try {
-        const response = await sendEmail(recipientEmail, emailBody, subject);
+        const response = await sendEmail(recipientEmail, subject, emailBody);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);

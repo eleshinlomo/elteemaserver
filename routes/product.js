@@ -254,22 +254,22 @@ let ip = ''
  const newRes = await axios.get(`https://ipinfo.io/${ip}`)
 let geoData;
 
-if (ip) {
-  geoData = await getLocationFromIP(ip);
-  if (geoData) {
+// if (ip) {
+//   geoData = await getLocationFromIP(ip);
+//   if (geoData) {
 
-    let data = await Data.findOne();
-    if (!data) {
-      data = new Data();
-    }
+//     let data = await Data.findOne();
+//     if (!data) {
+//       data = new Data();
+//     }
 
-    // Only push if this IP doesn't already exist
-    // if (!data.requests.some(r => r.ip === geoData.ip)) {
-    //   data.requests.push(geoData);
-    //   await data.save();
-    // }
-  }
-}
+//     // Only push if this IP doesn't already exist
+//     // if (!data.requests.some(r => r.ip === geoData.ip)) {
+//     //   data.requests.push(geoData);
+//     //   await data.save();
+//     // }
+//   }
+// }
 
 
     const response = await getAllProducts()
