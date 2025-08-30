@@ -30,7 +30,7 @@ export const sendAbandonedCartEmail = async (user, messageSubject, message) => {
   });
 
   try {
-    const response = await sendEmail(recipientEmail, emailBody, messageSubject);
+    const response = await sendEmail(recipientEmail, messageSubject, emailBody);
     return response;
   } catch (error) {
     console.error('Error sending abandoned cart email:', error);

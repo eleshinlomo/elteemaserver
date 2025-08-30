@@ -177,7 +177,7 @@ export const storeNotificationOrderCancelledByAdmin = async (buyerEmail, order, 
     `;
 
     try {
-        const response = await sendEmail(buyerEmail, emailBody, subject);
+        const response = await sendEmail(buyerEmail, subject, emailBody);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);
