@@ -1,13 +1,9 @@
 import express from 'express'
 import { createProduct, deleteProduct, getAllProducts, modifyProductDisplay, updateProduct } from '../controllers/product.js'
-import { productImagesUpload } from '../middleware/multerConfig.js'
-import { verifyUser } from '../middleware/verifyUser.js'
-import bodyParser  from 'body-parser'
-import { Products } from '../models/productData.js'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import multer from 'multer'
-import { getLocationFromIP, getPublicIP } from '../controllers/geolocation.js'
+import { getLocationFromIP} from '../controllers/geolocation.js'
 import { Data } from '../models/data.js'
 import axios from 'axios'
 
@@ -16,7 +12,7 @@ import axios from 'axios'
 const upload = multer(); 
 const router = express.Router()
 // router.use(bodyParser.json());
-const BASE_URL = process.env.BASE_URL
+
 
 
 
@@ -254,22 +250,22 @@ let ip = ''
  const newRes = await axios.get(`https://ipinfo.io/${ip}`)
 let geoData;
 
-// if (ip) {
-//   geoData = await getLocationFromIP(ip);
-//   if (geoData) {
+if (ip) {
+  geoData = await getLocationFromIP(ip);
+  if (geoData) {
 
-//     let data = await Data.findOne();
-//     if (!data) {
-//       data = new Data();
-//     }
+    // let data = await Data.findOne();
+    // if (!data) {
+    //   data = new Data();
+    // }
 
-//     // Only push if this IP doesn't already exist
-//     // if (!data.requests.some(r => r.ip === geoData.ip)) {
-//     //   data.requests.push(geoData);
-//     //   await data.save();
-//     // }
-//   }
-// }
+    // Only push if this IP doesn't already exist
+    // if (!data.requests.some(r => r.ip === geoData.ip)) {
+    //   data.requests.push(geoData);
+    //   await data.save();
+    // }
+  }
+}
 
 
     const response = await getAllProducts()
