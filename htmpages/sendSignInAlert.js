@@ -157,7 +157,7 @@ const SignInAlertEnailBody = `
 </body>
 </html>
 `
-const response = sendEmail(user.email, SignInAlertEnailBody, subject)
+const response = sendEmail(user?.email, subject, SignInAlertEnailBody)
 return response
 
 }

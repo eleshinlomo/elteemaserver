@@ -151,7 +151,7 @@ export const sendUserOrderConfiramtionEmail = async (user) => {
     `;
 
     try {
-        const response = await sendEmail(user?.email, emailBody, subject);
+        const response = await sendEmail(user?.email, subject, emailBody);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);

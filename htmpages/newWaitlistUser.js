@@ -65,7 +65,7 @@ export const sendNewWaitlistUserAlert = async (user) => {
 
     try {
         
-        const response = await sendEmail(ADMIN_EMAIL, emailBody, subject);
+        const response = await sendEmail(ADMIN_EMAIL, subject, emailBody);
         return response;
     } catch (error) {
         console.error('Error sending verification email:', error);
