@@ -1,30 +1,43 @@
-import nodemailer from 'nodemailer'
+import nodemailer from 'nodemailer';
+const SERVICE = process.env.SERVICE
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
+const SUPPORT_PASS = process.env.SUPPORT_PASS
 
-export const sendEmail = async (recieverEmail, messageSubject, emailBody) => {
-    return await new Promise((resolve, reject) => {
+console.log('SUPPORT EMAIL', SUPPORT_EMAIL)
+console.log('SUPPORT PASS', SUPPORT_PASS)
+
+export const sendEmail = async (recieverEmail, messageSubject, emailBody ) => {
+    
         const transporter = nodemailer.createTransport({
-            service: 'gmail', // Let nodemailer handle Gmail settings automatically
+               service: 'gmail',
+              host: 'smtp.gmail.com',
+              port: 465,
+              secure: true,
             auth: {
-                user: process.env.SUPPORT_EMAIL,
-                pass: process.env.SUPPORT_PASS
+                user: SUPPORT_EMAIL,
+                pass: SUPPORT_PASS
             },
         });
 
         const mailOptions = {
-            from: `Elteema <${process.env.SUPPORT_EMAIL}>`,
+            from: `${SERVICE} <support@elteema.com>`,
             to: recieverEmail,
             subject: messageSubject,
             html: emailBody,
         };
-  
+     return await new Promise((resolve, reject) => {
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-                console.log('Email error:', error);
                 reject({ error: error.message, ok: false });  
             } else {
-                console.log('Email sent:', info.response);
                 resolve({ accepted: info.accepted, message: 'Email sent successfully!', ok: true }); 
             }
         });
+        
     });
+
+
 };
+
+
+
