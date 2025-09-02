@@ -3,6 +3,9 @@ const SERVICE = process.env.SERVICE
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL
 const SUPPORT_PASS = process.env.SUPPORT_PASS
 
+console.log('SUPPORT EMAIL', SUPPORT_EMAIL)
+console.log('SUPPORT PASS', SUPPORT_PASS)
+
 export const sendEmail = async (recieverEmail, messageSubject, emailBody ) => {
     return  await new Promise((resolve, reject) => {
         const transporter = nodemailer.createTransport({
