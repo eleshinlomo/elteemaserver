@@ -8,21 +8,6 @@ router.use(bodyParser.json());
 
 
 
-
-
-// Get APIs
-router.get('/', (req, res)=>{
-    res.send('Hello World')
-})
-
-router.get('/api', (req, res)=>{
-    res.send('API is working perfectly')
-})
-
-
-
-
-
  router.post('/login', async (req, res)=>{
     const {email} = req.body
     const response = await login(email)
