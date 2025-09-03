@@ -14,8 +14,8 @@ export const sendEmail = async (recieverEmail, messageSubject, emailBody ) => {
               port: 465,
               secure: true,
             auth: {
-                user: SUPPORT_EMAIL,
-                pass: SUPPORT_PASS
+                user: 'support@elteema.com',
+                pass: 'yrhccayglmkpxixi'
             },
         });
 
