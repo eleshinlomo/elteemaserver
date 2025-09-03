@@ -13,6 +13,7 @@ const storeSchema = new mongoose.Schema({
   storeName: { type: String, default: '', lowercase: true, index: true },
   logo: { type: String, default: '' },
   phone: { type: String, default: '' },
+  isVerified: { type: Boolean, default: false },
   email: { 
     type: String, 
     default: '',
