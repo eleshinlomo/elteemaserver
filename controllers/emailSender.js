@@ -1,5 +1,8 @@
 import { google } from 'googleapis';
 import nodemailer from 'nodemailer';
+import dotenv from "dotenv";
+dotenv.config();
+
 
 // Configure OAuth2 client instance (but don't set credentials yet)
 let oauthClient = null;
