@@ -152,13 +152,16 @@ export const sendEmail = async (recipientEmail, emailSubject, htmlContent) => {
 
     const mailTransporter = nodemailer.createTransport({
       service: 'gmail',
+      port: 587,
+      tls: {rejectUnauthorized: false},
       auth: {
-        type: 'OAuth2',
+        // type: 'OAuth2',
         user: process.env.SUPPORT_EMAIL,
-        clientId: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        refreshToken: process.env.REFRESH_TOKEN,
-        accessToken: accessToken
+        pass: process.env.SUPPORT_PASS,
+        // clientId: process.env.CLIENT_ID,
+        // clientSecret: process.env.CLIENT_SECRET,
+        // refreshToken: process.env.REFRESH_TOKEN,
+        // accessToken: accessToken
       }
     });
 
