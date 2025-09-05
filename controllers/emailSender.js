@@ -1,5 +1,5 @@
-import pkg from 'googleapis';
-const {google} = pkg
+import google from 'googleapis';
+console.log(typeof google); // should log "object"
 import nodemailer from 'nodemailer';
 import dotenv from "dotenv";
 dotenv.config();
