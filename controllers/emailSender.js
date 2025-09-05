@@ -1,4 +1,13 @@
-import google from 'googleapis';
+let google;
+
+try {
+    const googleModule = await import('googleapis');
+    google = googleModule.google || googleModule.default;
+} catch (error) {
+    console.error('Failed to import googleapis:', error);
+    // Fallback to require if dynamic import fails
+    google = (await import('module')).default.createRequire(import.meta.url)('googleapis').google;
+}
 console.log(typeof google); // should log "object"
 import nodemailer from 'nodemailer';
 import dotenv from "dotenv";
