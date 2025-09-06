@@ -19,7 +19,7 @@ const router = express.Router()
 
 
 
-const s3Client = new S3Client({ region: process.env.BUCKET_REGION });
+const s3Client = new S3Client({ region: process.env.AWS_REGION });
 
 
 // PreSign Url
