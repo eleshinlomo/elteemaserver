@@ -1,38 +1,50 @@
-import nodemailer from 'nodemailer';
+import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 
 /**
- * Sends an email using AWS SES
+ * Sends an email using AWS SES API
  */
 export const sendEmail = async (recipientEmail, emailSubject, htmlContent) => {
   try {
     console.log('📧 Attempting to send email to:', recipientEmail);
 
-    // Configure SES transporter
-    const mailTransporter = nodemailer.createTransport({
-      host: "email-smtp." + process.env.AWS_REGION + ".amazonaws.com", // e.g. email-smtp.us-east-1.amazonaws.com
-      port: 465, // or 587
-      secure: true, // true for port 465, false for 587
-      auth: {
-        user: process.env.AWS_SMTP_USERNAME, // SMTP username from AWS SES
-        pass: process.env.AWS_SMTP_PASS  // SMTP password from AWS SES
-      }
+    // Create SES client
+    const sesClient = new SESClient({
+      region: process.env.AWS_REGION || "us-east-2",
+      credentials: {
+        accessKeyId: process.env.AWS_SES_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SES_SECRET_ACCESS_KEY,
+      },
     });
 
-    const emailConfig = {
-      from: `${process.env.SERVICE || 'App'} <${process.env.SUPPORT_EMAIL}>`,
-      to: recipientEmail,
-      subject: emailSubject,
-      html: htmlContent
+    // Email parameters
+    const params = {
+      Destination: {
+        ToAddresses: [recipientEmail],
+      },
+      Message: {
+        Body: {
+          Html: {
+            Charset: "UTF-8",
+            Data: htmlContent,
+          },
+        },
+        Subject: {
+          Charset: "UTF-8",
+          Data: emailSubject,
+        },
+      },
+      Source: process.env.SUPPORT_EMAIL, // verified sender email
     };
 
-    console.log('✉️ Sending email via AWS SES...');
-    const deliveryResult = await mailTransporter.sendMail(emailConfig);
+    // Send email
+    const command = new SendEmailCommand(params);
+    const result = await sesClient.send(command);
 
     console.log('✅ Email delivered successfully to:', recipientEmail);
     return {
       ok: true,
-      message: deliveryResult.messageId,
-      response: deliveryResult.response
+      message: result.MessageId,
+      response: result,
     };
 
   } catch (error) {
@@ -40,7 +52,7 @@ export const sendEmail = async (recipientEmail, emailSubject, htmlContent) => {
     return {
       success: false,
       error: error.message,
-      details: 'Check SES SMTP credentials and region'
+      details: 'Check SES access keys, region, and verified sender email',
     };
   }
 };
