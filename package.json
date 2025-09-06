@@ -17,6 +17,7 @@
     "@aws-sdk/credential-providers": "^3.848.0",
     "@aws-sdk/lib-storage": "^3.848.0",
     "@aws-sdk/s3-request-presigner": "^3.848.0",
+    "@google/genai": "^1.17.0",
     "@paystack/inline-js": "^2.22.4",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",

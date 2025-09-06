@@ -14,6 +14,7 @@ import storeRoute from './routes/storeRoute.js'
 import paymentRoutes from './routes/payments.js'
 import productRoutes from './routes/product.js'
 import adminRoutes from './routes/admin.js'
+import aiRoutes from './routes/ai.js'
 import prototypeRoutes from './routes/waitlist.js'
 import stripeRoutes from './routes/stripeRoutes.js'
 import mongoose from 'mongoose'
@@ -80,6 +81,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/product', productRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/prototype', prototypeRoutes);
+app.use('/api/ai', aiRoutes);
 
 
 
