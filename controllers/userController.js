@@ -303,7 +303,12 @@ export const deleteUserOrder = async (userId, orderId, reason) => {
       (order) => order?._id?.toString() === orderId?.toString()
     );
     if (!orderExists) {
-      return { ok: false, error: `No order with orderId ${orderId} found` };
+      return { ok: false, error: `No order with orderId ${orderId} found`};
+    }
+     
+   
+    if(orderExists.orderStatus === 'shipped'){
+        return { ok: false, error: 'You cannot cancel an order that has been shipped'};
     }
 
     const storeName = orderExists.storeName;

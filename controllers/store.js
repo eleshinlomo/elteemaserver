@@ -297,19 +297,22 @@ export const deleteStoreOrder = async (storeName, orderId, buyerId, reason) => {
       return { ok: false, error: `No order with orderId ${orderId} found in your store` };
     }
 
-    // Remove from buyer's orders
+     if(orderExists.orderStatus === 'shipped'){
+        return { ok: false, error: 'You cannot cancel an order that has been shipped'};
+    }
+
+    
     const buyer = await Users.findOne({_id: buyerId})
    
     if(!buyer){
       return {ok: false, error: `No buyer with ${buyerId} found`}
     }
      
-     console.log('BUYER TO DELETE ORDER', buyer)
+     // Remove from buyer's orders
     buyer.orders = buyer.orders.filter((order) => !order._id.equals(orderId));
     buyer.markModified('orders');
     await buyer.save();
 
-   
 
     // Remove from Stores collection
       const currentOrdersInStores = store.orders.currentOrders || [];
