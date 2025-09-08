@@ -239,11 +239,15 @@ export const updateStoreOrderPaymentStatus = async (payload) => {
 // Update order status
 export const updateStoreOrderStatus = async (payload) => {
   const { orderId, orderStatusValue } = payload;
-  console.log('PAYLOAD', payload)
+  
   const order = await Orders.findById(orderId);
   if (!order) {
     return { ok: false, error: `No order with id ${orderId} found` };
   }
+
+   if(order.orderStatus === 'shipped'){
+        return { ok: false, error: 'You cannot modify an order that has been shipped. Please contact support'};
+    }
 
   order.orderStatus = orderStatusValue;
   await order.save();
