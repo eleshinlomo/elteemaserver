@@ -2,6 +2,7 @@ import { Products } from "../models/productData.js";
 import { Users } from "../models/userData.js";
 import { Stores } from "../models/storeData.js";
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { getSingleStore } from "./store.js";
 
 
 
@@ -72,26 +73,16 @@ export const createProduct = async (imageUrls, payload) => {
     });
 
     // First save product
-    const savedProduct = await newProduct.save();
-
-    user?.store?.items.push(savedProduct); 
-    user.markModified('store')
-    const updatedUser = await user.save();
-     
-    // Save item in store
-  const userStoreInStores = await Stores.findOne({ _id : user?.store?._id?.toString()});
-if (userStoreInStores) {
-  userStoreInStores.items.push(savedProduct);
-  userStoreInStores.markModified('items');
-  await userStoreInStores.save();
-} else {
-  console.warn(`No store found in Stores collection for userId: ${user._id}`);
-}
+    const newProductAdded = await newProduct.save();
+    let updatedProducts = []
+    if(newProductAdded){
+      updatedProducts = await Products.find() 
+    }
 
     return {
       ok: true,
       message: "Product added successfully",
-      data: updatedUser 
+      data: updatedProducts
     };
 
   } catch (error) {
@@ -104,6 +95,14 @@ if (userStoreInStores) {
 };
 
 
+const updateProductViewsAndLikes = async (payload)=>{
+    const {productId} = payload
+    console.log('PRODUCT ID', payload)
+    const productToUpdate = await Products.findById(productId)
+    if(!productToUpdate){
+      return {ok: false, error: 'Product not found'}
+    }
+}
 
 
 export const updateProduct = async (imageUrls, payload) => {
@@ -123,7 +122,9 @@ export const updateProduct = async (imageUrls, payload) => {
       clotheSizes,
       category,
       description,
-      imagesToRemove = []
+      imagesToRemove = [],
+      likes,
+      views
     } = payload;
 
     // Normalize helper to ensure flat string arrays
@@ -183,58 +184,58 @@ export const updateProduct = async (imageUrls, payload) => {
     }
 
     // Update user.store.items
-    if (user.store?.items) {
-      const storeIndex = user.store.items.findIndex(
-        (item) => item._id.toString() === productId
-      );
-      if (storeIndex !== -1) {
-        const item = user.store.items[storeIndex];
-        item.addedBy = addedBy || item.addedBy;
-        item.imageUrls = finalImageUrls;
-        item.colors = processedColors.length ? processedColors : item.colors;
-        item.productName = productName || item.productName;
-        item.price = price !== undefined ? Number(price) : item.price;
-        item.condition = condition || item.condition;
-        item.deliveryMethod = deliveryMethod || item.deliveryMethod;
-        item.quantity = quantity !== undefined ? quantity : item.quantity;
-        item.unitCost = unitCost !== undefined ? unitCost : item.unitCost;
-        item.shoeSizes = shoeSizes || item.shoeSizes;
-        item.clotheSizes = clotheSizes || item.clotheSizes;
-        item.category = category || item.category;
-        item.description = description || item.description;
+    // if (user.store?.items) {
+    //   const storeIndex = user.store.items.findIndex(
+    //     (item) => item._id.toString() === productId
+    //   );
+    //   if (storeIndex !== -1) {
+    //     const item = user.store.items[storeIndex];
+    //     item.addedBy = addedBy || item.addedBy;
+    //     item.imageUrls = finalImageUrls;
+    //     item.colors = processedColors.length ? processedColors : item.colors;
+    //     item.productName = productName || item.productName;
+    //     item.price = price !== undefined ? Number(price) : item.price;
+    //     item.condition = condition || item.condition;
+    //     item.deliveryMethod = deliveryMethod || item.deliveryMethod;
+    //     item.quantity = quantity !== undefined ? quantity : item.quantity;
+    //     item.unitCost = unitCost !== undefined ? unitCost : item.unitCost;
+    //     item.shoeSizes = shoeSizes || item.shoeSizes;
+    //     item.clotheSizes = clotheSizes || item.clotheSizes;
+    //     item.category = category || item.category;
+    //     item.description = description || item.description;
 
-        user.markModified('store');
-      }
-    }
+    //     user.markModified('store');
+    //   }
+    // }
 
     // Update user.cart if needed
-    if (user.cart?.length > 0) {
-      const cartIndex = user.cart.findIndex(
-        (item) => item._id.toString() === productId
-      );
-      if (cartIndex !== -1) {
-        const item = user.cart[storeIndex];
-        item.addedBy = addedBy || item.addedBy;
-        item.imageUrls = finalImageUrls;
-        item.colors = processedColors.length ? processedColors : item.colors;
-        item.productName = productName || item.productName;
-        item.price = price !== undefined ? Number(price) : item.price;
-        item.condition = condition || item.condition;
-        item.deliveryMethod = deliveryMethod || item.deliveryMethod;
-        item.quantity = quantity !== undefined ? quantity : item.quantity;
-        item.unitCost = unitCost !== undefined ? unitCost : item.unitCost;
-        item.shoeSizes = shoeSizes || item.shoeSizes;
-        item.clotheSizes = clotheSizes || item.clotheSizes;
-        item.category = category || item.category;
-        item.description = description || item.description;
-        user.markModified('cart');
-      }
-    }
+    // if (user.cart?.length > 0) {
+    //   const cartIndex = user.cart.findIndex(
+    //     (item) => item._id.toString() === productId
+    //   );
+    //   if (cartIndex !== -1) {
+    //     const item = user.cart[storeIndex];
+    //     item.addedBy = addedBy || item.addedBy;
+    //     item.imageUrls = finalImageUrls;
+    //     item.colors = processedColors.length ? processedColors : item.colors;
+    //     item.productName = productName || item.productName;
+    //     item.price = price !== undefined ? Number(price) : item.price;
+    //     item.condition = condition || item.condition;
+    //     item.deliveryMethod = deliveryMethod || item.deliveryMethod;
+    //     item.quantity = quantity !== undefined ? quantity : item.quantity;
+    //     item.unitCost = unitCost !== undefined ? unitCost : item.unitCost;
+    //     item.shoeSizes = shoeSizes || item.shoeSizes;
+    //     item.clotheSizes = clotheSizes || item.clotheSizes;
+    //     item.category = category || item.category;
+    //     item.description = description || item.description;
+    //     user.markModified('cart');
+    //   }
+    // }
 
-    await user.save();
+    // await user.save();
 
     // 5. Update product in Products collection
-    const updatedProduct = await Products.findOneAndUpdate(
+    const productUpdated = await Products.findOneAndUpdate(
       { _id: productId, storeId: user.store._id },
       {
         $set: {
@@ -251,50 +252,56 @@ export const updateProduct = async (imageUrls, payload) => {
           clotheSizes: clotheSizes || existingProduct.clotheSizes,
           category: category || existingProduct.category,
           description: description || existingProduct.description,
+          likes: likes || existingProduct.likes,
+          views: views || existingProduct.views
         },
       },
       { new: true }
     );
 
-    if (!updatedProduct) {
+    if (!productUpdated) {
       return { ok: false, error: 'Product not found or not owned by user.' };
     }
 
+ 
+     const  updatedProducts = await Products.find() 
+    
+
     // 6. Update store document
-    const store = await Stores.findOne({ _id: user?.store?._id.toString() });
-    if (!store) {
-      return { ok: false, error: 'Store not found for this user.' };
-    }
+    // const store = await Stores.findOne({ _id: user?.store?._id.toString() });
+    // if (!store) {
+    //   return { ok: false, error: 'Store not found for this user.' };
+    // }
 
-    const storeIndex = store.items.findIndex(
-      (item) => item._id.toString() === productId
-    );
-    if (storeIndex !== -1) {
-      const item = store.items[storeIndex];
-      item.addedBy = addedBy || item.addedBy;
-      item.imageUrls = finalImageUrls;
-      item.colors = processedColors.length ? processedColors : item.colors;
-      item.productName = productName || item.productName;
-      item.price = price !== undefined ? Number(price) : item.price;
-      item.condition = condition || item.condition;
-      item.deliveryMethod = deliveryMethod || item.deliveryMethod;
-      item.quantity = quantity !== undefined ? quantity : item.quantity;
-      item.unitCost = unitCost !== undefined ? unitCost : item.unitCost;
-      item.shoeSizes = shoeSizes || item.shoeSizes;
-      item.clotheSizes = clotheSizes || item.clotheSizes;
-      item.category = category || item.category;
-      item.description = description || item.description;
+    // const storeIndex = store.items.findIndex(
+    //   (item) => item._id.toString() === productId
+    // );
+    // if (storeIndex !== -1) {
+    //   const item = store.items[storeIndex];
+    //   item.addedBy = addedBy || item.addedBy;
+    //   item.imageUrls = finalImageUrls;
+    //   item.colors = processedColors.length ? processedColors : item.colors;
+    //   item.productName = productName || item.productName;
+    //   item.price = price !== undefined ? Number(price) : item.price;
+    //   item.condition = condition || item.condition;
+    //   item.deliveryMethod = deliveryMethod || item.deliveryMethod;
+    //   item.quantity = quantity !== undefined ? quantity : item.quantity;
+    //   item.unitCost = unitCost !== undefined ? unitCost : item.unitCost;
+    //   item.shoeSizes = shoeSizes || item.shoeSizes;
+    //   item.clotheSizes = clotheSizes || item.clotheSizes;
+    //   item.category = category || item.category;
+    //   item.description = description || item.description;
 
-      store.markModified('items');
-      await store.save();
-    }
+    //   store.markModified('items');
+    //   await store.save();
+    // }
 
     return {
       ok: true,
       message: 'Product updated successfully',
       data: {
         updatedUser: user,
-        updatedProduct
+        updatedProducts
       },
     };
   } catch (error) {

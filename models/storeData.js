@@ -45,6 +45,7 @@ const storeSchema = new mongoose.Schema({
     }
   },
   industry: { type: String, default: '' },
+  likes: {type: Number, default: 0},
   address: { type: String, default: '' },
   city: { type: String, default: '' },
   state: { type: String, default: '' },

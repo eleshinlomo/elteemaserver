@@ -31,14 +31,16 @@ const productSchema = mongoose.Schema({
       storeCity: {type: String, default: ''},
       storeState: {type: String, default: ''},
       reviews: {type: [String], default: []},
-      return: {type: String, default: ''},
+      returns: {type: String, default: ''},
       star: {type: Number, default: 5, min: 1},
       totalVotes: {type: Number, default: 5, min: 0},
       numOfItemsSold: {type: Number, default: 0},
       totalSales: {type: Number, default: 0},
       isAdded: {type: Boolean, default: false},
       orderStatus: {type: String, default: ''},
-      productPageVisits: {type: Number, default: 0},
+      likes: {type: Number, default: 0},
+      views: {type: Number, default: 0},
+      
     
 },
 { timestamps: true}

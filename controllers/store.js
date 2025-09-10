@@ -41,7 +41,7 @@ export const createStore = async (payload)=>{
     // A check to confirm user does not have existing store
     const existingStore = user.store
     if(existingStore){
-        return {ok: false, error: 'You already have a store.'}
+        return {ok: false, error: 'You already have a store. Please click on view store.'}
     }
    
     const newStore = new Stores({
@@ -179,19 +179,6 @@ export const updateStore = async (payload) => {
 
 
 
-
-
-
-// Get single store
-export const getSingleStore = async (storeId)=>{
-  if(!storeId){
-    return {ok: false, error:'No store name found'}
-  }
-  const store = await Stores.findById(storeId)
-  if(!store) return {ok: false, error:'No store found'}
-    return {ok: true, message: store}
-   
-}
 
 
 // Update order payment status
@@ -355,6 +342,26 @@ export const deleteStoreOrder = async (storeName, orderId, buyerId, reason) => {
 };
 
 
+// Get single store
+export const getSingleStore = async (storeId)=>{
+  if(!storeId){
+    return {ok: false, error:'No store name found'}
+  }
+  const store = await Stores.findById(storeId)
+   const products = await Products.find()
+   let storeItems = []
+    if(products?.length > 0){
+       storeItems = products?.filter((p)=>p.storeId.toString() === storeId.toString())
+    }
+  
+  if(!store) return {ok: false, error:'No store found'}
+   if(storeItems?.length > 0){
+    store.items = storeItems
+   }
+    const newData = {store, storeItems}
+    return {ok: true, message: 'store found', data: store}
+   
+}
 
 
 // Get all stores

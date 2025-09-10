@@ -13,13 +13,26 @@ const upload = multer();
 const router = express.Router()
 // router.use(bodyParser.json());
 
+const AWS_REGION = process.env.AWS_REGION
+const BUCKET_NAME = process.env.BUCKET_NAME
+
+console.log('AWS REGION', AWS_REGION, 'BUCKET',BUCKET_NAME)
 
 
 
 
 
 
-const s3Client = new S3Client({ region: process.env.AWS_REGION });
+// const s3Client = new S3Client({ region:  AWS_REGION});
+
+const s3Client = new S3Client({
+  region: AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_BUCKET_SECRET_ACCESS_KEY,
+  },
+});
+
 
 
 // PreSign Url
@@ -31,7 +44,7 @@ router.post('/presignurl', async (req, res)=> {
       const key = `products/${Date.now()}-${filename}`;
 
       const command = new PutObjectCommand({
-        Bucket: process.env.BUCKET_NAME,
+        Bucket: BUCKET_NAME,
         Key: key,
         ContentType: filetype
       });
@@ -40,7 +53,7 @@ router.post('/presignurl', async (req, res)=> {
 
       return res.json({
         presignedUrl,
-        publicUrl: `https://${process.env.BUCKET_NAME}.s3.amazonaws.com/${key}`
+        publicUrl: `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`
       });
     } catch (error) {
       console.error('Error generating presigned URL:', error);
@@ -81,7 +94,7 @@ router.post('/createproduct', upload.array('images'), async (req, res) => {
         ContentType: file.mimetype,
       }));
 
-      return `https://${process.env.BUCKET_NAME}.s3.amazonaws.com/${key}`;
+      return `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`;
     }));
     
     // Others
@@ -155,13 +168,13 @@ router.put('/updateproduct', upload.array('images'), async (req, res) => {
         const key = `products/${Date.now()}-${file.originalname}`;
         
         await s3Client.send(new PutObjectCommand({
-          Bucket: process.env.BUCKET_NAME,
+          Bucket: BUCKET_NAME,
           Key: key,
           Body: file.buffer,
           ContentType: file.mimetype,
         }));
 
-        return `https://${process.env.BUCKET_NAME}.s3.amazonaws.com/${key}`;
+        return `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`;
       })
     );
 
@@ -199,8 +212,6 @@ router.put('/updateproduct', upload.array('images'), async (req, res) => {
 router.put('/modifyproduct', async (req, res)=>{
   
    const payload = {...req.body}
-   const {isHidden} = payload
-    
    const response = await modifyProductDisplay(payload)
  
    if (response.ok) {
