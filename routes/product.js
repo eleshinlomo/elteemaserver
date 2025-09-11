@@ -1,5 +1,5 @@
 import express from 'express'
-import { createProduct, deleteProduct, getAllProducts, modifyProductDisplay, updateProduct } from '../controllers/product.js'
+import { createProduct, deleteProduct, getAllProducts, modifyProductDisplay, updateProduct, updateViews } from '../controllers/product.js'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import multer from 'multer'
@@ -15,12 +15,6 @@ const router = express.Router()
 
 const AWS_REGION = process.env.AWS_REGION
 const BUCKET_NAME = process.env.BUCKET_NAME
-
-console.log('AWS REGION', AWS_REGION, 'BUCKET',BUCKET_NAME)
-
-
-
-
 
 
 // const s3Client = new S3Client({ region:  AWS_REGION});
@@ -206,6 +200,20 @@ router.put('/updateproduct', upload.array('images'), async (req, res) => {
     });
   }
 });
+
+
+router.put('/updateviews', async (req, res)=>{
+  
+   const payload = {...req.body}
+   const response = await updateViews(payload)
+ 
+   if (response.ok) {
+      return res.status(200).json(response);
+    }
+    return res.status(400).json(response);
+    
+
+})
 
 
 // Only modifies product properties except images

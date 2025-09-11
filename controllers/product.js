@@ -95,16 +95,39 @@ export const createProduct = async (imageUrls, payload) => {
 };
 
 
-const updateProductViewsAndLikes = async (payload)=>{
-    const {productId} = payload
-    console.log('PRODUCT ID', payload)
-    const productToUpdate = await Products.findById(productId)
-    if(!productToUpdate){
-      return {ok: false, error: 'Product not found'}
-    }
-}
+
+// Update views
+export const updateViews = async (payload) => {
+
+  const { productId } = payload;
+  const normaliZedId = productId?.toString()
+  if (!normaliZedId) {
+    return { ok: false, error: `ProductId not included` };
+  }
+
+  const existingProduct = await Products.findById(productId);
+  if (!existingProduct) {
+    return { ok: false, error: `Existing product not found` };
+  }
+
+  const productUpdated = await Products.findOneAndUpdate(
+    { _id: productId },
+    { $inc: { views: 1 } },  // increment views safely
+    { new: true }
+  );
+   
+  
+  if (productUpdated) {
+    const updatedProducts = await Products.find()
+    return { ok: true, data: updatedProducts };
+  }
+
+  return { ok: false, error: `Unable to update product views` };
+};
 
 
+
+// Update product
 export const updateProduct = async (imageUrls, payload) => {
   try {
     const {
@@ -124,7 +147,6 @@ export const updateProduct = async (imageUrls, payload) => {
       description,
       imagesToRemove = [],
       likes,
-      views
     } = payload;
 
     // Normalize helper to ensure flat string arrays
@@ -177,7 +199,7 @@ export const updateProduct = async (imageUrls, payload) => {
     );
     const finalImageUrls = [...keptExistingImages, ...imageUrls];
 
-    // 4. Find and update user
+    // 4. Find user
     const user = await Users.findById(userId);
     if (!user) {
       return { ok: false, error: `User with ID ${userId} not found.` };
@@ -253,7 +275,7 @@ export const updateProduct = async (imageUrls, payload) => {
           category: category || existingProduct.category,
           description: description || existingProduct.description,
           likes: likes || existingProduct.likes,
-          views: views || existingProduct.views
+          
         },
       },
       { new: true }
